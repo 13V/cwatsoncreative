@@ -2,8 +2,9 @@
 
 Website for Sunday Light, Charne Watson's photography business in Adelaide (previously cwatson.creative).
 
-Plain HTML, CSS and a little JavaScript with no build step. Upload the folder to any static host
-(Netlify, Vercel, Cloudflare Pages, cPanel). Fonts are self-hosted in `fonts/`.
+Plain HTML, CSS and a little JavaScript. The pages are generated from `tools/site/` (see Editing the
+pages) and the generated HTML is committed, so any static host (Vercel, Netlify, Cloudflare Pages,
+cPanel) can serve the folder as it is. Fonts are self-hosted in `fonts/`.
 
 | Page | What's on it |
 | --- | --- |
@@ -16,16 +17,19 @@ Plain HTML, CSS and a little JavaScript with no build step. Upload the folder to
 
 ## Adding the photos
 
-Every photo has a fixed file name. Until a file exists, its slot shows an arch placeholder, and a
-gallery whose first photo is missing hides itself. Save each photo under its name and it appears.
+Every photo has a fixed file name. Until its file exists, a slot shows a soft landscape illustration,
+and a gallery only appears once it has photos.
 
-Export at 2000 px on the long edge (JPG, sRGB). Then run `python3 tools/prepare_photos.py` to
-resize anything larger and strip camera and GPS metadata before committing.
+1. Export at 2000 px on the long edge (JPG, sRGB) and save it under its name below.
+2. Run `python3 tools/prepare_photos.py` (it needs Pillow: `pip install pillow`). It strips camera and
+   GPS details from any photo that has them, makes the WebP copies that phones and smaller screens
+   load (480, 800 and 1200 px wide, plus full size), and rebuilds the pages so the new photos appear.
+3. Commit the photos, their `.webp` copies and the rebuilt pages.
 
 ### Wedding photos
 
-All 23 are in place. They came over on 16 October as 2000 px exports with no camera or GPS data,
-so they are committed as sent.
+All 23 are in place, with their WebP copies. They came over on 16 October as 2000 px exports with no
+camera or GPS data, so the JPGs are committed as sent.
 
 | File | Size | Photo |
 | --- | --- | --- |
@@ -57,17 +61,23 @@ so they are committed as sent.
 
 | File | Size | Photo |
 | --- | --- | --- |
-| `images/sessions/bump.jpg` | 1333×2000 | A bump photo, portrait. Sessions card and page. |
-| `images/sessions/newborn.jpg` | 1333×2000 | A newborn photo, portrait. Sessions card and page. |
-| `images/sessions/family.jpg` | 1333×2000 | A family photo, portrait. Sessions card and page. |
-| `images/sessions/milestones.jpg` | 1333×2000 | A graduation or 18th photo, portrait. Sessions card and page. |
+| `images/sessions/bump.jpg` | 1333×2000 | A bump photo, portrait. Sessions page and the home page sessions list. |
+| `images/sessions/newborn.jpg` | 1333×2000 | A newborn photo, portrait. Sessions page and the home page sessions list. |
+| `images/sessions/family.jpg` | 1333×2000 | A family photo, portrait. Sessions page and the home page sessions list. |
+| `images/sessions/milestones.jpg` | 1333×2000 | A graduation or 18th photo, portrait. Sessions page and the home page sessions list. |
 | `images/about/portrait.jpg` | 1333×2000 | A photo of Charne, ideally with her camera. About page. |
 
 ### Optional galleries
 
 `images/portfolio/couples-01.jpg` to `couples-06.jpg`, `family-01.jpg` to `family-08.jpg` and
-`bump-newborn-01.jpg` to `bump-newborn-06.jpg`. Any orientation works. Start each gallery at 01:
-it stays hidden until its 01 file exists.
+`bump-newborn-01.jpg` to `bump-newborn-06.jpg`. Any orientation works. Each gallery, and its button
+at the top of the portfolio, appears once it has at least one photo.
+
+## Editing the pages
+
+The words, photo slots and galleries are in `tools/site/content.py`, and the page layouts are in
+`tools/site/build.py`. After changing either, run `python3 tools/site/build.py` to rewrite the HTML.
+Styles are in `styles.css` and behaviour in `main.js`; edit those directly.
 
 ## Enquiry form
 
