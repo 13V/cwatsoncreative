@@ -24,7 +24,8 @@ resize anything larger and strip camera and GPS metadata before committing.
 
 ### Wedding photos
 
-These are the 23 photos sent over on 16 October.
+All 23 are in place. They came over on 16 October as 2000 px exports with no camera or GPS data,
+so they are committed as sent.
 
 | File | Size | Photo |
 | --- | --- | --- |
@@ -83,7 +84,8 @@ keeps what was typed and points people to Instagram.
 
 ## Before launch
 
-- [ ] Add the photos above and run `tools/prepare_photos.py`.
+- [x] Add the 23 wedding photos.
+- [ ] Add the session and About photos under "Still needed", then run `tools/prepare_photos.py`.
 - [ ] Create the n8n webhook and send a test enquiry.
 - [ ] Once the domain is set, add `<link rel="canonical">`, make `og:image` an absolute URL on every
       page, and add a `sitemap.xml` (and a `Sitemap:` line in `robots.txt`).
