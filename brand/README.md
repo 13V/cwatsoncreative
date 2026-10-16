@@ -3,7 +3,7 @@
 Rebrand of **cwatson.creative**, Charne Watson's photography business in Adelaide.
 
 **Logo:** the arch, chosen. A window with a low sun over the hills and water.
-**Name:** choosing. Charne doesn't want her first name in it.
+**Name:** Sunday Light, for now. The website at the repo root uses it.
 
 Private pages, with her photos:
 
