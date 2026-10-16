@@ -2,69 +2,70 @@
 
 Rebrand of **cwatson.creative**, Charne Watson's photography business in Adelaide.
 
-**Name:** Photos with Charne.
-**Status:** choosing between five logo directions.
+**Logo:** the arch, chosen. A window with a low sun over the hills and water.
+**Name:** choosing. Charne doesn't want her first name in it.
 
 Private pages, with her photos:
 
-- Logo round, five directions: https://claude.ai/artifact/9WsbdgTGXhnrfUHy14Wf3F
-- Earlier exploration (feed analysis, round one looks, round two names): https://claude.ai/artifact/7nGceHWr3AWDXoHfdLnZRp
+- Naming the arch, five names: https://claude.ai/artifact/GbrFEyztx2S42CQy2MkrkP
+- Logo round, where the arch was chosen: https://claude.ai/artifact/9WsbdgTGXhnrfUHy14Wf3F
+- First exploration (feed analysis, looks, early names): https://claude.ai/artifact/7nGceHWr3AWDXoHfdLnZRp
 
-## Logo directions
+## Name shortlist
 
-Files are in `logos/photos-with-charne/`: a full logo and a small mark for each.
+Each name is in `logos/arch/`, stacked (`<name>.svg`) and on one line (`<name>-line.svg`).
 
-| # | Direction | Idea | Type |
+| # | Name | Idea | Domains (16 Oct 2026) |
 | --- | --- | --- | --- |
-| 1 | The badge | The coastal badge from round one, with the name around the ring | Marcellus, Cormorant italic "with" |
-| 2 | The arch | A window with the sun over the hills and water | Marcellus, Cormorant italic "with" |
-| 3 | The sun | A golden-hour sun over her name in a soft 70s serif | Fraunces (SOFT 100, WONK 1) |
-| 4 | The signature | Her name in script with a gum leaf on the underline | Ephesis as a stand-in for her handwriting, Jost |
-| 5 | The rainbow | Four arcs in the palette colours | Jost |
+| 1 | **Low Sun** (recommended) | The light she shoots in, and the sun in the arch | lowsun.com.au and lowsunphotography.com unregistered, lowsun.com taken |
+| 2 | Sunday Light | Relaxed family afternoons in good light | sundaylightphotography.com unregistered, sundaylight.com taken |
+| 3 | Golden Window | The arch as a window full of golden light | goldenwindowphotography.com unregistered, goldenwindow.com taken |
+| 4 | C. Watson Photography | Her surname, as her current handle already uses it | cwatsonphotography.com unregistered |
+| 5 | Watson & Co. | Her surname as a small studio, with the gold ampersand | watsonandcophotography.com unregistered, watsonandco.com taken |
 
-Recommendation: the badge as the logo, with the signature as the watermark on photos.
-If it has to be one logo, the sun is the clearest at every size.
+`.com.au` results are unconfirmed unless listed: the .au registry rate-limited most lookups.
+Instagram handles were not checked. Web searches found no photographer using any of the five names.
+
+If she would rather the name point to her, C. Watson Photography is the fallback and uses the same arch.
+
+## The arch
+
+- Mark: an arch outline in Bark, a Paddock sun behind two Saltbush hills, a Gulf wave at the base.
+- Name: Marcellus caps, tracked 0.14em. Connectors (`&`) in Cormorant Garamond italic, Paddock.
+- Small labels: Jost 400 caps, tracked ("PHOTOGRAPHY · ADELAIDE").
 
 ## Palette
 
 | Colour | Hex | Use |
 | --- | --- | --- |
 | Paper | `#F6F2EA` | backgrounds |
-| Limestone | `#ECE6DB` | backgrounds, avatars |
-| Saltbush | `#8B937A` | leaves, hills, reversed versions |
-| Paddock | `#C3964F` | "with", the sun, accents |
+| Limestone | `#ECE6DB` | inside the arch, avatars |
+| Saltbush | `#8B937A` | hills, reversed versions |
+| Paddock | `#C3964F` | the sun, connectors, accents |
 | Bark | `#5C4D3F` | text and line work |
-| Gulf | `#A7BBC3` | waves, the inner rainbow arc |
+| Gulf | `#A7BBC3` | the wave |
 
-All six are tuned from colours sampled in her Instagram photos.
-
-## Name check
-
-- photoswithcharne.com: unregistered (registry lookup, 16 Oct 2026)
-- photoswithcharne.com.au: not confirmed, the .au registry rate-limited the lookup
-- @photoswithcharne: not checked
-- A web search found no business using the name
+The far hill uses a Saltbush tint, `#C1C3B2`. All colours are tuned from colours sampled in her Instagram photos.
 
 ## Files
 
-- `logos/photos-with-charne/`: the five directions.
-- `logos/*.svg`: round two's name shortlist set in the coastal badge, kept for reference.
-- `src/`: the Python that draws everything. `python3 export_pwc.py` writes `logos/photos-with-charne/`,
-  `python3 export_logos.py` writes the round two files, and `page.py` / `page3.py` build the two
-  exploration pages into `src/site/` and `src/site3/`.
+- `logos/arch/`: the five names in the arch.
+- `logos/photos-with-charne/`: the five logo directions from the logo round, under the earlier working name.
+- `logos/*.svg`: the round two names in the coastal badge, kept for reference.
+- `src/`: the Python that draws everything. `export_arch.py`, `export_pwc.py` and `export_logos.py` write the
+  logo folders. `page.py`, `page3.py` and `page4.py` build the three review pages into `src/site*/`.
 
-The logo text is live and pulls Google Fonts, so open the SVGs in a browser. The chosen logo gets
-its text outlined before it goes into `<img>` tags, print or the final site.
+The logo text is live and pulls Google Fonts, so open the SVGs in a browser. The final logo gets its
+text outlined before it goes into `<img>` tags, print or the website.
 
 The feed photos aren't in this repo because it is public. To rebuild the pages, put them in
-`src/site/img/` as `f01.webp` to `f35.webp`, newest first (`page3.py` uses 1, 6, 9, 11 and 19 from
-`src/site3/img/`).
+`src/site/img/` as `f01.webp` to `f35.webp`, newest first, and copy the ones each page uses into
+`src/site3/img/` and `src/site4/img/`.
 
 ## Next
 
-1. Pick a direction, or a pair like the badge with the signature.
-2. Charne writes "Charne" 20 or so times with a fine felt-tip; the best one gets vectorised.
-3. Search the ASIC business names register and IP Australia trade marks, then register the business name.
-4. Register photoswithcharne.com.au (needs an ABN) and the .com, and claim @photoswithcharne.
-5. Final files: outlined SVG and PNG, favicon, Instagram avatar, highlight covers, watermark.
-6. Build the website.
+1. Pick the name.
+2. Search the ASIC business names register and IP Australia trade marks, then register the business name.
+3. Register the domain (.com.au needs an ABN) and claim the Instagram handle.
+4. Final arch logo files: outlined SVG and PNG, favicon, Instagram avatar, highlight covers, watermark.
+5. Build the website.
