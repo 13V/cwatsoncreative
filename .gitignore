@@ -1,4 +1,5 @@
-# Built exploration page and the feed photos it uses. The photos are clients' images,
+# Built exploration pages and the feed photos they use. The photos are clients' images,
 # so they stay out of this public repo.
 brand/src/site/
+brand/src/site3/
 __pycache__/

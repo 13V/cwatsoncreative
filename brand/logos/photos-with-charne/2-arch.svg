@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 640 370" role="img" aria-label="Photos with Charne, Adelaide photographer" xmlns="http://www.w3.org/2000/svg"><style><![CDATA[@import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Cormorant+Garamond:ital,wght@1,500&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Jost:wght@300;400;500&family=Ephesis&display=swap');]]></style>
+  <g transform="translate(210,-6) scale(1.1)">
+  <defs><clipPath id="acap"><path d="M44,206 V100 A56,56 0 0 1 156,100 V206 Z"/></clipPath></defs>
+  <g clip-path="url(#acap)">
+    <rect x="40" y="40" width="120" height="170" fill="#ECE6DB"/>
+    <circle cx="100" cy="150" r="30" fill="#C3964F"/>
+    <path d="M40,168 C70,146 104,150 160,134 V210 H40 Z" fill="#C1C3B2"/>
+    <path d="M40,184 C78,168 116,182 160,166 V210 H40 Z" fill="#8B937A"/>
+    <path d="M58,196 q9,-5 18,0 t18,0 t18,0 t18,0 t18,0" fill="none" stroke="#A7BBC3" stroke-width="2.4" stroke-linecap="round"/>
+  </g>
+  <path d="M44,206 V100 A56,56 0 0 1 156,100 V206 Z" fill="none" stroke="#5C4D3F" stroke-width="2.6" stroke-linejoin="round"/></g>
+  <text x="322.8" y="300" text-anchor="middle" font-family="'Marcellus', 'Optima', 'Candara', serif" font-size="40" letter-spacing="5.6" fill="#5C4D3F">PHOTOS <tspan font-family="'Cormorant Garamond', 'Cormorant', Garamond, 'Times New Roman', serif" font-style="italic" font-weight="500" font-size="44.8" letter-spacing="0" fill="#C3964F">with</tspan> CHARNE</text>
+  <text x="322.4" y="350" text-anchor="middle" font-family="'Jost', 'Futura', 'Avenir Next', 'Century Gothic', sans-serif" font-size="12" font-weight="400" letter-spacing="4.8" fill="#5C4D3F">ADELAIDE PHOTOGRAPHER</text></svg>
