@@ -55,10 +55,10 @@
 
   // Sections ease in as they scroll into view. Anything already on screen is left alone.
   if ("IntersectionObserver" in window && !reduceMotion) {
-    var staggered = ".steps, .values, .strip, .wear, .services-list, .faq, .aside";
+    var staggered = ".tiles, .steps, .duo-grid, .faq";
     var targets = document.querySelectorAll(
-      ".section-head, .intro-grid > *, .services-media, .services-list li, .strip .ph, .strip-foot, .steps li, " +
-      ".session, .wear li, .swatches, .faq details, .values li, .aside > div, .cta-card, .gallery-head, .text > *"
+      ".quote .wrap > *, .intro-grid > *, .duo a, .center-title, .tiles li, .center, .words, .package, .review, " +
+      ".steps li, .faq details, .aside > div, .gallery-head, .text > *"
     );
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -79,17 +79,43 @@
     });
   }
 
-  // Home: pointing at a session in the list brings up its photo.
-  var media = document.querySelector(".services-media");
-  if (media) {
-    document.querySelectorAll(".services-list a[data-for]").forEach(function (link) {
-      var show = function () {
-        var figure = media.querySelector('.ph[data-for="' + link.getAttribute("data-for") + '"]');
-        if (!figure || figure.classList.contains("is-missing")) return;
-        media.querySelectorAll(".ph").forEach(function (other) { other.classList.toggle("is-active", other === figure); });
-      };
-      link.addEventListener("mouseenter", show);
-      link.addEventListener("focus", show);
+  // Kind words: one review at a time, with arrows and swipes.
+  document.querySelectorAll(".words").forEach(function (box) {
+    var items = box.querySelectorAll(".words-item");
+    var photos = box.querySelectorAll(".words-photo");
+    var count = box.querySelector(".words-count");
+    if (items.length < 2 || !count) return;
+    var current = 0;
+    var go = function (index) {
+      current = (index + items.length) % items.length;
+      items.forEach(function (item, i) { item.classList.toggle("is-current", i === current); });
+      photos.forEach(function (photo, i) { photo.classList.toggle("is-current", i === current); });
+      count.textContent = (current + 1) + " / " + items.length;
+    };
+    box.querySelector(".words-prev").addEventListener("click", function () { go(current - 1); });
+    box.querySelector(".words-next").addEventListener("click", function () { go(current + 1); });
+    var startX = null;
+    var startY = 0;
+    box.addEventListener("touchstart", function (event) {
+      if (event.touches.length !== 1) { startX = null; return; }
+      startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
+    }, { passive: true });
+    box.addEventListener("touchend", function (event) {
+      if (startX === null) return;
+      var dx = event.changedTouches[0].clientX - startX;
+      var dy = event.changedTouches[0].clientY - startY;
+      startX = null;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) go(current + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  });
+
+  // Contact: "Enquire about…" links arrive with the session already chosen.
+  var sessionField = document.getElementById("session");
+  if (sessionField && window.URLSearchParams) {
+    var wanted = new URLSearchParams(location.search).get("session");
+    Array.prototype.forEach.call(sessionField.options, function (option) {
+      if (wanted && option.value === wanted) sessionField.value = option.value;
     });
   }
 

@@ -6,14 +6,31 @@ Plain HTML, CSS and a little JavaScript. The pages are generated from `tools/sit
 pages) and the generated HTML is committed, so any static host (Vercel, Netlify, Cloudflare Pages,
 cPanel) can serve the folder as it is. Fonts are self-hosted in `fonts/`.
 
+The site keeps to four tabs, Gallery, Investment, Kind words and Contact, and puts the photos and the
+people in them first.
+
 | Page | What's on it |
 | --- | --- |
-| `index.html` | Hero, why Sunday Light, the six sessions, recent weddings, how it works |
-| `portfolio.html` | Wedding gallery plus couples, family and bump & newborn galleries, with a photo viewer |
-| `sessions.html` | Each session type, what to wear, questions |
-| `about.html` | About Charne and how she works |
-| `enquire.html` | Enquiry form |
+| `index.html` | Full-screen photo, a short intro, photo bands, Weddings / Couples / Families tiles, kind words, Instagram |
+| `gallery.html` | Wedding gallery with a photo viewer. Couples, family and bump & newborn galleries appear once they have photos. |
+| `investment.html` | Each session with an enquire link, how it works, questions |
+| `kind-words.html` | Reviews |
+| `contact.html` | Enquiry form. Links from the Investment page arrive with the session already chosen. |
 | `privacy.html`, `404.html` | Privacy notes and the not-found page |
+
+The old pages (`portfolio`, `sessions`, `enquire` and `about`) redirect to their replacements on Vercel
+(see `vercel.json`).
+
+## The scroll effect
+
+The full-width photo bands hold still while the page slides up over them, then fade to black and white
+as they leave the screen. It's all CSS (scroll-driven animations, under "Photo windows" in `styles.css`),
+with no JavaScript. Browsers that don't support scroll-driven animations yet, and devices set to reduce
+motion, show the same photos still and in colour.
+
+The photos in the bands are set in `tools/site/content.py`: `HERO` and `HOME_WINDOWS` on the home page,
+`INVESTMENT_HERO` on the Investment page. Large screens show two or three side by side; phones show the
+first.
 
 ## Adding the photos
 
@@ -61,17 +78,32 @@ camera or GPS data, so the JPGs are committed as sent.
 
 | File | Size | Photo |
 | --- | --- | --- |
-| `images/sessions/bump.jpg` | 1333×2000 | A bump photo, portrait. Sessions page and the home page sessions list. |
-| `images/sessions/newborn.jpg` | 1333×2000 | A newborn photo, portrait. Sessions page and the home page sessions list. |
-| `images/sessions/family.jpg` | 1333×2000 | A family photo, portrait. Sessions page and the home page sessions list. |
-| `images/sessions/milestones.jpg` | 1333×2000 | A graduation or 18th photo, portrait. Sessions page and the home page sessions list. |
-| `images/about/portrait.jpg` | 1333×2000 | A photo of Charne, ideally with her camera. About page. |
+| `images/sessions/bump.jpg` | 1333×2000 | A bump photo, portrait. Investment page. |
+| `images/sessions/newborn.jpg` | 1333×2000 | A newborn photo, portrait. Investment page. |
+| `images/sessions/family.jpg` | 1333×2000 | A family photo, portrait. Investment page and the Families tile on the home page. |
+| `images/sessions/milestones.jpg` | 1333×2000 | A graduation or 18th photo, portrait. Investment page. |
+
+Until they arrive, those sessions show as text cards on the Investment page, and the Families tile shows
+the landscape illustration.
 
 ### Optional galleries
 
 `images/portfolio/couples-01.jpg` to `couples-06.jpg`, `family-01.jpg` to `family-08.jpg` and
 `bump-newborn-01.jpg` to `bump-newborn-06.jpg`. Any orientation works. Each gallery, and its button
-at the top of the portfolio, appears once it has at least one photo.
+at the top of the Gallery page, appears once it has at least one photo.
+
+## Kind words
+
+The three reviews are placeholders and say so. To add real ones, edit `KIND_WORDS` in
+`tools/site/content.py`. Each review is the names, the session, the words and a photo (a key from
+`PHOTOS`, ideally from that couple's or family's session). Three to six works best. Then set
+`KIND_WORDS_ARE_PLACEHOLDERS = False` and rebuild; until then every build prints a reminder. The home,
+Gallery and Investment pages show one review at a time with arrows, and the Kind words page shows them all.
+
+## Prices
+
+Each session shows "Pricing on enquiry". To show a price, add one to that session in `SESSIONS` in
+`tools/site/content.py`, for example `price='From $450'`, and rebuild.
 
 ## Editing the pages
 
@@ -81,7 +113,8 @@ Styles are in `styles.css` and behaviour in `main.js`; edit those directly.
 
 ## Enquiry form
 
-The form posts JSON to the webhook in the `data-endpoint` attribute in `enquire.html`:
+The form posts JSON to the webhook in the `data-endpoint` attribute in `contact.html` (set by `ENDPOINT`
+in `tools/site/content.py`):
 
 ```
 https://lumenadl.app.n8n.cloud/webhook/sunday-light-enquiry
@@ -95,13 +128,13 @@ keeps what was typed and points people to Instagram.
 ## Before launch
 
 - [x] Add the 23 wedding photos.
-- [ ] Add the session and About photos under "Still needed", then run `tools/prepare_photos.py`.
+- [ ] Add the session photos under "Still needed", then run `tools/prepare_photos.py`.
+- [ ] Replace the Kind words placeholders with real reviews (see Kind words).
+- [ ] Add prices if she wants them public (see Prices).
 - [ ] Create the n8n webhook and send a test enquiry.
 - [ ] Once the domain is set, add `<link rel="canonical">`, make `og:image` an absolute URL on every
       page, and add a `sitemap.xml` (and a `Sitemap:` line in `robots.txt`).
 - [ ] Instagram links point to @cwatson.creative. Update them if the handle changes.
-- [ ] The About page opens with "Hi, I'm Charne". Change it if she would rather not use her first name.
-- [ ] Sessions show "Pricing on enquiry". Add prices if she wants them public.
 - [ ] Optional: add an email address to the footer and to the form's error message.
 
 This repository is public, so photos committed here are public too.
