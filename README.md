@@ -125,6 +125,12 @@ Create that webhook in n8n before launch (a copy of the Lumen contact workflow w
 `source`. A hidden `company` field catches bots and is never sent. If the request fails, the form
 keeps what was typed and points people to Instagram.
 
+## Deploying
+
+The Vercel project is connected to this repository, so every push to the default branch goes live by
+itself. On `.vercel.app` addresses, `vercel.json` adds an `X-Robots-Tag: noindex` header, so search
+engines only index the site once it's on its real domain.
+
 ## Before launch
 
 - [x] Add the 23 wedding photos.
