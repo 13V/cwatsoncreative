@@ -10,7 +10,7 @@
 .contact-aside .frame{width:min(100% - 16px,max(240px,75svh - 382px));margin:8px auto 40px}
 }
 .fs{min-width:0;margin:0;padding:0;border:0}
-.fs+.fs{margin-top:40px;padding-top:40px;border-top:1px solid var(--line)}
+.fs+.fs{margin-top:40px;padding-top:32px;border-top:1px solid var(--line)}
 .fs>legend+*{clear:left}
 .fs>legend,.field .legend{float:left;width:100%;margin-bottom:20px;padding:0;font-style:italic;color:var(--bark)}
 .fields{display:grid;gap:8px var(--col-gap);margin-top:8px}
@@ -66,10 +66,10 @@ label span{font-weight:400}
 >.form-success{animation:card-rise .6s var(--ease-light) .12s backwards}
 .mk-line{animation:mk-draw .7s var(--ease-pen) .72s backwards}
 .mk-sky{animation:fade-in .7s var(--ease-light) .72s backwards}
-.mk-sun{animation:mk-rise .5s var(--ease-light) 1.1s backwards}
+.mk-sun{animation:sketch-up .5s var(--ease-light) 1.1s backwards}
 .mk-hill-far{animation:sketch-up .3s var(--ease-light) 1.3s backwards}
 .mk-hill-near{animation:sketch-up .3s var(--ease-light) 1.4s backwards}
 .mk-wave{animation:mk-draw .3s var(--ease-pen) 1.55s backwards}
 }
 @keyframes card-rise{from{clip-path:inset(100% 30% 0 round 999px 999px 0 0)}to{clip-path:inset(0 round 999px 999px 0 0)}}
-@keyframes sketch-up{from{transform:translateY(76px)}}
+@keyframes sketch-up{from{transform:translateY(90px)}}

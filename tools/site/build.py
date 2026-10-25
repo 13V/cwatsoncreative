@@ -600,8 +600,13 @@ def kind_words_page():
 {instagram_sheet("limestone")}
 
 {closing("kind-words")}'''
-        return page('kind-words', 'kind-words.html', title, desc, main, robots='noindex')
-    stories = ''.join(kw_story(n, r) for n, r in enumerate(KIND_WORDS, 1))
+        # The holding head is centred and fills the first phone screen, so its Cormorant 500 lead and Jost labels
+        # swapping in after the first paint would move centred lines sideways (a layout shift). They are preloaded
+        # here, after Cormorant 300, so they are in before the first paint (plan D22's exception for this page).
+        anchor = font_preload('cormorant-garamond-300')
+        return page('kind-words', 'kind-words.html', title, desc, main, robots='noindex').replace(
+            anchor, anchor + font_preload('cormorant-garamond-500') + font_preload('jost-300-600'), 1)
+    stories =''.join(kw_story(n, r) for n, r in enumerate(KIND_WORDS, 1))
     main = f'''{page_head("Kind words", h1, "A few words from the couples and families I’ve photographed.", layout="left")}
 
 <section class="stories sec--standard"><div class="wrap">{stories}</div></section>

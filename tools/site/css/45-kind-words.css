@@ -5,6 +5,7 @@
 .interlude .t-quote{max-width:24ch;margin-inline:auto}
 :is(.interlude, .story) .cite{display:block;margin-top:var(--sp-24)}
 @supports not (hanging-punctuation:first){.q-open{margin-left:-.42em}}
+.stories{padding-top:var(--sp-32)}
 .story{display:grid;gap:var(--sp-32);padding-block:var(--sp-64)}
 .story:first-child{padding-top:0}
 .story:last-child{padding-bottom:0}
@@ -20,5 +21,5 @@
   .story--flip .story-photo{grid-column:8 / span 5;grid-row:1}
   .story--flip .story-text{grid-column:1 / span 6;grid-row:1}
 }
-/* the holding link wraps on phones: underline each line (a wrapped flex label can't carry the background rule) */
-@media (max-width:599px){.kw-holding .la-label{background:none;text-decoration:underline 1px var(--paddock);text-underline-offset:9px;text-wrap:balance}}
+/* the holding link wraps on phones: as one block of inline text, each line keeps its own underline */
+@media (max-width:599px){.kw-holding .link-arrow{display:block;line-height:2.2;text-wrap:balance}.kw-holding .arw{margin:0 0 0 8px}}
