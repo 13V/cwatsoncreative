@@ -51,7 +51,7 @@ SIZES = {
     'window3': f'{PHONE} max(100vw, 66.7vh), max(34vw, 66.7vh)',
     'window2': f'{PHONE} max(100vw, 66.7vh), max(50vw, 66.7vh)',
     'inv-hero': f'{PHONE} 100vw, 50vw',
-    'statement': f'{PHONE} 72vw, {WIDE} calc(30vw - 12px), 360px',
+    'statement': f'(max-width: 499px) 80vw, {PHONE} 400px, {WIDE} calc(30vw - 12px), 360px',
     'contact': f'{PHONE} 64vw, {WIDE} calc(30vw - 12px), 360px',
     'cover': f'{PHONE} 82vw, {WIDE} calc(38vw - 14px), 455px',
     'kw-holding': f'{PHONE} 48vw, 300px',
@@ -285,7 +285,7 @@ def header(active):
 def footer(active):
     ig_name, ig_url = INSTAGRAM
     nav = ''.join(f'<a href="{h}"{current(h, active)}>{t}{SUN if h == active else ""}</a>' for h, t in NAV)
-    dot = '<span class="dot" aria-hidden="true"> · </span>'   # hidden on phones, where each part gets its own line
+    dot = '<span class="dot" aria-hidden="true"> · </span>'   # hidden below 861px, where each part gets its own line
     return (f'<footer class="site-footer"><a class="sundown" href="index.html" aria-label="Sunday Light, home">'
             f'<span class="sundown-scene">{art.footer_scene("m")}{art.footer_scene("w")}</span>'
             f'<span class="sundown-word" aria-hidden="true"><span>Sunday Light</span></span></a>'
@@ -394,10 +394,8 @@ def root_absolute(out):
 # ------------------------------------------------------------------ pages
 # The pre-redesign page bodies below keep building against the new helpers until the page packages replace them.
 # --- legacy shims: delete at merge ---
-from content import TILES, PORTFOLIO_WEDDINGS  # noqa: E402
+from content import PORTFOLIO_WEDDINGS  # noqa: E402
 LEGACY_SIZES = {   # the old layouts' photo sizes, for the old page bodies only
-    'arch': '(max-width: 380px) calc(100vw - 36px), (max-width: 860px) 340px, 440px',
-    'tile': '(max-width: 700px) calc(100vw - 36px), 380px',
     'card': '(max-width: 760px) calc(100vw - 36px), 560px',
     'grid': '(max-width: 600px) 48vw, (max-width: 1000px) 46vw, 370px',
 }
@@ -444,10 +442,9 @@ def home_statement():
     guide, after = INTRO[1].split('. ', 1)
     assert plain(STATEMENT_LINE) == first + '.' and after == plain(CLOSING['index'])
     body = ''.join(f'<p>{e(p)}</p>' for p in (rest, guide + '.'))
-    sizes = f'{PHONE} 80vw, {WIDE} calc(30vw - 12px), 360px'   # phones: 80vw, not SIZES['statement']'s 72vw
     return (f'<section class="statement sec--breath panel" id="statement"><div class="wrap">'
             f'<p class="t-display-xl statement-line">{lines(STATEMENT_LINE)}</p>'
-            f'<div class="statement-body grid-12">{arch_frame(HOME_STATEMENT_PHOTO, sizes, "2x3", keyline=True)}'
+            f'<div class="statement-body grid-12">{arch_frame(HOME_STATEMENT_PHOTO, "statement", "2x3", keyline=True)}'
             f'<div class="statement-text">{body}{link_arrow("investment.html", "Sessions & pricing")}</div></div>'
             f'</div></section>')
 
@@ -609,7 +606,7 @@ def wedding_packages():
     No package is marked: nothing says one is preferred."""
     longest = max(h for _, h, _ in WEDDING_PACKAGES)
     tiers = ''.join(f'<li class="tier" data-hours="{h}" style="--i:{i}"><div class="tier-sky">{art.tier_arc(h, longest)}</div>'
-                    f'<h3 class="tier-name">{e(name)}</h3><p class="tier-hours t-caption">{h} hours</p>'
+                    f'<h3 class="tier-name">{e(name)}</h3><p class="tier-hours t-caption">Up to {h} hours</p>'
                     f'<p class="tier-price t-price">{e(price)}</p></li>' for i, (name, h, price) in enumerate(WEDDING_PACKAGES))
     notes = ''.join(f'<div><h3>{title}</h3><ul role="list">{"".join(f"<li>{e(x)}</li>" for x in items)}</ul></div>'
                     for title, items in (('Every package includes', WEDDING_INCLUDES), ('Good to know', WEDDING_TERMS)))
@@ -957,6 +954,9 @@ def check_page(fail, name, page_html):
         for text in must:
             if e(text) not in page_html:
                 fail(f'investment.html: "{text}" is missing (prices, packages and terms are copied byte for byte)')
+        hours = re.findall(r'<p class="tier-hours\b[^"]*">([^<]*)</p>', page_html)   # coverage hours are contract terms
+        if hours != [f'Up to {h} hours' for _, h, _ in WEDDING_PACKAGES]:
+            fail(f'investment.html: the tier hours read {hours}; her package sheet says "Up to N hours"')
 
 
 def verify(pages, out):

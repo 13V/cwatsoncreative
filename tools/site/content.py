@@ -236,10 +236,6 @@ def rhythm(chapters=None):
 
 # --- legacy shims: delete at merge ---
 # Only the pre-redesign page bodies use these; new code must not.
-HERO_CAPTION = 'Adelaide wedding & family photographer'
-TILES = [('Weddings', 'bougainvillea-embrace', 'gallery.html#weddings'),
-         ('Couples', 'field-dusk', 'investment.html#couples'),
-         ('Families', 'session-family', 'investment.html#family')]
 PORTFOLIO_WEDDINGS = ['arch-mirror', 'gilded-mirror', 'bridesmaids-seated', 'bridesmaids-steps', 'groomsmen-steps',
                       'castle-laugh', 'castle-window', 'castle-dip', 'castle-balcony', 'bougainvillea-bride',
                       'bougainvillea-embrace', 'silver-car-bouquet', 'car-window-smile', 'winery-champagne',

@@ -124,10 +124,4 @@ br.br-md{display:none}
 
 /* legacy bodies (delete at merge) */
 .section{padding-block:var(--sec-standard)}
-.section--lime{background:var(--limestone)}
 .wrap.narrow{max-width:900px}
-.center-title{text-align:center;margin-bottom:var(--head-gap)}
-.center{display:flex;justify-content:center;margin-top:var(--sp-48)}
-.eyebrow--center{text-align:center}
-.prose{display:grid;gap:1.1em;max-width:36em}
-.head--center .prose{margin-inline:auto}

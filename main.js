@@ -22,7 +22,8 @@
   M.queue = function (kind, start, ms) { var q = Q[kind]; q.wait.push([start, ms]); pump(q); };
 
   // One observer plays every one-shot: on screen at first sight it is done; below the fold armed until `ratio` is seen.
-  var jobs = new Map(), seen = new WeakSet();
+  // A cold load at #id jumps after the observer's first look, so that look judges where the jump lands.
+  var jobs = new Map(), seen = new WeakSet(), land = document.getElementById(location.hash.slice(1));
   M.done = function (el) {
     el.classList.remove("is-armed", "is-developing");
     el.classList.add("is-done");
@@ -30,13 +31,15 @@
     jobs.delete(el);
   };
   var observer = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
-    var ready = [];
+    var ready = [], r, top = land ? Math.min(land.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0),
+      root.scrollHeight - innerHeight - scrollY) : null;
+    land = null;
     entries.forEach(function (entry) {
       var el = entry.target, list = jobs.get(el), view;
       if (!list) return;
       if (!seen.has(el)) {
         seen.add(el);
-        if (entry.isIntersecting || !motionOK()) {
+        if (entry.isIntersecting || !motionOK() || (top !== null && (r = el.getBoundingClientRect()).bottom > top && r.top < top + innerHeight)) {
           list = list.filter(function (job) { return job.fromStart && motionOK(); });
           if (!list.length) { M.done(el); return; }
           jobs.set(el, list);
@@ -310,21 +313,10 @@
       if (!(window.CSS && CSS.supports("animation-timeline: view()"))) once(frame, .25, function () { frame.classList.add("is-open"); });
     }
   }
-
   // Hours of light (M08, D11): the tiers light once 90% is on screen, one draw job; every sun lands at 1200ms.
-  // A cold load at a fragment (investment.html#family): where the jump lands is the first view, so it is finished
-  // (the observer's first look comes before the browser's fragment scroll). Kernel candidate, see notes for merge.
   {
-    const tiers = document.querySelector(".tiers"), id = location.hash.slice(1);
+    const tiers = document.querySelector(".tiers");
     if (tiers) once(tiers, .9, () => M.queue("draw", () => { tiers.classList.add("is-lit"); return wait(1200); }, 1200));
-    const to = root.dataset.page === "investment" && id && document.getElementById(id);
-    if (to) {
-      const top = to.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0);
-      document.querySelectorAll("[data-rules]").forEach((el) => {
-        const r = el.getBoundingClientRect();
-        if (r.bottom > top && r.top < top + innerHeight) M.done(el);
-      });
-    }
   }
   // Contact: "Enquire about…" links arrive with the session already chosen.
   var sessionField = document.getElementById("session");

@@ -21,7 +21,8 @@
   M.queue = function (kind, start, ms) { var q = Q[kind]; q.wait.push([start, ms]); pump(q); };
 
   // One observer plays every one-shot: on screen at first sight it is done; below the fold armed until `ratio` is seen.
-  var jobs = new Map(), seen = new WeakSet();
+  // A cold load at #id jumps after the observer's first look, so that look judges where the jump lands.
+  var jobs = new Map(), seen = new WeakSet(), land = document.getElementById(location.hash.slice(1));
   M.done = function (el) {
     el.classList.remove("is-armed", "is-developing");
     el.classList.add("is-done");
@@ -29,13 +30,15 @@
     jobs.delete(el);
   };
   var observer = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
-    var ready = [];
+    var ready = [], r, top = land ? Math.min(land.getBoundingClientRect().top - (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0),
+      root.scrollHeight - innerHeight - scrollY) : null;
+    land = null;
     entries.forEach(function (entry) {
       var el = entry.target, list = jobs.get(el), view;
       if (!list) return;
       if (!seen.has(el)) {
         seen.add(el);
-        if (entry.isIntersecting || !motionOK()) {
+        if (entry.isIntersecting || !motionOK() || (top !== null && (r = el.getBoundingClientRect()).bottom > top && r.top < top + innerHeight)) {
           list = list.filter(function (job) { return job.fromStart && motionOK(); });
           if (!list.length) { M.done(el); return; }
           jobs.set(el, list);

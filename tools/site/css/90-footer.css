@@ -37,4 +37,4 @@
 .still-toggle[aria-pressed="true"]{color:var(--bark);text-decoration-color:var(--paddock)}
 .top-sun{transition:transform var(--t-ui) var(--ease-light)}
 .to-top:focus-visible .top-sun{transform:translateY(-2px)}
-@media (min-width:600px){.fb{display:inline;white-space:nowrap}.fb .dot{display:inline}}
+@media (min-width:861px){.fb{display:inline;white-space:nowrap}.fb .dot{display:inline}}

@@ -13,7 +13,7 @@ const SPEC = {   // spec §6.3, label → value, in her order; GALLERY is never 
               ['Packages', 'Maternity and newborn packages available'], ['Investment', '$350']],
   newborn: [['Where', 'At your home or an outdoor location'], ['Packages', 'Maternity and newborn packages available'], ['Investment', '$350']],
 };
-const TIERS = ['Basic|4 hours|$1,700', 'Standard|6 hours|$2,100', 'Premium|8 hours|$2,500', 'Deluxe|10 hours|$2,900', 'Ultimate|12 hours|$3,300'];
+const TIERS = ['Basic|Up to 4 hours|$1,700', 'Standard|Up to 6 hours|$2,100', 'Premium|Up to 8 hours|$2,500', 'Deluxe|Up to 10 hours|$2,900', 'Ultimate|Up to 12 hours|$3,300'];
 const INCLUDES = ['Continuous coverage for the hours you choose', 'A fully edited digital gallery', 'Sneak peeks within 24 hours', 'A pre-wedding consultation'];
 const TERMS = ['Your full gallery within three months', 'A 25% non-refundable deposit secures your date',
                'Payment plans available, with the balance due 14 days before the wedding'];
@@ -79,7 +79,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(d.sessions.couples.title === 'Couples, engagements & proposals' && ['family', 'maternity', 'newborn'].every(id => d.sessions[id].title === id[0].toUpperCase() + id.slice(1)),
        'session titles: her names; the carte words are the short names');
     ok(d.carteLabel === 'Family, maternity & newborn', `the carte eyebrow is built from the names (${d.carteLabel})`);
-    ok(same(d.tiers, TIERS) && same(d.hours, ['4', '6', '8', '10', '12']) && d.arcs === 5, 'tiers: names, "4 hours" … "12 hours" and prices byte for byte, each with its sun path');
+    ok(same(d.tiers, TIERS) && same(d.hours, ['4', '6', '8', '10', '12']) && d.arcs === 5, 'tiers: names, "Up to 4 hours" … "Up to 12 hours" and prices byte for byte, each with its sun path');
     ok(new Set(d.tierLook).size === 1, 'no tier is highlighted (identical classes, attributes and looks)');
     ok(same(d.notes, [['Every package includes', INCLUDES], ['Good to know', TERMS]]), 'the wedding inclusions and terms, exactly');
     ok(new URL(d.cta[0], base + '/').searchParams.get('session') === 'Wedding' && d.cta[1] === 'Check my wedding dates', 'packages CTA: "Check my wedding dates" → the form with Wedding chosen');

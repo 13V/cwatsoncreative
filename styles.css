@@ -125,13 +125,7 @@ br.br-md{display:none}
 
 /* legacy bodies (delete at merge) */
 .section{padding-block:var(--sec-standard)}
-.section--lime{background:var(--limestone)}
 .wrap.narrow{max-width:900px}
-.center-title{text-align:center;margin-bottom:var(--head-gap)}
-.center{display:flex;justify-content:center;margin-top:var(--sp-48)}
-.eyebrow--center{text-align:center}
-.prose{display:grid;gap:1.1em;max-width:36em}
-.head--center .prose{margin-inline:auto}
 /* buttons and links (§4.1, M13, D7) */
 .btn{--btn-fill:var(--bark);position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;
   justify-content:center;gap:var(--sp-12);min-height:52px;padding:0 var(--sp-32);border:1px solid var(--bark);
@@ -536,7 +530,6 @@ html.header-hidden .index-bar{transform:translateY(calc(var(--header-h) * -1));t
   .lb-count { bottom: max(36px, calc(env(safe-area-inset-bottom, 0px) + 18px)); }
 }
 
-/* investment */
 .inv-hero-photo{aspect-ratio:4 / 5}
 .inv-hero-photo picture{position:absolute;inset:0}
 .inv-hero-text{padding-block:var(--sec-compact)}
@@ -574,14 +567,14 @@ h2 + .session-body, .session-action, .t-word + .session-text{margin-top:var(--sp
 @media (max-width:860px){
   .inv-hero-photo, .session-photo{max-height:calc(100svh - var(--header-h))}
   .packages .lead{margin-top:var(--sp-16)}
-  .tier{display:grid;grid-template:"sky name leader price" 1fr "sky hours leader price" / 52px auto minmax(24px, 1fr) auto;
+  .tier{display:grid;grid-template:"sky name leader price" 1fr "sky hours leader price" / 52px auto minmax(12px, 1fr) auto;
     column-gap:var(--sp-16);align-items:end;padding:var(--sp-16) 0}
   .tier::after{content:"";grid-area:leader;height:2px;margin-bottom:.6em;
     background:radial-gradient(circle, var(--paddock) .7px, transparent .8px) 0 100% / 6px 2px repeat-x}
   .tier-sky{grid-area:sky;width:52px;height:70px;background:var(--paper);border-radius:var(--r-arch)}
   .tier-arc{top:4px;left:4px;width:44px}
   .tier-name{grid-area:name;font:500 1.5rem/1.1 var(--serif)}
-  .tier-hours{grid-area:hours}
+  .tier-hours{grid-area:hours;white-space:nowrap}
   .tier-price{grid-area:price}
 }
 .how{background:var(--limestone)}
@@ -740,7 +733,7 @@ h2 + .session-body, .session-action, .t-word + .session-text{margin-top:var(--sp
 .still-toggle[aria-pressed="true"]{color:var(--bark);text-decoration-color:var(--paddock)}
 .top-sun{transition:transform var(--t-ui) var(--ease-light)}
 .to-top:focus-visible .top-sun{transform:translateY(-2px)}
-@media (min-width:600px){.fb{display:inline;white-space:nowrap}.fb .dot{display:inline}}
+@media (min-width:861px){.fb{display:inline;white-space:nowrap}.fb .dot{display:inline}}
 /* hover (focus twins live with each component) */
 @media (hover:hover) and (pointer:fine){
   .btn:not([aria-disabled="true"]):hover{color:var(--paper);transition:color var(--t-press) linear, transform var(--t-press) var(--ease-light)}
