@@ -481,49 +481,93 @@ def home_sessions():
             f'<ul class="tiles" role="list">{"".join(items)}</ul></div></section>')
 
 
-def gallery_item(path, alt, i, first_gallery):
-    w, h = size_of(path, (1333, 2000))
-    # The first photo is the one people see first, so it loads straight away; the rest load as they come into view.
-    pic = _picture(path, w, h, alt, LEGACY_SIZES['grid'], priority=first_gallery and i == 0)
-    return f'<figure class="ph"><a href="{path}" data-lightbox>{pic}</a></figure>'
-
-
 def gallery():
-    galleries = []
-    weddings = [(PHOTOS[k][0], PHOTOS[k][3]) for k in PORTFOLIO_WEDDINGS if exists(PHOTOS[k][0])]
-    if weddings:
-        galleries.append(('weddings', 'Weddings', weddings))
+    """Gallery (spec §5.2): the wedding chapters, cover first and then the rhythm grid; extra galleries once their
+    files exist; the closing; the photo viewer. DOM order is the viewing order (grid, tab and viewer)."""
+    chapters = [(cid, title, line, [k for k in keys if exists(PHOTOS[k][0])]) for cid, title, line, keys in GALLERY_CHAPTERS]
+    chapters = [c for c in chapters if c[3]]
+    extras = []
     for gid, name, pattern, n, alt in EXTRA_GALLERIES:
-        photos = [(pattern.format(i), alt) for i in range(1, n + 1) if exists(pattern.format(i))]
-        if photos:
-            galleries.append((gid, name, photos))
-    sections = ''
-    for g, (gid, name, photos) in enumerate(galleries):
-        figs = ''.join(gallery_item(p, a, i, g == 0) for i, (p, a) in enumerate(photos))
-        sections += (f'<section class="gallery wrap" id="{gid}" aria-labelledby="{gid}-title"><div class="gallery-head">'
-                     f'<h2 id="{gid}-title">{e(name)}</h2></div><div class="masonry">{figs}</div></section>\n')
-    if not galleries:
-        sections = (f'<section class="gallery wrap"><p class="gallery-empty">Galleries are on their way. The latest sessions '
-                    f'are always on <a href="{INSTAGRAM[1]}">Instagram</a>.</p></section>\n')
-    chips = ''
-    if len(galleries) > 1:
-        chips = ('<nav class="chips" aria-label="Galleries">'
-                 + ''.join(f'<a href="#{gid}">{e(name)}</a>' for gid, name, _ in galleries) + '</nav>')
-    lead = (f'Weddings, couples, families, maternity and newborns from around Adelaide. The newest sessions go up on '
-            f'<a href="{INSTAGRAM[1]}">Instagram</a> first.')
-    main = f'''{page_head("Gallery", "A few <em>favourite days.</em>", lead, layout="center", extra=chips)}
-{sections}
+        keys = []
+        for i in range(1, n + 1):
+            path = pattern.format(i)
+            if exists(path):   # registered as a photo slot so fig() and rhythm_groups() read it like any other
+                PHOTOS.setdefault(f'{gid}-{i:02d}', (path, *size_of(path, (1333, 2000)), alt, ''))
+                keys.append(f'{gid}-{i:02d}')
+        if keys:
+            extras.append((gid, name, '', keys))
+    galleries = (['Weddings'] if chapters else []) + [x[1] for x in extras]
+    names = [g if i == 0 else g.lower() for i, g in enumerate(galleries)]
+    names = (', '.join(names[:-1]) + ' and ' + names[-1]) if len(names) > 1 else ''.join(names)
+    lead = (f'{e(names)} from around Adelaide. ' if names else '') + \
+        f'The newest sessions go up on <a href="{INSTAGRAM[1]}">Instagram</a> first.'
+    if extras:   # spec §4.10: galleries once others exist, chapters while only weddings do
+        bar = index_bar('Galleries', ([(['weddings'], 'Weddings', sum(len(c[3]) for c in chapters))] if chapters else [])
+                        + [([gid], name, len(keys)) for gid, name, _, keys in extras])
+    else:
+        bar = index_bar('Chapters', [([cid], title, len(keys)) for cid, title, _, keys in chapters]) if chapters else ''
+    groups, index, sections = rhythm_groups(chapters + extras), 0, []
+    for c, (cid, title, line, keys) in enumerate(chapters + extras):
+        sections.append(gallery_section(c, cid, title, line, keys, groups[c], index, numbered=c < len(chapters)))
+        index += len(keys)
+    weddings = ''.join(sections[:len(chapters)])
+    main = f'''{page_head("Gallery", "A few <em>favourite days.</em>", lead, layout="left", cls="gallery-head")}
+{bar}
+{f'<div id="weddings">{weddings}</div>' if weddings else ''}
+{''.join(sections[len(chapters):])}
 {closing("gallery")}'''
-    lightbox = ('<dialog class="lightbox" aria-label="Photo viewer"><div class="lightbox-inner">'
-                f'<button class="lb-btn lb-prev" type="button" aria-label="Previous photo">{icon("chev-l")}</button>'
-                '<figure class="lb-figure"></figure>'
-                f'<button class="lb-btn lb-next" type="button" aria-label="Next photo">{icon("chev-r")}</button>'
-                f'<button class="lb-btn lb-close" type="button" aria-label="Close">{icon("close")}</button>'
-                '<p class="lb-count" aria-hidden="true"></p><p class="sr-only lb-live" aria-live="polite"></p>'
-                '</div></dialog>\n')
     return page('gallery', 'gallery.html', 'Gallery | Sunday Light',
                 'Wedding, couples, family, maternity and newborn photography from around Adelaide by Sunday Light.', main,
-                body_extra=lightbox)
+                body_extra=viewer(index))
+
+
+# SIZES['cover'], with the cover capped at 30rem from 600px (an 82vw arch would fill a tablet); merge into SIZES.
+COVER_SIZES = f'{PHONE} min(82vw, 480px), {WIDE} calc(38vw - 14px), 455px'
+RG_SIZES = {'wide': ['rg-wide'], 'land-pair': ['rg-land', 'rg-land'], 'pair-l': ['rg-pair-wide', 'rg-pair-narrow'],
+            'pair-r': ['rg-pair-narrow', 'rg-pair-wide'], 'solo-l': ['rg-solo'], 'solo-r': ['rg-solo']}
+
+
+def ph_link(key, index, chapter, inner, cls=''):
+    """A photo that opens the viewer (spec §4.11); without JS it opens the full JPEG."""
+    return (f'<a class="ph-link{cls}" href="{PHOTOS[key][0]}" data-viewer data-index="{index}" '
+            f'data-chapter="{e(chapter)}">{inner}</a>')
+
+
+def gallery_section(c, cid, title, line, keys, groups, index, numbered=True):
+    """A chapter (or an extra gallery): the cover-first opener (spec §4.11), then the rest of its photos in the rhythm
+    grid, one .rg per group from content.rhythm_groups(). Chapter 01's cover is the page's LCP photo (spec §7.6)."""
+    cover = arch_frame(keys[0], COVER_SIZES, '2x3', priority=c == 0)
+    count = f'{len(keys)} photograph{"s" if len(keys) > 1 else ""}'
+    num = (f'<span class="t-count">No. {c + 1:02d}</span> ' if numbered else '') + f'<span class="t-caption">{count}</span>'
+    head = (f'<div class="chapter-head grid-12">{ph_link(keys[0], index, title, cover, " chapter-cover")}'
+            f'<div class="chapter-text"><p class="eyebrow--num">{num}</p><h2 id="{cid}-title">{e(title)}</h2>'
+            + (f'<p class="lead-i">{e(line)}</p>' if line else '') + '</div></div>')
+    rows, i = '', index + 1
+    for kind, members in groups:
+        links = ''
+        for key, sizes in zip(members, RG_SIZES[kind]):
+            links += ph_link(key, i, title, fig(key, sizes, tray=True))
+            i += 1
+        rows += f'<div class="rg rg--{kind}">{links}</div>'
+    return (f'<section class="chapter sec--standard{" chapter--alt" if c % 2 else ""}" id="{cid}" aria-labelledby="{cid}-title">'
+            f'<div class="wrap">{head}{rows}</div></section>\n')
+
+
+def viewer(total):
+    """The photo viewer (spec §4.12; M06, M11): an opaque darkroom, bare controls, a track and a rolling counter.
+    50-viewer.js fills it from the photo links; without showModal() the links simply open the JPEG."""
+    return (f'<dialog class="viewer" aria-label="Photo viewer" data-sizes="{SIZES["viewer"]}">'
+            '<div class="viewer-dark xfade" aria-hidden="true"></div>'
+            '<div class="viewer-top"><p class="viewer-caption t-label"></p>'
+            f'<button class="viewer-close btn-bare t-label" type="button" autofocus><span>Close</span> {icon("close")}</button></div>'
+            '<div class="viewer-stage"><img class="viewer-img is-front" alt="" width="2" height="3">'
+            '<img class="viewer-img is-back" alt="" aria-hidden="true" width="2" height="3"></div>'
+            f'<button class="viewer-prev btn-bare" type="button" aria-label="Previous photo">{icon("chev-l")}</button>'
+            f'<button class="viewer-next btn-bare" type="button" aria-label="Next photo">{icon("chev-r")}</button>'
+            '<div class="viewer-foot"><span class="viewer-progress" aria-hidden="true"></span>'
+            '<p class="viewer-count t-count" aria-hidden="true"><span class="wheel"><span>0</span></span>'
+            f'<span class="wheel"><span>1</span></span> / <span class="viewer-total">{total:02d}</span></p></div>'
+            '<p class="sr-only viewer-live" aria-live="polite"></p></dialog>\n')
 
 
 def investment():
