@@ -68,7 +68,7 @@ SESSIONS = [
       body=['I photograph weddings the way they feel: getting ready, the nerves, the vows, the champagne and the dance floor.',
             'I keep things calm and quiet, step in when you need direction and stay out of the way when you don’t. '
             'I’ll also help you plan the timeline, so your portraits land in the best light of the day.']),
- dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='jaguar-flare', price='$350',
+ dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='field-dusk', price='$350',
       includes=['About 45 minutes', GALLERY, LOCATION],
       body=['Just engaged, about to ask, or simply in love. We’ll walk, talk and wander somewhere beautiful as the sun goes down.',
             'Planning a proposal? I’ll stay out of sight nearby and catch the moment you ask.']),
@@ -205,16 +205,14 @@ def landscape(key):
     return w > h
 
 
-CYCLE = ['pair-l', 'solo-r', 'pair-r', 'solo-l']
-
-
 def rhythm_groups(chapters=None):
     """The gallery's rhythm grid: for each chapter, the photos after its cover grouped into rows, as
-    [(type, [keys])]. Each chapter starts one step further round the cycle and odd chapters mirror it, so no two
-    neighbouring chapters share a layout. Landscapes pair with a following landscape or run wide."""
+    [(type, [keys])]. A portrait pairs with the portrait after it, and stands alone only when no portrait follows;
+    the groups alternate sides, starting opposite the chapter's cover (its cover sits right in even chapters, left in
+    odd ones), so no two neighbouring chapters share a layout. Landscapes pair with a following landscape or run wide."""
     out = []
     for c, (_, _, _, keys) in enumerate(chapters or GALLERY_CHAPTERS):
-        mirror, i, rest, groups = c % 2 == 1, c % 4, list(keys[1:]), []
+        side, rest, groups = 'l' if c % 2 == 0 else 'r', list(keys[1:]), []
         while rest:
             k = rest.pop(0)
             nxt = rest[0] if rest else None
@@ -224,14 +222,11 @@ def rhythm_groups(chapters=None):
                 else:
                     groups.append(('wide', [k]))
                 continue
-            slot = CYCLE[i % 4]
-            if mirror:
-                slot = slot[:-1] + ('r' if slot.endswith('l') else 'l')
-            if slot.startswith('pair') and nxt and not landscape(nxt):
-                groups.append((slot, [k, rest.pop(0)]))
+            if nxt and not landscape(nxt):
+                groups.append(('pair-' + side, [k, rest.pop(0)]))
             else:
-                groups.append(('solo-' + slot[-1], [k]))
-            i += 1
+                groups.append(('solo-' + side, [k]))
+            side = 'r' if side == 'l' else 'l'
         out.append(groups)
     return out
 
@@ -263,8 +258,8 @@ assert plain(STATEMENT_LINE) == INTRO[0].split('. ')[0] + '.'
 assert INTRO[1].endswith(plain(CLOSING['index']))                                       # her words, unedited
 assert plain(HERO_TITLE) == 'Photographs that feel like a Sunday afternoon.'
 assert all(PHOTOS[k][1] < PHOTOS[k][2] for k in INSTAGRAM_STRIP)                        # portraits only
-assert rhythm() == [['pair-l', 'solo-r'], ['solo-l', 'land-pair', 'wide'],
-                    ['pair-r', 'solo-l', 'pair-l', 'solo-r'], ['solo-r', 'pair-r', 'solo-l', 'pair-l']]
+assert rhythm() == [['pair-l', 'solo-r'], ['solo-r', 'land-pair', 'wide'],
+                    ['pair-l', 'pair-r', 'pair-l'], ['pair-r', 'pair-l', 'pair-r']]
 assert set(FOCUS) == set(WEDDING_KEYS)
 for r in KIND_WORDS:
     assert not r['pull'] or r['pull'] in r['words'], 'a pull phrase must be an exact part of the review'

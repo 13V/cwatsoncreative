@@ -96,7 +96,7 @@
     list[cur].focus({ preventScroll: true });
   };
   dlg.oncancel = e => { e.preventDefault(); close(); };
-  for (const a of links) a.onclick = e => { e.preventDefault(); open(a); };
+  for (const a of links) a.onclick = e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return; e.preventDefault(); open(a); };   // a modified or middle click: the browser opens the JPEG
   $(".viewer-prev").onclick = () => go(-1);
   $(".viewer-next").onclick = () => go(1);
   $(".viewer-close").onclick = close;

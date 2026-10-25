@@ -63,7 +63,7 @@
   @media (prefers-reduced-motion:no-preference){
     :root:not(.still){
       .statement .frame{view-timeline:--statement block;view-timeline-inset:0px}
-      .statement :is(.frame--arch, picture){animation:aperture linear both;animation-timeline:--statement;animation-range:entry 5% cover 45%}
+      .statement :is(.frame--arch, picture){animation:aperture linear both;animation-timeline:--statement;animation-range:entry 5% entry 90%}
       .statement .frame--arch picture{animation-name:settle-arch}
     }
   }

@@ -41,15 +41,15 @@
 @media (min-width:1100px){.window[data-count="3"]{--sw:.6}.window[data-count="2"]{--sw:.4}.frame-line{--kw:.28}}
 @media (min-width:1440px){.window[data-count="3"]{--sw:.5}.window[data-count="2"]{--sw:.32}}
 
-/* hold and silver exit */
+/* hold (exit only, the hero's words with it) and silver exit */
 @supports (animation-timeline:view()){
   @media (prefers-reduced-motion:no-preference){
     :root:not(.still){
       .window{view-timeline:--window block;view-timeline-inset:0px}
-      .window-photos{inset:0 0 auto;height:100lvh;animation:window-hold linear none;animation-timeline:--window;animation-range:cover 0% cover 100%}
+      :is(.window-aperture, .hero-scrim, .hero-copy){animation:window-hold linear none;animation-timeline:--window;animation-range:exit 0% exit 100%}
       .window .ph img{animation:to-mono linear forwards;animation-timeline:--window;animation-range:exit 0% exit 80%}
     }
   }
 }
-@keyframes window-hold{from{transform:translateY(-100vh)}to{transform:translateY(var(--h))}}
+@keyframes window-hold{to{transform:translateY(min(var(--h), 100vh))}}
 @keyframes to-mono{to{filter:grayscale(1)}}

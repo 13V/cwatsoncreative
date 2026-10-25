@@ -1,5 +1,6 @@
 // Gallery (spec §5.2, §4.11): chapters in data order with cover-first openers, the rhythm grid exactly as
-// content.rhythm() groups it, DOM order = viewer order, nothing under 220px on phones, chapter 01's cover as the LCP,
+// content.rhythm() groups it (portraits pair unless none follows; groups alternate sides, the first opposite the cover;
+// every portrait whole on a laptop screen), DOM order = viewer order, nothing under 220px on phones, chapter 01's cover as the LCP,
 // prints that develop below the fold, the index spy, a failed photo leaving the grid and the viewer, the closing.
 const { execFileSync } = require('child_process');
 const path = require('path');
@@ -51,6 +52,19 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
        'cover first in every chapter, then its photos in data order');
     ok(same(s.chapters.map(c => c.groups), DATA.rhythm) && s.chapters.every(c => c.grouped),
        `each chapter's .rg groups equal content.rhythm() (${s.chapters.map(c => c.groups.join(' ')).join(' · ')})`);
+    // the rule, read from the page: a portrait stands alone only when no portrait follows it; portrait groups
+    // alternate sides; each chapter's first group leads on the side opposite its cover
+    const rule = await p.evaluate(() => [...document.querySelectorAll('section.chapter')].map(c => {
+      const mid = c.querySelector('.wrap').getBoundingClientRect(), half = x => x < mid.left + mid.width / 2 ? 'l' : 'r';
+      const cover = c.querySelector('.chapter-cover').getBoundingClientRect(), groups = [...c.querySelectorAll('.rg')];
+      const portrait = g => /rg--(pair|solo)/.test(g.className), sides = groups.filter(portrait).map(g => g.className.slice(-1));
+      const lead = groups[0] && [...groups[0].children].map(a => a.getBoundingClientRect()).sort((x, y) => y.width - x.width)[0];   // the larger photo
+      return { lone: groups.some((g, i) => /solo/.test(g.className) && groups[i + 1] && portrait(groups[i + 1])),
+        alternate: sides.every((x, i) => !i || x !== sides[i - 1]),
+        opposite: !lead || half(cover.left + cover.width / 2) !== half(lead.left + lead.width / 2) };
+    }));
+    ok(rule.every(r => !r.lone && r.alternate && r.opposite),
+       `rhythm rule: no portrait alone before another, sides alternate, the first group opposite the cover (${JSON.stringify(rule)})`);
     ok(same(s.order, s.order.map((_, i) => i)) && s.order.length === 23, 'viewer order (data-index) equals DOM order, 23 photos');
     ok(s.closing === DATA.closing, `the closing shows the Gallery line ("${s.closing}")`);
     ok(s.old === 0, 'no blockquote, duo, chips, masonry, old lightbox, strip or sheet');
@@ -91,6 +105,18 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     const bad = await p.$$eval('.ph-link .ph', fs => fs.filter(f => { const r = f.getBoundingClientRect(), i = f.querySelector('img');
       return r.width < 200 || Math.abs(r.height / r.width - i.getAttribute('height') / i.getAttribute('width')) > .01; }).map(f => f.closest('a').getAttribute('href')));
     ok(!bad.length, `${vp.viewport.width}: every cover and grid photo holds its full box before its file loads` + (bad.length ? ': ' + bad.join(', ') : ''));
+    await ctx.close();
+  }
+  for (const [w, h] of [[1440, 900], [1366, 768], [1280, 720], [1920, 1080]]) {   // every grid portrait whole on screen
+    const ctx = await b.newContext({ viewport: { width: w, height: h } });
+    const p = await ctx.newPage(); watch(p);
+    await p.goto(url, { waitUntil: 'networkidle' });
+    const r = await p.evaluate(() => {
+      const room = innerHeight - document.querySelector('.site-header').offsetHeight - document.querySelector('.index-bar').offsetHeight;
+      const tall = [...document.querySelectorAll('.rg:not(.rg--wide, .rg--land-pair) .ph')].map(f => f.getBoundingClientRect().height);
+      return { room, max: Math.round(Math.max(...tall)), min: Math.round(Math.min(...tall)) };
+    });
+    ok(r.max <= r.room && r.min >= 300, `${w}x${h}: grid portraits ${r.min}–${r.max}px tall, all within the ${r.room}px under the header and index bar`);
     await ctx.close();
   }
   for (const w of [320, 375, 390, 430]) {   // nothing under 220px, nothing past the edge; wide and land-pair bleed

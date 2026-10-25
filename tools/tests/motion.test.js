@@ -88,6 +88,20 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(!problems.length, `${vp.viewport.width}: one-shots arm below the fold only; on screen at load they are finished` + (problems.length ? ': ' + problems.join(' | ') : ''));
     await ctx.close();
   }
+  for (const vp of [PHONE, DESKTOP]) {   // a cold load at #id lands at once (no glide through the page), its view finished
+    for (const url of ['investment.html#family', 'gallery.html#golden-hour']) {
+      const ctx = await context(b, 'motion', vp);
+      await ctx.addInitScript(() => { window.__sy = []; const f = () => { window.__sy.push(Math.round(scrollY)); if (window.__sy.length < 90) requestAnimationFrame(f); }; requestAnimationFrame(f); });
+      const p = await ctx.newPage(); watch(p);
+      await p.goto(`${base}/${url}`, { waitUntil: 'load' }); await p.waitForTimeout(1600);
+      const r = await p.evaluate(() => ({ ys: [...new Set(window.__sy)], glide: document.documentElement.classList.contains('glide'),
+        smooth: getComputedStyle(document.documentElement).scrollBehavior }));
+      const a = await arming(p);
+      ok(r.ys.filter(y => y > 0).length === 1 && r.glide && r.smooth === 'smooth' && !a.armedOnScreen.length && !a.liveOnScreen.length,
+         `${vp.viewport.width} ${url}: lands in one jump (scrollY ${r.ys.join(' → ')}), finished on arrival; in-page links glide after load`);
+      await ctx.close();
+    }
+  }
   {   // the 404 dusk: plays once on load in the mark, and its finished frame is dusk
     const ctx = await context(b, 'motion', PHONE);
     const p = await ctx.newPage(); watch(p);

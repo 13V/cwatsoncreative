@@ -32,6 +32,9 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
   .header-cta{display:none}
   .site-nav{order:1;flex:0 0 100%;flex-wrap:wrap;gap:0 var(--sp-20)}
   .site-nav .nav-contact{display:block}
+  html:not(.js) .site-nav{flex-wrap:nowrap;justify-content:space-between;gap:0 8px}   /* no JS: one row */
+  html:not(.js) .site-nav a{font-size:clamp(.625rem, 3.2vw, .75rem);letter-spacing:.1em}
+  html:not(.js) .window--hero{--h:max(490px, 100svh - 93px)}
   .js .nav-toggle{position:relative;z-index:2;display:inline-flex;align-items:center;gap:var(--sp-12);min-height:48px;
     padding:0 var(--sp-4);margin-right:calc(var(--sp-4) * -1);border:0;background:none;color:var(--bark);cursor:pointer}
   .bars{position:relative;width:26px;height:7px}
@@ -63,15 +66,16 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
   .m .nav-sheet::before{content:"";position:absolute;left:50%;bottom:0;width:160vw;height:calc(100lvh + 60vw);
     margin-left:-80vw;border-radius:80vw 80vw 0 0;background:var(--paper);transform-origin:50% 100%;
     transform:scale(.12);opacity:0;transition:transform 280ms var(--ease-exit), opacity 80ms linear 200ms}
-  .m .is-open > .nav-sheet::before{transform:none;opacity:1;transition:transform var(--t-move) var(--ease-light), opacity 60ms linear}
+  /* opaque at once; the arch is seen rising */
+  .m .is-open > .nav-sheet::before{transform:none;opacity:1;transition:transform var(--t-move) var(--ease-pen)}
   .m .nav-sheet::after{transform:none;opacity:0;transition:opacity 140ms linear}
-  .m .is-open > .nav-sheet::after{transform:translateY(6%);opacity:1;transition:opacity 300ms linear 120ms, transform 900ms var(--ease-light) 120ms}
+  .m .is-open > .nav-sheet::after{transform:translateY(6%);opacity:1;transition:opacity 300ms linear 200ms, transform 900ms var(--ease-light) 200ms}
   .m .site-nav .nl{overflow:clip;padding-block:.1em .28em;margin-block:-.1em -.28em}
   .m .site-nav .nl > span{opacity:0;transform:translateY(var(--rise-line));transition:opacity 140ms var(--ease-exit), transform 0s 280ms}
-  .m .is-open .nl > span{--d:calc(140ms + var(--i, 0) * var(--stagger-line));opacity:1;transform:none;
+  .m .is-open .nl > span{--d:calc(220ms + var(--i, 0) * var(--stagger-line));opacity:1;transform:none;   /* once the arch covers it */
     transition:transform 520ms var(--ease-light) var(--d), opacity 200ms linear var(--d)}
   .m .site-nav :is(.nav-sun, .menu-foot){opacity:0;transition:opacity 140ms linear}
-  .m .is-open .nav-sun{opacity:1;transition:opacity 300ms linear 360ms}
-  .m .is-open .menu-foot{opacity:1;transition:opacity 300ms linear 400ms}
+  .m .is-open .nav-sun{opacity:1;transition:opacity 300ms linear 440ms}
+  .m .is-open .menu-foot{opacity:1;transition:opacity 300ms linear 480ms}
 }
 @media (max-width:399px){.brand-name{letter-spacing:.12em}}

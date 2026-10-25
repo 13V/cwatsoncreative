@@ -1,5 +1,6 @@
 // Every page loads with its data-page, one h1, a focusable main and the four tabs; nothing links to retired pages;
-// only the Kind words holding page is kept out of search; the 404 works at any depth (no <base>, root-absolute URLs).
+// only the Kind words holding page is kept out of search; the 404 works at any depth (no <base>, root-absolute URLs);
+// the h1s that fill their measure wrap the same in the metric-matched fallback as in the real face (no font-swap reflow).
 const { PAGES } = require('./lib');
 const KIND = { index: 'home' };
 
@@ -65,4 +66,25 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
   ok(deep.status() === 404 && d.page === '404' && d.styled && d.skip, 'a missing deep path shows the styled 404, and its skip link stays on the page');
   await q.close();
   await p.close();
+  // the font swap never rewraps an h1: its height with the fonts withheld equals its height with them
+  const ctxs = [], pages = {};
+  for (const fb of [false, true]) {
+    const ctx = await b.newContext({ reducedMotion: 'reduce' }); ctxs.push(ctx);
+    if (fb) await ctx.route(/\.woff2$/, r => r.abort());
+    for (const name of ['contact', 'investment', '404', 'gallery']) {
+      const pg = await ctx.newPage(); watch(pg, /\.woff2$/);
+      await pg.goto(`${base}/${name}.html`, { waitUntil: 'load' }); await pg.evaluate(() => document.fonts.ready);
+      (pages[name] = pages[name] || []).push(pg);
+    }
+  }
+  const differ = [];
+  for (const [name, [real, fallback]] of Object.entries(pages)) {
+    for (const w of [375, 390, 393, 402, 412, 414, 428, 430, 600, 860, 861, 1009, 1024, 1280, 1440]) {
+      const h = [];
+      for (const pg of [real, fallback]) { await pg.setViewportSize({ width: w, height: 900 }); h.push(await pg.$eval('main h1', el => Math.round(el.getBoundingClientRect().height))); }
+      if (Math.abs(h[0] - h[1]) > 2) differ.push(`${name} ${w}: ${h[0]} vs ${h[1]}`);
+    }
+  }
+  ok(!differ.length, 'Contact, Investment, 404 and Gallery h1s wrap the same with the fallback face (375–1440)' + (differ.length ? ': ' + differ.join(', ') : ''));
+  for (const ctx of ctxs) await ctx.close();
 };

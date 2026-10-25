@@ -204,9 +204,9 @@ def button(href, text, *, variant='primary', arrow=True, cls='', attrs=''):
 
 
 # ------------------------------------------------------------------ shared sections
-def page_head(eyebrow, title_html, lead_html='', *, layout='left', extra='', cls=''):
+def page_head(eyebrow, title_html, lead_html='', *, layout='left', extra='', cls='', grid=False):
     lead = f'<p class="lead">{lead_html}</p>' if lead_html else ''
-    return (f'<section class="page-head sec--compact head--{layout}{(" " + cls) if cls else ""}"><div class="wrap">'
+    return (f'<section class="page-head sec--compact head--{layout}{(" " + cls) if cls else ""}"><div class="wrap{" grid-12" if grid else ""}">'
             f'<p class="eyebrow">{e(eyebrow)}</p><h1>{title_html}</h1>{lead}{extra}</div></section>')
 
 
@@ -532,7 +532,7 @@ def gallery():
         sections.append(gallery_section(c, cid, title, line, keys, groups[c], index, numbered=c < len(chapters)))
         index += len(keys)
     weddings = ''.join(sections[:len(chapters)])
-    main = f'''{page_head("Gallery", "A few <em>favourite days.</em>", lead, layout="left", cls="gallery-head")}
+    main = f'''{page_head("Gallery", "A few <em>favourite days.</em>", lead, layout="left", cls="gallery-head", grid=True)}
 {bar}
 {f'<div id="weddings">{weddings}</div>' if weddings else ''}
 {''.join(sections[len(chapters):])}
@@ -613,8 +613,9 @@ def inv_hero():
     lead, *rest = INVESTMENT_INTRO
     return (f'<section class="inv-hero sec--flush" aria-labelledby="investment-title">'
             f'{fig(INVESTMENT_HERO, "inv-hero", cls="inv-hero-photo", fill=True, priority=True)}'
-            f'<div class="inv-hero-text wrap"><p class="eyebrow">Investment</p><h1 id="investment-title">Photos you’ll keep '
-            f'<em>for good.</em></h1><p class="lead">{e(lead)}</p>{"".join(f"<p>{e(p)}</p>" for p in rest)}</div></section>')
+            f'<div class="inv-hero-text wrap"><p class="eyebrow">Investment</p>'
+            f'<h1 id="investment-title">{lines("Photos you’ll keep|*for good.*")}</h1>'   # one plan for both faces
+            f'<p class="lead">{e(lead)}</p>{"".join(f"<p>{e(p)}</p>" for p in rest)}</div></section>')
 
 
 def spec_sheet(s):
@@ -761,7 +762,7 @@ def contact():
     main = f'''<section class="contact sec--standard" aria-labelledby="contact-title"><div class="wrap grid-12">
 <div class="contact-main">
 <p class="eyebrow">Contact</p>
-<h1 id="contact-title">Let’s plan <em>something lovely.</em></h1>
+<h1 id="contact-title">{lines('Let’s plan//*something lovely.*')}</h1>
 <p class="lead">Tell me a little about what you’re planning. I’ll get back to you with availability and pricing.</p>
 <div class="enquire-slot">
 <form id="enquiry-form" class="form" method="post" action="{ENDPOINT}" data-endpoint="{ENDPOINT}">
@@ -854,7 +855,7 @@ def not_found():
     # The footer scene stays at golden hour here (never scroll-linked); the dusk plays in this mark instead (M03).
     main = f'''<section class="nf sec--breath head--center"><div class="wrap">
 {mark("nf", "xl")}
-<p class="eyebrow">Page not found</p><h1>This page has <em>wandered off.</em></h1>
+<p class="eyebrow">Page not found</p><h1>{lines('This page has//*wandered off.*')}</h1>
 <p class="lead">It may have moved, or the link may be old.</p>
 <div class="actions nf-actions">{button("index.html", "Back home", cls="nf-home")}{link_arrow("gallery.html", "See the gallery")}</div>
 </div></section>'''
@@ -871,13 +872,17 @@ KB = 1024
 WP0_CSS = ['00-base', '10-buttons', '20-header-menu', '30-photos-windows', '50-instagram', '55-page-head', '85-text',
            '90-footer', '95-hover', '97-motion', '99-calm']
 WP0_JS = ['00-kernel', '05-moments', '10-menu', '15-header', '20-photos', '25-index', '70-year-golden-hour', '99-end']
-PART_BUDGET = {   # bytes, unminified, comments included; each package is held to its own slice (plan §8)
-    'css': {'WP0': (WP0_CSS, 38 * KB), 'WP1': (['40-home'], 5 * KB), 'WP2': (['60-gallery-viewer'], 6.5 * KB),
-            'WP3': (['70-investment'], 7.5 * KB), 'WP4 contact': (['80-contact'], 5 * KB),
-            'WP4 kind words': (['45-kind-words'], 2 * KB)},
-    'js': {'WP0': (WP0_JS, 18 * KB), 'WP1': (['32-home'], 1 * KB), 'WP2': (['50-viewer'], 7 * KB),
-           'WP3': (['36-investment'], 1 * KB), 'WP4': (['60-form', '40-session-prefill'], 5 * KB)},
+# Bytes, unminified, comments included; each package is held to its own slice (plan §8). The slices served the parallel
+# build; fix round 2 rebalanced them within the unchanged totals (CSS: WP0 38 → 37.6875KB, WP2 6.5 → 7.25KB, WP4
+# contact 5 → 5.0625KB, WP4 kind words 2 → 1.5KB; JS: WP0 18 → 18.5KB, WP2 7 → 7.25KB, WP1 1 → .75KB, WP3 1 → .5KB).
+PART_BUDGET = {
+    'css': {'WP0': (WP0_CSS, 37.6875 * KB), 'WP1': (['40-home'], 5 * KB), 'WP2': (['60-gallery-viewer'], 7.25 * KB),
+            'WP3': (['70-investment'], 7.5 * KB), 'WP4 contact': (['80-contact'], 5.0625 * KB),
+            'WP4 kind words': (['45-kind-words'], 1.5 * KB)},
+    'js': {'WP0': (WP0_JS, 18.5 * KB), 'WP1': (['32-home'], .75 * KB), 'WP2': (['50-viewer'], 7.25 * KB),
+           'WP3': (['36-investment'], .5 * KB), 'WP4': (['60-form', '40-session-prefill'], 5 * KB)},
 }
+assert all(sum(limit for _, limit in PART_BUDGET[k].values()) <= {'css': 64, 'js': 32}[k] * KB for k in PART_BUDGET)
 TOTAL_BUDGET = {'css': 64 * KB, 'js': 32 * KB}
 HEAD_SCRIPT_BUDGET = 1.25 * KB
 SVG_BUDGET = (20_000, 3_000)   # inline SVG per page: raw, gzipped

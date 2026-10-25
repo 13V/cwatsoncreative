@@ -1,7 +1,8 @@
 // Photo viewer (spec §4.12; M06, M11) at 390 and 1440: opens from a grid photo and from a chapter cover, counts and
 // announces, pages with arrows, keys and swipes (wrapping), keeps the alt on exactly one image, closes every way
 // (Esc, Close, beside the photo, swipe down, Chrome's second Esc) with focus back on the link and the page unmoved,
-// locks scrolling while open, loads the full WebP (never the JPEG), and with Reduce Motion only fades.
+// locks scrolling while open, loads the full WebP (never the JPEG), and with Reduce Motion only fades. Cmd/Ctrl-,
+// Shift- and middle-clicks are the browser's: they open the JPEG, never the viewer.
 const { context, PHONE, DESKTOP } = require('./lib');
 
 const state = p => p.evaluate(() => {
@@ -154,6 +155,22 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     const fade = l => l.length === 1 && /:150$/.test(l[0]);
     ok(fade(opening) && fade(paging) && fade(closing) && !s.open && !s.lock,
        `${vp.viewport.width} reduced: opens, pages and closes with one 150ms fade each (${[opening, paging, closing].map(l => l.join(' ')).join(' | ')})`);
+    await ctx.close();
+  }
+  {   // a modified or middle click opens the photo's JPEG the browser's way, never the viewer
+    const ctx = await context(b, 'motion', DESKTOP);
+    const p = await ctx.newPage(); watch(p);
+    await p.goto(`${base}/gallery.html`, { waitUntil: 'networkidle' });
+    const link = '.rg a.ph-link', href = await p.$eval(link, a => a.href);
+    for (const [how, opts] of [['Cmd/Ctrl-click', { modifiers: ['ControlOrMeta'] }], ['Shift-click', { modifiers: ['Shift'] }], ['middle-click', { button: 'middle' }]]) {
+      const opened = ctx.waitForEvent('page', { timeout: 3000 }).catch(() => null);
+      await p.click(link, opts);
+      const tab = await opened;
+      const url = tab ? (await tab.waitForURL(/\.jpg$/, { timeout: 3000 }).catch(() => {}), tab.url()) : '';
+      const s = await state(p);
+      ok(!s.open && !s.lock && url === href, `${how} on a grid photo opens its JPEG in a new tab, not the viewer (${url.split('/').pop() || 'no tab'})`);
+      if (tab) await tab.close();
+    }
     await ctx.close();
   }
 };

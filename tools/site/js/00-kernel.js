@@ -127,5 +127,8 @@
     c.toggle("vt-keep", r.keep);   // a restored page must not keep it
     try { sessionStorage.setItem("sl-vt", JSON.stringify(r)); } catch (x) {}
   });
+  // In-page jumps glide only after load, so a cold load at #id lands at once, its first view finished (rule 3).
+  var glide = function () { requestAnimationFrame(function () { root.classList.add("glide"); }); };
+  if (document.readyState === "complete") glide(); else addEventListener("load", glide);
   // iOS needs a touch listener for :active
   document.addEventListener("touchstart", function () {}, { passive: true });

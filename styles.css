@@ -28,7 +28,7 @@
   --bark:#5C4D3F;--ink:#3F352B;--gulf:#A7BBC3;--mist:#FBF8F2;--sand:#E3DACB;--hill-tint:#C1C3B2;--night:#1E1914;
   --night-text:#BAB5AE;--sun-on-dark:#E2C48F;--brick:#A3452F;--gold-hour:#E9D3AE;--line:#DCD3C4;--line-strong:#B8B0A6;
   --line-on-lime:rgb(92 77 63 / .18);--line-on-dark:rgb(246 242 234 / .22);--rule-field:var(--bush-ink);
-  --scrim-hero:linear-gradient(to top, rgb(30 25 20 / .72) 0, rgb(30 25 20 / .64) 150px, rgb(30 25 20 / .5) 300px, rgb(30 25 20 / 0) 480px);
+  --scrim-hero:linear-gradient(to top, rgb(30 25 20 / .66) 0, rgb(30 25 20 / .55) 150px, rgb(30 25 20 / .42) 300px, rgb(30 25 20 / 0) 440px);
   --serif:"Cormorant Garamond", "Cormorant Fallback", serif;--sans:"Jost", "Jost Fallback", sans-serif;
   --wordmark:"Marcellus", "Marcellus Fallback", serif;--sp-4:4px;--sp-8:8px;--sp-12:12px;--sp-16:16px;--sp-20:20px;
   --sp-24:24px;--sp-32:32px;--sp-40:40px;--sp-48:48px;--sp-56:56px;--sp-64:64px;--sp-96:96px;--sp-128:128px;
@@ -46,9 +46,9 @@
 @media (min-width:861px){:root{--header-h:80px}}
 *, *::before, *::after{box-sizing:border-box}
 [hidden]{display:none !important}
-html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scrollbar-gutter:stable;scroll-padding-top:calc(var(--header-h) + var(--sp-16))}
+html{background:var(--paper);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scrollbar-gutter:stable;scroll-padding-top:calc(var(--header-h) + var(--sp-16))}
 :root:has(.index-bar){scroll-padding-top:calc(var(--header-h) + 72px)}
-html.m{scroll-behavior:smooth}
+html.m.glide{scroll-behavior:smooth}
 html.menu-open, html.viewer-open{overflow:hidden}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 ::selection{background:rgb(195 150 79 / .3);color:var(--ink)}
@@ -137,7 +137,8 @@ br.br-md{display:none}
 .btn:focus-visible{color:var(--paper);transition:color var(--t-press) linear, transform var(--t-press) var(--ease-light)}
 .btn:focus-visible::before{transform:translateY(-58%);transition:transform 420ms var(--ease-light)}
 .btn--primary{--btn-fill:var(--ink);background:var(--bark);color:var(--paper)}
-.btn--sm{min-height:44px;padding:0 var(--sp-20)}
+.btn--sm{min-height:44px;padding:0 var(--sp-20);transition:color 40ms linear 183ms, transform var(--t-press) var(--ease-light)}
+.btn--sm:focus-visible{transition:color 40ms linear 23ms, transform var(--t-press) var(--ease-light)}
 .btn--sm[aria-current="page"]{border-color:var(--paddock-ink)}
 .btn--block{width:100%}
 .btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
@@ -207,6 +208,9 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
   .header-cta{display:none}
   .site-nav{order:1;flex:0 0 100%;flex-wrap:wrap;gap:0 var(--sp-20)}
   .site-nav .nav-contact{display:block}
+  html:not(.js) .site-nav{flex-wrap:nowrap;justify-content:space-between;gap:0 8px}   /* no JS: one row */
+  html:not(.js) .site-nav a{font-size:clamp(.625rem, 3.2vw, .75rem);letter-spacing:.1em}
+  html:not(.js) .window--hero{--h:max(490px, 100svh - 93px)}
   .js .nav-toggle{position:relative;z-index:2;display:inline-flex;align-items:center;gap:var(--sp-12);min-height:48px;
     padding:0 var(--sp-4);margin-right:calc(var(--sp-4) * -1);border:0;background:none;color:var(--bark);cursor:pointer}
   .bars{position:relative;width:26px;height:7px}
@@ -238,16 +242,17 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
   .m .nav-sheet::before{content:"";position:absolute;left:50%;bottom:0;width:160vw;height:calc(100lvh + 60vw);
     margin-left:-80vw;border-radius:80vw 80vw 0 0;background:var(--paper);transform-origin:50% 100%;
     transform:scale(.12);opacity:0;transition:transform 280ms var(--ease-exit), opacity 80ms linear 200ms}
-  .m .is-open > .nav-sheet::before{transform:none;opacity:1;transition:transform var(--t-move) var(--ease-light), opacity 60ms linear}
+  /* opaque at once; the arch is seen rising */
+  .m .is-open > .nav-sheet::before{transform:none;opacity:1;transition:transform var(--t-move) var(--ease-pen)}
   .m .nav-sheet::after{transform:none;opacity:0;transition:opacity 140ms linear}
-  .m .is-open > .nav-sheet::after{transform:translateY(6%);opacity:1;transition:opacity 300ms linear 120ms, transform 900ms var(--ease-light) 120ms}
+  .m .is-open > .nav-sheet::after{transform:translateY(6%);opacity:1;transition:opacity 300ms linear 200ms, transform 900ms var(--ease-light) 200ms}
   .m .site-nav .nl{overflow:clip;padding-block:.1em .28em;margin-block:-.1em -.28em}
   .m .site-nav .nl > span{opacity:0;transform:translateY(var(--rise-line));transition:opacity 140ms var(--ease-exit), transform 0s 280ms}
-  .m .is-open .nl > span{--d:calc(140ms + var(--i, 0) * var(--stagger-line));opacity:1;transform:none;
+  .m .is-open .nl > span{--d:calc(220ms + var(--i, 0) * var(--stagger-line));opacity:1;transform:none;   /* once the arch covers it */
     transition:transform 520ms var(--ease-light) var(--d), opacity 200ms linear var(--d)}
   .m .site-nav :is(.nav-sun, .menu-foot){opacity:0;transition:opacity 140ms linear}
-  .m .is-open .nav-sun{opacity:1;transition:opacity 300ms linear 360ms}
-  .m .is-open .menu-foot{opacity:1;transition:opacity 300ms linear 400ms}
+  .m .is-open .nav-sun{opacity:1;transition:opacity 300ms linear 440ms}
+  .m .is-open .menu-foot{opacity:1;transition:opacity 300ms linear 480ms}
 }
 @media (max-width:399px){.brand-name{letter-spacing:.12em}}
 /* photos (§4.6); B8 for a failed photo */
@@ -293,17 +298,17 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
 @media (min-width:1100px){.window[data-count="3"]{--sw:.6}.window[data-count="2"]{--sw:.4}.frame-line{--kw:.28}}
 @media (min-width:1440px){.window[data-count="3"]{--sw:.5}.window[data-count="2"]{--sw:.32}}
 
-/* hold and silver exit */
+/* hold (exit only, the hero's words with it) and silver exit */
 @supports (animation-timeline:view()){
   @media (prefers-reduced-motion:no-preference){
     :root:not(.still){
       .window{view-timeline:--window block;view-timeline-inset:0px}
-      .window-photos{inset:0 0 auto;height:100lvh;animation:window-hold linear none;animation-timeline:--window;animation-range:cover 0% cover 100%}
+      :is(.window-aperture, .hero-scrim, .hero-copy){animation:window-hold linear none;animation-timeline:--window;animation-range:exit 0% exit 100%}
       .window .ph img{animation:to-mono linear forwards;animation-timeline:--window;animation-range:exit 0% exit 80%}
     }
   }
 }
-@keyframes window-hold{from{transform:translateY(-100vh)}to{transform:translateY(var(--h))}}
+@keyframes window-hold{to{transform:translateY(min(var(--h), 100vh))}}
 @keyframes to-mono{to{filter:grayscale(1)}}
 /* Home: hero copy (§4.4; the scrim is anchored to the photo's bottom edge, §2.2) */
 .hero-scrim{position:absolute;inset:0;z-index:var(--z-on-photo);background:var(--scrim-hero)}
@@ -370,7 +375,7 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
   @media (prefers-reduced-motion:no-preference){
     :root:not(.still){
       .statement .frame{view-timeline:--statement block;view-timeline-inset:0px}
-      .statement :is(.frame--arch, picture){animation:aperture linear both;animation-timeline:--statement;animation-range:entry 5% cover 45%}
+      .statement :is(.frame--arch, picture){animation:aperture linear both;animation-timeline:--statement;animation-range:entry 5% entry 90%}
       .statement .frame--arch picture{animation-name:settle-arch}
     }
   }
@@ -476,10 +481,8 @@ html.header-hidden .index-bar{transform:translateY(calc(var(--header-h) * -1));t
 .ph-link:focus-visible img{transform:scale(1.025)}
 .ph-link:focus-visible picture::after{opacity:1}
 .js .ph-link:has(.is-missing){display:none}
-@media (max-width:860px){
-  .gallery-head{padding-bottom:var(--sp-32)}
-  #weddings > .chapter:first-child{padding-top:var(--sp-24)}
-}
+.gallery-head{padding-bottom:var(--sp-32)}
+@media (max-width:860px){#weddings > .chapter:first-child{padding-top:var(--sp-24)}}
 @media (max-width:599px){
   .rg > *{margin-top:var(--sp-12)}
   .rg > :first-child{margin-top:0}
@@ -510,12 +513,24 @@ html.header-hidden .index-bar{transform:translateY(calc(var(--header-h) * -1));t
   .rg--pair-r > :last-child{grid-column:7 / span 6}
   .rg--solo-l > *{grid-column:2 / span 5}
   .rg--solo-r > *{grid-column:7 / span 5}
+  /* portraits whole on screen */
+  .rg:not(.rg--wide, .rg--land-pair) > *{width:100%;max-width:max(320px, (100svh - var(--header-h) - 112px) * 2 / 3)}
+  :is(.rg--pair-l, .rg--pair-r) > :last-child, .rg--solo-r > *{justify-self:end}
+  .gallery-head .wrap > *{grid-column:1 / -1}
+}
+@media (min-width:1100px){   /* split head; lead out of flow */
+  .gallery-head .wrap{position:relative}
+  .gallery-head .wrap > *{grid-column:1 / span 6}
+  .gallery-head .lead{position:absolute;inset:auto 0 .1em;grid-area:2 / 7 / 3 / 13;margin:0}
 }
 
 /* viewer (§4.12): an opaque darkroom; under .m only .viewer-dark shows, so it fades both ways (M06) */
 .viewer{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;
   overflow:hidden;overscroll-behavior:contain;background:#1E1914;color:#FBF8F2}
 .viewer::backdrop{background:#1E1914}
+html.viewer-open{background:#1E1914}   /* and the kept gutter */
+.m.viewer-open{transition:background 360ms var(--ease-light)}
+.m.viewer-open:has(.is-closing){background:var(--paper);transition:background 320ms var(--ease-exit) 80ms}
 .m .viewer, .m .viewer::backdrop{background:transparent}
 .viewer-dark{position:fixed;inset:0;background:radial-gradient(70% 45% at 50% 112%, rgb(195 150 79 / .12), transparent), #1E1914}
 .viewer-top{position:absolute;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;
@@ -747,6 +762,7 @@ label span{font-weight:400}
 .details>:first-child::before{border-color:var(--bark)}
 .details dt{font:italic 500 1.125rem/1.4 var(--serif);color:var(--bush-ink)}
 .details dd{margin:4px 0 0}
+.details .link-arrow{font:500 1.25rem/1.3 var(--serif);letter-spacing:0;text-transform:none}
 /* motion */
 @media (hover:hover) and (pointer:fine){
 .field input:hover:not([aria-invalid=true]){--r:var(--bark)}
@@ -813,6 +829,7 @@ label span{font-weight:400}
 /* hover (focus twins live with each component) */
 @media (hover:hover) and (pointer:fine){
   .btn:not([aria-disabled="true"]):hover{color:var(--paper);transition:color var(--t-press) linear, transform var(--t-press) var(--ease-light)}
+  .btn--sm:not([aria-disabled="true"]):hover{transition:color 40ms linear 23ms, transform var(--t-press) var(--ease-light)}
   .btn:hover::before{transform:translateY(-58%);transition:transform 420ms var(--ease-light)}
   :is(.btn, .link-arrow):hover :not(.arw--ne) > .arw-shaft{transform:scaleX(var(--arw-grow))}
   :is(.btn, .link-arrow):hover :not(.arw--ne) > .arw-head{transform:translateX(var(--arw-reach))}

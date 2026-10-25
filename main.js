@@ -128,6 +128,9 @@
     c.toggle("vt-keep", r.keep);   // a restored page must not keep it
     try { sessionStorage.setItem("sl-vt", JSON.stringify(r)); } catch (x) {}
   });
+  // In-page jumps glide only after load, so a cold load at #id lands at once, its first view finished (rule 3).
+  var glide = function () { requestAnimationFrame(function () { root.classList.add("glide"); }); };
+  if (document.readyState === "complete") glide(); else addEventListener("load", glide);
   // iOS needs a touch listener for :active
   document.addEventListener("touchstart", function () {}, { passive: true });
 
@@ -395,7 +398,7 @@
     list[cur].focus({ preventScroll: true });
   };
   dlg.oncancel = e => { e.preventDefault(); close(); };
-  for (const a of links) a.onclick = e => { e.preventDefault(); open(a); };
+  for (const a of links) a.onclick = e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return; e.preventDefault(); open(a); };   // a modified or middle click: the browser opens the JPEG
   $(".viewer-prev").onclick = () => go(-1);
   $(".viewer-next").onclick = () => go(1);
   $(".viewer-close").onclick = close;

@@ -54,6 +54,7 @@ label span{font-weight:400}
 .details>:first-child::before{border-color:var(--bark)}
 .details dt{font:italic 500 1.125rem/1.4 var(--serif);color:var(--bush-ink)}
 .details dd{margin:4px 0 0}
+.details .link-arrow{font:500 1.25rem/1.3 var(--serif);letter-spacing:0;text-transform:none}
 /* motion */
 @media (hover:hover) and (pointer:fine){
 .field input:hover:not([aria-invalid=true]){--r:var(--bark)}

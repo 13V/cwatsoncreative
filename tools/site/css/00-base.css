@@ -27,7 +27,7 @@
   --bark:#5C4D3F;--ink:#3F352B;--gulf:#A7BBC3;--mist:#FBF8F2;--sand:#E3DACB;--hill-tint:#C1C3B2;--night:#1E1914;
   --night-text:#BAB5AE;--sun-on-dark:#E2C48F;--brick:#A3452F;--gold-hour:#E9D3AE;--line:#DCD3C4;--line-strong:#B8B0A6;
   --line-on-lime:rgb(92 77 63 / .18);--line-on-dark:rgb(246 242 234 / .22);--rule-field:var(--bush-ink);
-  --scrim-hero:linear-gradient(to top, rgb(30 25 20 / .72) 0, rgb(30 25 20 / .64) 150px, rgb(30 25 20 / .5) 300px, rgb(30 25 20 / 0) 480px);
+  --scrim-hero:linear-gradient(to top, rgb(30 25 20 / .66) 0, rgb(30 25 20 / .55) 150px, rgb(30 25 20 / .42) 300px, rgb(30 25 20 / 0) 440px);
   --serif:"Cormorant Garamond", "Cormorant Fallback", serif;--sans:"Jost", "Jost Fallback", sans-serif;
   --wordmark:"Marcellus", "Marcellus Fallback", serif;--sp-4:4px;--sp-8:8px;--sp-12:12px;--sp-16:16px;--sp-20:20px;
   --sp-24:24px;--sp-32:32px;--sp-40:40px;--sp-48:48px;--sp-56:56px;--sp-64:64px;--sp-96:96px;--sp-128:128px;
@@ -45,9 +45,9 @@
 @media (min-width:861px){:root{--header-h:80px}}
 *, *::before, *::after{box-sizing:border-box}
 [hidden]{display:none !important}
-html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scrollbar-gutter:stable;scroll-padding-top:calc(var(--header-h) + var(--sp-16))}
+html{background:var(--paper);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scrollbar-gutter:stable;scroll-padding-top:calc(var(--header-h) + var(--sp-16))}
 :root:has(.index-bar){scroll-padding-top:calc(var(--header-h) + 72px)}
-html.m{scroll-behavior:smooth}
+html.m.glide{scroll-behavior:smooth}
 html.menu-open, html.viewer-open{overflow:hidden}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 ::selection{background:rgb(195 150 79 / .3);color:var(--ink)}
