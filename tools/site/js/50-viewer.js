@@ -1,4 +1,4 @@
-  // Viewer (§4.12; M06, M11); fades in CSS; the close event cleans up; no showModal: plain links
+  // Viewer (§4.12; M06, M11); fades are CSS; the close event cleans up
   viewer: {
   const dlg = document.querySelector(".viewer"), links = [...document.querySelectorAll("[data-viewer]")];
   if (!links[0] || !dlg?.showModal) break viewer;
@@ -62,6 +62,7 @@
     if (shut || !list[1]) return;
     const a = list[cur = (cur + step + list.length) % list.length], i = img(a), m = motionOK(), g = ++gen;
     stop(front, 1); stop(back);
+    hid.style.visibility = ""; (hid = i).style.visibility = "hidden";
     back.style.cssText = front.style.cssText + ";opacity:0";
     if (m) back.src = front.currentSrc, fx(back, [{ opacity: 1 }, { opacity: 0, transform: `translateX(${-step * pos.w / 25}px)` }], 160,
       "cubic-bezier(.4,0,1,1)");
@@ -74,7 +75,7 @@
       else M.calm(front, "in");
     });
   };
-  const close = () => {   // an off-screen slot is centred first
+  const close = () => {
     if (shut || !dlg.open) return;
     shut = 1; gen++;
     const a = list[cur], f = ph(a), o = f.getBoundingClientRect();

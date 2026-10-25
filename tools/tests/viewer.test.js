@@ -55,6 +55,8 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     s = await state(p);
     ok(s.count === `02 / ${total}` && s.live === `Photo 2 of ${total}: ${await alt(p, 1)}` && s.alts.length === 1 && s.alts[0] === await alt(p, 1),
        `${w}: → moves on; the live region says "${s.live}"`);
+    const empty = await p.$$eval('.ph-link img', is => is.filter(i => i.style.visibility === 'hidden').map(i => i.closest('a').dataset.index));
+    ok(empty.join() === '1', `${w}: only the shown photo's slot is left empty behind the darkroom (${empty.join()})`);
     await p.keyboard.press('ArrowLeft'); await p.keyboard.press('ArrowLeft'); await settle(p);
     s = await state(p);
     ok(s.count === `${total} / ${total}`, `${w}: ← wraps from the first photo to the last (${s.count})`);
