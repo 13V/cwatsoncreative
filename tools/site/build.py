@@ -481,6 +481,8 @@ def gallery():
                 body_extra=viewer(index))
 
 
+# SIZES['cover'], with the cover capped at 30rem from 600px (an 82vw arch would fill a tablet); merge into SIZES.
+COVER_SIZES = f'{PHONE} min(82vw, 480px), {WIDE} calc(38vw - 14px), 455px'
 RG_SIZES = {'wide': ['rg-wide'], 'land-pair': ['rg-land', 'rg-land'], 'pair-l': ['rg-pair-wide', 'rg-pair-narrow'],
             'pair-r': ['rg-pair-narrow', 'rg-pair-wide'], 'solo-l': ['rg-solo'], 'solo-r': ['rg-solo']}
 
@@ -494,7 +496,7 @@ def ph_link(key, index, chapter, inner, cls=''):
 def gallery_section(c, cid, title, line, keys, groups, index, numbered=True):
     """A chapter (or an extra gallery): the cover-first opener (spec §4.11), then the rest of its photos in the rhythm
     grid, one .rg per group from content.rhythm_groups(). Chapter 01's cover is the page's LCP photo (spec §7.6)."""
-    cover = arch_frame(keys[0], 'cover', '2x3', priority=c == 0)
+    cover = arch_frame(keys[0], COVER_SIZES, '2x3', priority=c == 0)
     count = f'{len(keys)} photograph{"s" if len(keys) > 1 else ""}'
     num = (f'<span class="t-count">No. {c + 1:02d}</span> ' if numbered else '') + f'<span class="t-caption">{count}</span>'
     head = (f'<div class="chapter-head grid-12">{ph_link(keys[0], index, title, cover, " chapter-cover")}'

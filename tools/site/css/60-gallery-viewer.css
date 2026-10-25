@@ -1,8 +1,9 @@
-/* gallery: chapters, cover-first openers, rhythm grid (§4.11, §5.2) */
-.chapter-cover{display:block;width:82vw;max-width:100%;margin-inline:auto;border-radius:var(--r-arch)}
-.chapter-text{margin-top:var(--sp-32)}
+/* gallery: chapters and the rhythm grid (§4.11) */
+.chapter-cover{display:block;width:min(82vw, 30rem);margin-inline:auto;border-radius:var(--r-arch)}
+.chapter-text{width:min(82vw, 30rem);margin:var(--sp-32) auto 0}
 .chapter-text .lead-i{margin-top:var(--sp-16)}
 .rg{margin-top:var(--row-gap)}
+#weddings > .chapter:first-child{padding-top:var(--sp-64)}
 .ph-link{display:block;cursor:zoom-in;outline-offset:4px}
 .ph-link:focus-visible{outline-color:var(--bark)}
 .ph-link picture{position:relative}
@@ -34,8 +35,8 @@
 @media (min-width:861px){
   .chapter-head{align-items:center}
   .chapter-head > *{grid-row:1}
-  .chapter-cover{width:auto;grid-column:7 / span 5}
-  .chapter-text{margin:0;grid-column:1 / span 5}
+  .chapter-cover{width:auto;margin:0;grid-column:7 / span 5}
+  .chapter-text{width:auto;margin:0;grid-column:1 / span 5}
   .chapter--alt .chapter-cover{grid-column:2 / span 5}
   .chapter--alt .chapter-text{grid-column:8 / span 5}
   .rg{display:grid;grid-template-columns:repeat(12, minmax(0, 1fr));column-gap:var(--col-gap);align-items:start}
@@ -49,20 +50,21 @@
   .rg--solo-r > *{grid-column:7 / span 5}
 }
 
-/* viewer (§4.12): an opaque darkroom; under .m only the dark layer shows, so it can fade both ways (M06) */
-dialog.viewer{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;
+/* viewer (§4.12): an opaque darkroom; under .m only .viewer-dark shows, so it fades both ways (M06) */
+.viewer{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;
   overflow:hidden;overscroll-behavior:contain;background:#1E1914;color:#FBF8F2}
-dialog.viewer::backdrop{background:#1E1914}
-.m dialog.viewer, .m dialog.viewer::backdrop{background:transparent}
+.viewer::backdrop{background:#1E1914}
+.m .viewer, .m .viewer::backdrop{background:transparent}
 .viewer-dark{position:fixed;inset:0;background:radial-gradient(70% 45% at 50% 112%, rgb(195 150 79 / .12), transparent), #1E1914}
 .viewer-top{position:absolute;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;
-  gap:var(--sp-16);padding:env(safe-area-inset-top) max(var(--sp-4), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left))}
-.viewer-caption{color:var(--night-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  gap:var(--sp-16);padding:max(var(--sp-4), env(safe-area-inset-top)) max(var(--sp-4), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left))}
+.viewer-caption{color:var(--night-text)}
 .viewer-close{width:auto;display:inline-flex;gap:var(--sp-8);padding:0 var(--sp-12);color:var(--mist)}
 .viewer-stage{position:absolute;inset:calc(56px + env(safe-area-inset-top)) 0 calc(104px + env(safe-area-inset-bottom));
   display:grid;place-items:center}
 .viewer-img{grid-area:1 / 1;max-width:none;transform-origin:0 0}
 .viewer-img.is-back{opacity:0;pointer-events:none}
+.viewer-img[src=""]{visibility:hidden}
 .viewer-prev, .viewer-next{position:absolute;z-index:1;bottom:calc(var(--sp-12) + env(safe-area-inset-bottom))}
 .viewer-prev{left:max(var(--sp-8), env(safe-area-inset-left));--nudge:-3px 0}
 .viewer-next{right:max(var(--sp-8), env(safe-area-inset-right));--nudge:3px 0}
@@ -74,7 +76,7 @@ dialog.viewer::backdrop{background:#1E1914}
 .viewer-count{position:relative;margin-top:var(--sp-20);padding-block:var(--sp-16);line-height:1.25;color:var(--night-text);text-align:center}
 .wheel{display:inline-block;height:1.25em;overflow:hidden;vertical-align:top}
 .wheel > span{display:block}
-/* in flight (D16): only while the full file is late, under the counter */
+/* in flight (D16) */
 .viewer-count::after{content:"";position:absolute;left:calc(50% - 20px);bottom:6px;width:40px;border-top:1px solid var(--sun-on-dark);opacity:0}
 .viewer.is-loading .viewer-count::after{opacity:1}
 .m .viewer.is-loading .viewer-count::after{animation:in-flight 1400ms var(--ease-shutter) infinite}
@@ -86,16 +88,21 @@ dialog.viewer::backdrop{background:#1E1914}
   .viewer-foot{padding-top:var(--sp-24);padding-bottom:calc(var(--sp-4) + env(safe-area-inset-bottom))}
   .viewer-count{margin-top:var(--sp-12)}
 }
+@media (max-width:860px) and (max-height:500px){
+  .viewer-stage{inset:44px 64px calc(48px + env(safe-area-inset-bottom))}
+  .viewer-prev, .viewer-next{bottom:auto;top:calc(50% - 24px)}
+  .viewer-foot{padding-top:0}
+  .viewer-count{margin:0;padding-block:var(--sp-8)}
+}
 
-/* M06: the darkroom fades in (360ms) and the controls follow (220ms from 220ms); closing, the controls go (120ms) and
-   the darkroom lifts (320ms from 80ms) while the photo flies home */
+/* M06 fades; the photo itself moves by WAAPI */
 .m .viewer[open] .viewer-dark{animation:fade-in 360ms var(--ease-light)}
-.m .viewer[open] :is(.viewer-top, .viewer-prev, .viewer-next, .viewer-foot){animation:fade-in 220ms linear 220ms backwards}
-.m .viewer.is-closing .viewer-dark{animation:fade-out 320ms var(--ease-exit) 80ms forwards}
-.m .viewer.is-closing :is(.viewer-top, .viewer-prev, .viewer-next, .viewer-foot){animation:fade-out 120ms var(--ease-exit) forwards}
-@keyframes fade-out{to{opacity:0}}
+.m .viewer[open] > :not(:first-child, .viewer-stage){animation:fade-in 220ms linear 220ms backwards}
+.m .viewer.is-closing .viewer-dark{animation:viewer-out 320ms var(--ease-exit) 80ms forwards}
+.m .viewer.is-closing > :not(:first-child, .viewer-stage){animation:viewer-out 120ms var(--ease-exit) forwards}
+@keyframes viewer-out{to{opacity:0}}
 
-/* hover: the photo-link twin of the focus state above (D7) */
+/* hover twin (D7) */
 @media (hover:hover) and (pointer:fine){
   .ph-link:hover img{transform:scale(1.025)}
   .ph-link:hover picture::after{opacity:1}

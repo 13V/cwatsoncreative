@@ -78,6 +78,17 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     }
     await ctx.close();
   }
+  for (const vp of [PHONE, DESKTOP]) {   // every photo's box is reserved before its file arrives (CLS 0 by construction)
+    const ctx = await context(b, 'motion', vp);
+    const p = await ctx.newPage(); watch(p);
+    await p.route(/\/images\/weddings\//, () => {});   // the photos never arrive
+    await p.goto(url, { waitUntil: 'domcontentloaded' });
+    await p.waitForTimeout(300);
+    const bad = await p.$$eval('.ph-link .ph', fs => fs.filter(f => { const r = f.getBoundingClientRect(), i = f.querySelector('img');
+      return r.width < 200 || Math.abs(r.height / r.width - i.getAttribute('height') / i.getAttribute('width')) > .01; }).map(f => f.closest('a').getAttribute('href')));
+    ok(!bad.length, `${vp.viewport.width}: every cover and grid photo holds its full box before its file loads` + (bad.length ? ': ' + bad.join(', ') : ''));
+    await ctx.close();
+  }
   for (const w of [320, 375, 390, 430]) {   // nothing under 220px, nothing past the edge; wide and land-pair bleed
     const ctx = await b.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
     const p = await ctx.newPage(); watch(p);

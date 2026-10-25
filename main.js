@@ -337,7 +337,7 @@
   const at = r => `translate(${r.left - pos.x}px,${r.top - pos.y}px) scale(${r.width / pos.w})`;
   const info = (a, step, g = gen) => {
     const n = cur + 1, N = list.length;
-    if (img(a).currentSrc) front.src = img(a).currentSrc;   // no blank frame
+    front.src = img(a).currentSrc;   // the decoded thumbnail ("": hidden)
     $(".viewer-caption").textContent = a.dataset.chapter;
     $(".viewer-total").textContent = two(N);
     dlg.style.setProperty("--p", n / N);
