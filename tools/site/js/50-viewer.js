@@ -79,9 +79,9 @@
     if (shut || !dlg.open) return;
     shut = 1; gen++;
     const a = list[cur], f = ph(a), o = f.getBoundingClientRect();
-    if (!motionOK()) return M.calm(dlg, "out").then(() => dlg.close());
     if (o.bottom < 0 || o.top > innerHeight)
       root.style.scrollBehavior = "auto", f.scrollIntoView({ block: "center" }), root.style.scrollBehavior = "";
+    if (!motionOK()) return M.calm(dlg, "out").then(() => dlg.close());
     stop(front, 1); front.style.opacity = ""; dlg.classList.add("is-closing");
     if (cover(a)) fx(front, [{ borderRadius: ARCH }], 240, EL, 160, "forwards");
     fx(front, [{ transform: at(f.getBoundingClientRect()) }], 400, ES, 0, "forwards").onfinish = () => {

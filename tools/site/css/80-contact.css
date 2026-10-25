@@ -48,7 +48,7 @@ label span{font-weight:400}
 .form.is-sent{visibility:hidden;opacity:0}
 .form-success{position:sticky;top:max(16px,12svh);align-self:start;display:grid;justify-items:center;gap:16px;padding:clamp(64px,7vw,96px) clamp(32px,4vw,56px) clamp(48px,4vw,56px);border-radius:var(--r-arch);background:var(--limestone)}
 #success-mark .mk-sky{fill:var(--paper)}
-.success-title:focus{outline:2px solid var(--paddock-ink);outline-offset:8px}
+.success-title:focus{outline:none}
 .details>div{position:relative;padding:16px 0}
 .details>div::before{content:"";position:absolute;inset:0 0 auto;border-top:1px solid var(--line);transform-origin:0}
 .details>:first-child::before{border-color:var(--bark)}

@@ -88,7 +88,13 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(!(await look()).hidden, 'focus inside the header shows it');
     // the spy: one link per session, Weddings for both of its sections
     for (const [id, name] of [['couples', 'Couples'], ['wedding-packages', 'Weddings'], ['weddings', 'Weddings'], ['newborn', 'Newborn']]) {
-      await p.evaluate(id => { location.hash = '#' + id; }, id); await p.waitForTimeout(1000);
+      // headless Chromium now and then drops a smooth fragment jump in this sequence (old builds too): re-issue it
+      const landed = () => p.waitForFunction(id => Math.abs(document.getElementById(id).getBoundingClientRect().top -
+        parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)) < 2 || scrollY + innerHeight >= document.documentElement.scrollHeight - 1,
+        id, { timeout: 2500 }).then(() => true, () => false);
+      await p.evaluate(id => { location.hash = '#' + id; }, id);
+      if (!(await landed())) { await p.evaluate(id => document.getElementById(id).scrollIntoView(), id); await landed(); }
+      await p.waitForTimeout(600);
       const s = await look();
       const seen = await p.$eval('.index-bar a[aria-current]', a => { const r = a.getBoundingClientRect(), s = a.closest('.index').getBoundingClientRect(); return r.left >= s.left - 1 && r.right <= s.right + 1; }).catch(() => false);
       ok(JSON.stringify(s.current) === JSON.stringify([name + '=true']) && seen, `#${id}: the spy marks ${name} (${s.current.join(', ')}), scrolled into view`);
@@ -97,9 +103,21 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     const jump = async top => { await p.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), top); await p.waitForTimeout(800); };
     await jump(1e6);
     const bottom = await p.evaluate(() => document.querySelector('.index').scrollLeft);
+    ok(!(await look()).current.length, 'past the last session (the FAQ and the closing) no index link is current');
     await jump(0);
     const back = await p.evaluate(() => ({ n: document.querySelectorAll('.index-bar a[aria-current]').length, left: document.querySelector('.index').scrollLeft }));
     ok(bottom > 0 && !back.n && back.left === 0, `back at the top: no link current, the bar at its start (scrollLeft ${bottom} → ${back.left})`);
+    await ctx.close();
+  }
+  for (const [page, sel] of [['gallery', 'a[href="#the-two-of-you"]'], ['investment', 'a[href="#maternity"]']]) {   // Tab to a part-hidden link
+    const ctx = await context(b, 'reduced', PHONE);
+    const p = await ctx.newPage(); watch(p);
+    await p.goto(`${base}/${page}.html`, { waitUntil: 'networkidle' });
+    const before = await p.$eval(`.index ${sel}`, a => { const r = a.getBoundingClientRect(), s = a.closest('.index').getBoundingClientRect(); return r.right > s.right - 32 && r.left < s.right; });
+    await p.focus(`.index ${sel}`); await p.waitForTimeout(300);
+    const r = await p.$eval(`.index ${sel}`, a => { const r = a.getBoundingClientRect(), s = a.closest('.index').getBoundingClientRect();
+      return { left: Math.round(r.left - s.left), right: Math.round(s.right - r.right) }; });
+    ok(before && r.left >= 8 && r.right >= 40, `390 ${page}: a focused index link part under the edge fade scrolls clear of it, ring and all (${r.left}px / ${r.right}px)`);
     await ctx.close();
   }
   for (const vp of [PHONE, DESKTOP]) {   // a cold load at a session lands with its heading clear of the header and bar

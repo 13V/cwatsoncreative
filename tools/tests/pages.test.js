@@ -16,6 +16,9 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       tabs: [...document.querySelectorAll('#site-nav > a')].map(a => a.textContent.trim()),
       links: [...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href')),
       robots: [...document.querySelectorAll('meta[name="robots"]')].map(m => m.content).join(' '),
+      base: [...document.querySelectorAll('.footer-base a, .footer-base button')].map(a => [a.textContent.trim(), Math.round(a.getBoundingClientRect().height),
+        getComputedStyle(a).textDecorationColor]).filter(x => x[1]),
+      pill: Math.round(document.querySelector('.header-cta').getBoundingClientRect().height),
     }));
     ok(r.status() === 200 && s.page === (KIND[name] || name), `${name}.html loads with data-page="${s.page}"`);
     ok(s.h1 === 1, `${name}: one h1 (${s.h1})`);
@@ -24,6 +27,8 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
        `${name}: tabs are Gallery, Investment, Kind words, Contact (${s.tabs.join(', ')})`);
     ok(!s.links.some(h => /(^|\/)(portfolio|sessions|about|enquire)\.html/.test(h)), `${name}: no links to the retired pages`);
     ok(/noindex/.test(s.robots) === (name === 'kind-words'), `${name}: ${name === 'kind-words' ? 'kept out of search (holding page)' : 'indexable'}`);
+    ok(s.base.length >= 3 && s.base.every(x => x[1] >= 44 && x[2] === 'rgb(195, 150, 79)') && s.pill >= 44,
+       `${name}: footer base-line links are 44px targets with the Paddock underline (${s.base.map(x => x[0] + ' ' + x[1]).join(', ')}); the header pill ${s.pill}px`);
   }
 
   // Back to top reaches the top with and without JS (the sticky header cannot be the #top target: stuck, it is always

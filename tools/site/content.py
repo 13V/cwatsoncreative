@@ -57,12 +57,14 @@ WEDDING_TERMS = ['Your full gallery within three months',
 # Sessions on the Investment page, with her prices (October 2026). A session without a price shows
 # "Pricing on enquiry". `includes` become the rows of the session's spec sheet (SPEC_LABELS). A session gets a photo
 # row once its photo exists. Mini sessions ($220) are left off on purpose: they run as limited-time specials.
+# `more` is the Weddings row's one action; its count comes from WEDDING_PACKAGES, so it stays right.
+NUMBER_WORDS = ('no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve')
 LOCATION = 'Your choice of location around Adelaide (travel further out can be quoted)'
 GALLERY = 'Every edited image in a professional online gallery'
 SESSIONS = [
  dict(id='weddings', name='Weddings', photo='castle-balcony', price='From $1,700',
       includes=['Five packages, from 4 to 12 hours of coverage', 'Sneak peeks within 24 hours', 'A pre-wedding consultation'],
-      more=('#wedding-packages', 'See the wedding packages'),
+      more=('#wedding-packages', f'See the {NUMBER_WORDS[len(WEDDING_PACKAGES)]} packages'),
       body=['I photograph weddings the way they feel: getting ready, the nerves, the vows, the champagne and the dance floor.',
             'I keep things calm and quiet, step in when you need direction and stay out of the way when you don’t. '
             'I’ll also help you plan the timeline, so your portraits land in the best light of the day.']),
@@ -135,7 +137,7 @@ CLOSING = {
     'index': 'You bring|your people.//*I’ll look after|the light.*',  # the end of INTRO[1] (asserted below)
     'gallery': 'Your day,//*in this light.*',                        # NEW, for the owner's sign-off
     'investment': 'Let’s plan//*your session.*',                     # NEW
-    'kind-words': 'Tell me about//*your day.*',                      # NEW
+    'kind-words': 'Let’s plan//*something lovely.*',                 # NEW (spec §6.3's fallback; Contact's h1, but Contact has no closing)
 }
 CLOSING_LEAD = 'Tell me a little about what you’re planning. I’ll get back to you with availability and pricing.'
 
@@ -145,7 +147,7 @@ GALLERY_CHAPTERS = [
      ['gilded-mirror', 'arch-mirror', 'bougainvillea-bride', 'car-window-smile']),
     ('your-people', 'Your people', 'Your favourite people, the petals and the champagne.',
      ['bridesmaids-steps', 'groomsmen-steps', 'bridesmaids-seated', 'winery-champagne', 'olive-grove-confetti']),
-    ('the-two-of-you', 'The two of you', 'Stone walls, bougainvillea and a quiet minute alone.',
+    ('the-two-of-you', 'The two of you', 'Stone walls, bougainvillea and a minute to yourselves.',
      ['castle-window', 'castle-laugh', 'castle-dip', 'castle-balcony', 'bougainvillea-embrace',
       'silver-car-bouquet', 'jaguar-window-kiss']),
     ('golden-hour', 'Golden hour', 'The hour before sunset, when the light goes low and warm.',
@@ -165,15 +167,19 @@ KIND_WORDS_HOLDING_PHOTO = 'jaguar-kiss'
 
 # Investment page
 INVESTMENT_HERO = 'jaguar-veil'
+# Old sessions.html anchors (it redirects here, keeping the fragment): old id -> the session it became. #milestones
+# (graduations, 18ths, birthdays) was dropped in ed55ac9, so it has no section and lands at the top of the page.
+OLD_ANCHORS = {'bump': 'maternity'}
 INVESTMENT_INTRO = ['These are the photos you’ll frame, share and come back to for years, so every session is planned around '
                     'the best light of the day and the people in it.',
                     'Every session includes help choosing the spot and the time, ideas for what to wear, and your edited '
                     'photos in a private online gallery, ready to download and share.']
-# Spec-sheet row labels for each session include (every include except GALLERY becomes a row, in order).
+# Spec-sheet row labels for each session include (every include becomes a row, in order).
 SPEC_LABELS = {'Five packages, from 4 to 12 hours of coverage': 'Coverage', 'Sneak peeks within 24 hours': 'Previews',
                'A pre-wedding consultation': 'Before the day', 'About 45 minutes': 'Time', '45 to 60 minutes': 'Time',
                'Up to five people, then $25 for each extra person': 'Who', LOCATION: 'Where',
-               'At your home or an outdoor location': 'Where', 'Maternity and newborn packages available': 'Packages'}
+               'At your home or an outdoor location': 'Where', 'Maternity and newborn packages available': 'Packages',
+               GALLERY: 'Gallery'}
 
 # Where faces sit in each photo (object-position), read from the photos, so cropped slots keep them in view.
 FOCUS = {
@@ -264,4 +270,4 @@ for r in KIND_WORDS:
     assert not r['pull'] or r['pull'] in r['words'], 'a pull phrase must be an exact part of the review'
     assert not r['photo'] or r['photo_is_theirs'], 'a photo may only sit beside the review of the people in it'
 for s in SESSIONS:
-    assert all(i in SPEC_LABELS for i in s['includes'] if i != GALLERY), 'every include needs a spec-sheet label'
+    assert all(i in SPEC_LABELS for i in s['includes']), 'every include needs a spec-sheet label'

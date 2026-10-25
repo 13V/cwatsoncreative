@@ -2,7 +2,7 @@
   document.querySelectorAll("[data-year]").forEach(function (node) {
     node.textContent = String(new Date().getFullYear());
   });
-  // Back to top: smooth only with motion, then focus the header (tabindex=-1). Without JS, #top is the page top.
+  // Back to top: smooth only with motion, then focus the header. Without JS, #top is the page top.
   document.querySelectorAll(".to-top").forEach(function (a) {
     a.addEventListener("click", function (e) {
       var top = document.querySelector("#top, .site-header");
@@ -13,9 +13,9 @@
     });
   });
 
-  // Golden hour (M03): the hour before NOAA sunset, for Adelaide's date.
+  // Golden hour (M03): the hour before NOAA sunset in Adelaide.
   var golden = document.querySelector("[data-golden]");
-  var sunsetMinutesUTC = window.slSunset = function (y, m, d) {   // minutes UTC
+  var sunsetMinutesUTC = window.slSunset = function (y, m, d) {
     var r = Math.PI / 180, sin = Math.sin, cos = Math.cos, tan = Math.tan, lat = -34.9285 * r;
     var t = (Date.UTC(y, m - 1, d) / 864e5 + 2440587.5 - 2451545) / 36525;
     var L = (280.46646 + t * (36000.76983 + t * .0003032)) % 360 * r;
@@ -30,7 +30,7 @@
     return 720 - 4 * 138.6007 - eq + 4 * Math.acos(cos(90.833 * r) / (cos(lat) * cos(decl)) - tan(lat) * tan(decl)) / r;
   };
   var showGoldenHour = function () {
-    try {   // no Intl time zones: the static text stays
+    try {   // no Intl zones: the static text stays
       var zone = "Australia/Adelaide", day = new Intl.DateTimeFormat("en-AU", { timeZone: zone, year: "numeric", month: "numeric", day: "numeric" });
       var time = new Intl.DateTimeFormat("en-AU", { timeZone: zone, hour: "numeric", minute: "2-digit" });
       var sunsetOn = function (when) {

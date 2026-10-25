@@ -22,7 +22,7 @@ from content import (  # noqa: E402,F401
     HERO, HERO_TITLE, HOME_WINDOWS, HOME_STATEMENT_PHOTO, HOME_TILE_PHOTO, STATEMENT_LINE, INTRO, INSTAGRAM_STRIP,
     CLOSING, CLOSING_LEAD, GALLERY_CHAPTERS, rhythm, rhythm_groups, landscape,
     SESSIONS, SESSION, SPEC_LABELS, LOCATION, GALLERY, INVESTMENT_HERO, INVESTMENT_INTRO, WEDDING_PACKAGES,
-    WEDDING_INCLUDES, WEDDING_TERMS, STEPS, FAQ, min_price, CONTACT_PHOTO,
+    WEDDING_INCLUDES, WEDDING_TERMS, STEPS, FAQ, min_price, CONTACT_PHOTO, OLD_ANCHORS,
     KIND_WORDS, KIND_WORDS_ARE_PLACEHOLDERS, KIND_WORDS_HOLDING_PHOTO, plain)
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))  # the photos are looked up here
@@ -41,7 +41,7 @@ def e(s):
 BP_XS, BP_SM, BP_MD, BP_LG, BP_XL = 400, 600, 861, 1100, 1440   # min-widths; their complements are one less
 WRAP = 1240
 PHONE, SMALL, WIDE = f'(max-width: {BP_MD - 1}px)', f'(max-width: {BP_SM - 1}px)', f'(max-width: {WRAP}px)'
-WIDTHS = (480, 800, 1000, 1200)   # WebP copies at these widths, plus the full-size file
+WIDTHS = (320, 480, 800, 1000, 1200)   # WebP copies at these widths, plus the full-size file (tools/prepare_photos.py)
 
 # How wide each kind of photo shows, so phones load a small copy and large screens a big one. Photos that fill a
 # screen-tall layer render two-thirds of the screen's height wide (66.7vh). Keys are API for the page packages.
@@ -118,22 +118,23 @@ def srcset(path, w):
     return ', '.join(f'{p} {v}w' for v, p in rungs)
 
 
-def _picture(path, w, h, alt, sizes, priority=False, eager=False):
+def _picture(path, w, h, alt, sizes, priority=False, eager=False, high=False):
     ss, sz = srcset(path, w), SIZES.get(sizes, sizes)
     source = f'<source type="image/webp" srcset="{ss}" sizes="{sz}">' if ss else ''
-    load = ' fetchpriority="high" data-lcp' if priority else '' if eager else ' loading="lazy" decoding="async"'
+    load = (' fetchpriority="high" data-lcp' if priority else '' if eager else
+            ' loading="lazy" decoding="async"' + (' fetchpriority="high"' if high else ''))
     return f'<picture>{source}<img src="{path}" width="{w}" height="{h}" alt="{e(alt)}"{load}></picture>'
 
 
-def picture(key, sizes, *, alt=None, priority=False, eager=False):
+def picture(key, sizes, *, alt=None, priority=False, eager=False, high=False):
     """A photo: WebP copies for browsers that take them, the JPEG for the rest. `sizes` is a SIZES key or a literal.
-    priority (the page's LCP photo): fetchpriority="high" and data-lcp, never lazy."""
+    priority (the page's LCP photo): fetchpriority="high" and data-lcp, never lazy. high: lazy, but first in line."""
     path, w, h, text, _ = PHOTOS[key]
     w, h = size_of(path, (w, h))
-    return _picture(path, w, h, text if alt is None else alt, sizes, priority, eager)
+    return _picture(path, w, h, text if alt is None else alt, sizes, priority, eager, high)
 
 
-def fig(key, sizes, *, cls='', ratio=None, tag='figure', fill=False, priority=False, eager=False, alt=None,
+def fig(key, sizes, *, cls='', ratio=None, tag='figure', fill=False, priority=False, eager=False, high=False, alt=None,
         tray=False, attrs='', style=''):
     """A photo slot (.ph): '' when the file doesn't exist, so empty slots never render. Inline: --ph (the photo's
     tone), --focus (where the faces are) and the aspect ratio (native, or `ratio` like '4/5'), unless `fill` (the
@@ -151,7 +152,7 @@ def fig(key, sizes, *, cls='', ratio=None, tag='figure', fill=False, priority=Fa
     if style:
         st.append(style)
     return (f'<{tag} class="{classes}" style="{"; ".join(st)}"{attrs}>'
-            f'{picture(key, sizes, alt=alt, priority=priority, eager=eager)}</{tag}>')
+            f'{picture(key, sizes, alt=alt, priority=priority, eager=eager, high=high)}</{tag}>')
 
 
 def arch_frame(key, sizes, ratio, *, keyline=False, door=False, cls='', **fig_kwargs):
@@ -513,11 +514,14 @@ def gallery():
                 keys.append(f'{gid}-{i:02d}')
         if keys:
             extras.append((gid, name, '', keys))
-    galleries = (['Weddings'] if chapters else []) + [x[1] for x in extras]
-    names = [g if i == 0 else g.lower() for i, g in enumerate(galleries)]
-    names = (', '.join(names[:-1]) + ' and ' + names[-1]) if len(names) > 1 else ''.join(names)
+    def listing(galleries):
+        names = [g if i == 0 else g.lower() for i, g in enumerate(galleries)]
+        return (', '.join(names[:-1]) + ' and ' + names[-1]) if len(names) > 1 else ''.join(names)
+    names, kinds = listing((['Weddings'] if chapters else []) + [x[1] for x in extras]), \
+        listing((['Wedding'] if chapters else []) + [x[1] for x in extras])
     lead = (f'{e(names)} from around Adelaide. ' if names else '') + \
         f'The newest sessions go up on <a href="{INSTAGRAM[1]}">Instagram</a> first.'
+    desc = f'{kinds} photography from around Adelaide by Sunday Light.' if kinds else 'Photography by Sunday Light, Adelaide.'
     if extras:   # spec §4.10: galleries once others exist, chapters while only weddings do
         bar = index_bar('Galleries', ([(['weddings'], 'Weddings', sum(len(c[3]) for c in chapters))] if chapters else [])
                         + [([gid], name, len(keys)) for gid, name, _, keys in extras])
@@ -533,9 +537,7 @@ def gallery():
 {f'<div id="weddings">{weddings}</div>' if weddings else ''}
 {''.join(sections[len(chapters):])}
 {closing("gallery")}'''
-    return page('gallery', 'gallery.html', 'Gallery | Sunday Light',
-                'Wedding, couples, family, maternity and newborn photography from around Adelaide by Sunday Light.', main,
-                body_extra=viewer(index))
+    return page('gallery', 'gallery.html', 'Gallery | Sunday Light', desc, main, body_extra=viewer(index))
 
 
 RG_SIZES = {'wide': ['rg-wide'], 'land-pair': ['rg-land', 'rg-land'], 'pair-l': ['rg-pair-wide', 'rg-pair-narrow'],
@@ -615,13 +617,9 @@ def inv_hero():
             f'<em>for good.</em></h1><p class="lead">{e(lead)}</p>{"".join(f"<p>{e(p)}</p>" for p in rest)}</div></section>')
 
 
-NUMBER_WORDS = ('no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve')
-
-
 def spec_sheet(s):
-    """Every include but the gallery (the hero intro promises it for every session) as a labelled row, then the price
-    row, or "Pricing on enquiry" in the same slot."""
-    rows = [x for x in s['includes'] if x != GALLERY]
+    """Every include as a labelled row, in her order, then the price row, or "Pricing on enquiry" in the same slot."""
+    rows = s['includes']
     price = f'<dd class="t-price">{e(s["price"])}</dd>' if s.get('price') else '<dd class="spec-ask">Pricing on enquiry</dd>'
     return (f'<dl class="spec" data-rules>'
             + ''.join(f'<div style="--i:{i}"><dt>{e(SPEC_LABELS[x])}</dt><dd>{e(x)}</dd></div>' for i, x in enumerate(rows))
@@ -629,14 +627,19 @@ def spec_sheet(s):
 
 
 def session_text(s):
-    """Her paragraphs, the spec sheet and the session's one action."""
-    if s['id'] == 'weddings':
-        action = link_arrow('#wedding-packages', f'See the {NUMBER_WORDS[len(WEDDING_PACKAGES)]} packages')
+    """Her paragraphs, the spec sheet and the session's one action (its `more` link, or an enquiry)."""
+    if s.get('more'):
+        action = link_arrow(*s['more'])
     else:
         action = link_arrow(f'contact.html?session={quote_plus(FORM_SESSION[s["id"]])}',
                             f'Enquire about {s.get("short", s["name"]).lower()}')
     body = ''.join(f'<p>{e(p)}</p>' for p in s['body'])
     return f'<div class="session-body">{body}</div>{spec_sheet(s)}<div class="session-action">{action}</div>'
+
+
+def old_anchor(sid):
+    """Empty targets for the old sessions.html ids of this session, inside its heading (no box, so no layout)."""
+    return ''.join(f'<span id="{old}"></span>' for old, new in OLD_ANCHORS.items() if new == sid)
 
 
 def session_row(s, mirror=False):
@@ -645,7 +648,7 @@ def session_row(s, mirror=False):
     sid = s['id']
     return (f'<article class="session sec--standard{" session--mirror" if mirror else ""}" id="{sid}" aria-labelledby="{sid}-title">'
             f'<div class="wrap grid-12">{fig(s["photo"], "session", cls="session-photo", ratio="4/5")}'
-            f'<div class="session-text"><h2 id="{sid}-title">{e(s["name"])}</h2>{session_text(s)}</div></div></article>')
+            f'<div class="session-text"><h2 id="{sid}-title">{old_anchor(sid)}{e(s["name"])}</h2>{session_text(s)}</div></div></article>')
 
 
 def carte(sessions):
@@ -654,7 +657,7 @@ def carte(sessions):
     names = [s.get('short', s['name']) for s in sessions]
     label = (', '.join(names[:-1]) + ' & ' + names[-1]) if len(names) > 1 else names[0]
     rows = ''.join(f'<article class="session session--word" id="{s["id"]}" aria-labelledby="{s["id"]}-title">'
-                   f'<h2 class="t-word" id="{s["id"]}-title">{e(s.get("short", s["name"]))}</h2>'
+                   f'<h2 class="t-word" id="{s["id"]}-title">{old_anchor(s["id"])}{e(s.get("short", s["name"]))}</h2>'
                    f'<div class="session-text">{session_text(s)}</div></article>' for s in sessions)
     return (f'<section class="carte sec--standard" aria-labelledby="carte-label"><div class="wrap">'
             f'<p class="eyebrow" id="carte-label">{e(label[0] + label[1:].lower())}</p>{rows}</div></section>')
@@ -671,7 +674,7 @@ def wedding_packages():
                     for title, items in (('Every package includes', WEDDING_INCLUDES), ('Good to know', WEDDING_TERMS)))
     return (f'<section class="packages sec--band" id="wedding-packages" aria-labelledby="wedding-packages-title"><div class="wrap">'
             f'<div class="head--split"><h2 id="wedding-packages-title">Wedding <em>packages</em></h2>'
-            f'<p class="lead">The packages differ only in hours. Everything below comes with every one of them.</p></div>'
+            f'<p class="lead">The packages differ only in hours. Everything else is the same in every one.</p></div>'
             f'<ol class="tiers" role="list" data-rules style="--i:{len(WEDDING_PACKAGES)}">{tiers}</ol>'
             f'<div class="tier-notes">{notes}</div><div class="actions">{button("contact.html?session=" + quote_plus(FORM_SESSION["weddings"]), "Check my wedding dates")}</div></div></section>')
 
@@ -710,7 +713,8 @@ def kind_words_page():
     ig_name, ig_url = INSTAGRAM
     title, desc = 'Kind words | Sunday Light', 'What couples and families say about their sessions with Sunday Light, Adelaide photographer.'
     h1 = 'From the people <em>in the photos.</em>'
-    if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:
+    if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:   # the link preview promises no reviews either
+        desc = 'Where couples and families share how their sessions felt with Sunday Light, Adelaide photographer.'
         main = f'''<section class="page-head kw-holding sec--compact head--center"><div class="wrap">
 {arch_frame(KIND_WORDS_HOLDING_PHOTO, "kw-holding", "3x4", priority=True)}
 <p class="eyebrow">Kind words</p><h1>{h1}</h1>
@@ -777,7 +781,7 @@ def contact():
 </fieldset>
 <div class="fs field field--letter"><label class="legend t-question" for="message">Tell me about it</label>
 <textarea id="message" name="message" required maxlength="4000" placeholder="Who’s involved, what you’re picturing, anything I should know" aria-describedby="err-message"></textarea>
-{form_error("message", "A line or two is plenty.")}
+{form_error("message", "Add a line or two about what you’re planning.")}
 </div>
 <fieldset class="fs"><legend class="t-question">How did you find me? (optional)</legend>
 <div class="chips">{form_chips("heard", ["Instagram", "A friend", "Google", "A wedding vendor", "Somewhere else"])}</div>
@@ -797,7 +801,7 @@ def contact():
 <p id="form-live" class="sr-only" role="status"></p>
 </div>
 <div class="contact-aside">
-{arch_frame(CONTACT_PHOTO, "contact", "3x4", keyline=True, eager=True)}
+{arch_frame(CONTACT_PHOTO, "contact", "3x4", keyline=True, high=True)}
 <dl class="details" data-rules>
 <div style="--i:0"><dt>What happens next</dt><dd class="t-small">I’ll reply with available dates, pricing and a few ideas for your session.</dd></div>
 <div style="--i:1"><dt>Instagram</dt><dd>{link_arrow(ig_url, ig_name, external=True)}</dd></div>
@@ -1095,6 +1099,11 @@ def verify(pages, out):
             w, h = size_of(path, PHOTOS[k][1:3])
             if (w > h) != landscape(k):
                 fail(f'{k}: content.py says {"landscape" if landscape(k) else "portrait"}, the file says otherwise')
+            stem = os.path.join(ROOT, path.rsplit('.', 1)[0])   # a copy is never heavier than the full file it stands in for
+            for v in WIDTHS:
+                if v < w and os.path.isfile(f'{stem}-{v}.webp') and os.path.isfile(f'{stem}.webp') and \
+                        os.path.getsize(f'{stem}-{v}.webp') >= os.path.getsize(f'{stem}.webp'):
+                    fail(f'{k}: the {v}px WebP copy is not lighter than the full-size one (tools/prepare_photos.py qualities)')
     for where in {out, ROOT}:
         if os.path.exists(os.path.join(where, 'images', 'placeholder.svg')):
             fail(f'{where}/images/placeholder.svg exists: placeholder art is retired (spec §6.2)')

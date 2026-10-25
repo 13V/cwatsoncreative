@@ -1,6 +1,6 @@
 
-  // Header (spec §4.2): hides scrolling down, returns scrolling up; never near the top, with the menu open, focus
-  // inside or without motion. html.header-hidden moves the index bar.
+  // Header (§4.2): hides going down, back going up; never near the top, menu open, focus inside or no motion.
+  // html.header-hidden moves the index bar.
   var siteHeader = document.querySelector(".site-header");
   if (siteHeader) {
     var lastY = Math.max(0, scrollY), ticking = false;

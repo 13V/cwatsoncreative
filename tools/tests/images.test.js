@@ -26,6 +26,24 @@ const firstView = p => p.evaluate(() => {
 });
 
 module.exports = async ({ browser: b, base, ok, watch }) => {
+  // The Instagram sheet's thumbnails (Home and Kind words) take the 320 copy wherever it covers their box (Moto G,
+  // desktop); a 3x phone needs 338px there, so it takes the 480. Browsers take the first copy at or above the density.
+  for (const [label, w, h, dpr] of [['iPhone (3x)', 390, 844, 3], ['Moto G (1.75x)', 412, 823, 1.75], ['desktop (1x)', 1440, 900, 1]]) {
+    const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr, isMobile: w < 861, hasTouch: w < 861 });
+    for (const name of ['index', 'kind-words']) {
+      const p = await ctx.newPage(); watch(p);
+      await p.goto(`${base}/${name}.html`, { waitUntil: 'networkidle' });
+      await p.$eval('.sheet', el => el.scrollIntoView({ block: 'center' }));
+      await p.waitForFunction(() => [...document.querySelectorAll('.sheet img')].every(i => i.complete && i.naturalWidth), null, { timeout: 8000 }).catch(() => {});
+      const r = await p.$$eval('.sheet img', l => l.map(i => { const b = i.getBoundingClientRect(), a = i.naturalWidth / i.naturalHeight;
+        return { src: i.currentSrc.split('/').pop(), need: Math.round(Math.max(b.width, b.height * a) * devicePixelRatio) }; }));
+      ok(r.length === 6 && r.every(x => x.src.endsWith(x.need <= 320 ? '-320.webp' : '-480.webp')) && (dpr === 3 || r.every(x => x.src.endsWith('-320.webp'))),
+         `${label} ${name}: the six sheet thumbnails load the smallest copy that covers them (${r.map(x => x.src.replace(/^.*-/, '') + ' for ' + x.need + 'px').join(', ')})`);
+      await p.close();
+    }
+    await ctx.close();
+  }
+
   for (const [label, w, h, dpr] of CONFIGS) {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dpr, isMobile: w < 861, hasTouch: w < 861 });
     const problems = [];

@@ -1,5 +1,5 @@
 // Sunday Light. Built from tools/site/js/ by tools/site/build.py: edit the parts there.
-// Sunday Light. The finished, still page is the CSS default; motion only starts from html.m (motion plan §5).
+// Sunday Light. The still page is the CSS default; motion starts only from html.m (motion plan §5).
 (function () {
   "use strict";
   var root = document.documentElement;
@@ -8,7 +8,7 @@
   var M = window.SL = { motionOK: motionOK };
   var wait = M.wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 
-  // Queues: 2 lines draw, 4 prints develop at once, starts a gap apart; a slot frees when start() settles or after ms+150.
+  // Queues: 2 draws, 4 prints at once, a gap apart; a slot frees when start() settles or at ms+150.
   var Q = { draw: { n: 2, gap: 120, busy: 0, last: 0, wait: [] }, print: { n: 4, gap: 100, busy: 0, last: 0, wait: [] } };
   var pump = function (q) {
     if (q.busy >= q.n || !q.wait.length || q.timer) return;
@@ -21,8 +21,8 @@
   };
   M.queue = function (kind, start, ms) { var q = Q[kind]; q.wait.push([start, ms]); pump(q); };
 
-  // One observer plays every one-shot: on screen at first sight it is done; below the fold armed until `ratio` is seen.
-  // A cold load at #id jumps after the observer's first look, so that look judges where the jump lands.
+  // One observer plays every one-shot: in view at first sight, done; else armed until `ratio` is seen. A cold
+  // load at #id jumps after the first look, which judges where it lands.
   var jobs = new Map(), seen = new WeakSet(), land = document.getElementById(location.hash.slice(1));
   M.done = function (el) {
     el.classList.remove("is-armed", "is-developing");
@@ -65,14 +65,14 @@
     list.push({ ratio: ratio, run: run, done: false, fromStart: !!fromStart });
   };
 
-  // The one animation allowed without motion: 150ms opacity, to and from display: none.
+  // The one move without motion: 150ms opacity, to and from display: none.
   M.calm = function (el, dir) {
     if (!el || !el.animate) return Promise.resolve();
     var a = el.animate({ opacity: dir === "in" ? [0, 1] : [1, 0] }, { duration: 150, easing: "linear", fill: dir === "in" ? "none" : "forwards" });
     return a.finished.then(function () { return a; }, function () {});
   };
 
-  // Settle: every moment jumps to its finished frame (Hold still, or Reduce Motion turned on).
+  // Settle: every moment jumps to its end (Hold still, or Reduce Motion on).
   var settle = function (hold) {
     if (hold) root.classList.add("still");   // first: the CSS kill switch
     root.classList.remove("m");
@@ -106,7 +106,7 @@
     syncStill();
   });
 
-  // Through the arch (M01): remember the tap or doorway (M14); hand over as the page leaves.
+  // Through the arch (M01): note the tap or doorway (M14); hand over as the page leaves.
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href]"), W = innerWidth, r, d, f, b;
     if (!a || e.defaultPrevented || a.target || a.hasAttribute("download") || a.origin !== location.origin) return;
@@ -125,7 +125,7 @@
     r.quiet = c.contains("menu-open") || !!r.hash;
     hd = document.querySelector(".site-header");
     r.keep = !r.quiet && !!hd && hd.getBoundingClientRect().top > -1;
-    c.toggle("vt-keep", r.keep);   // toggle: a restored page must not keep it
+    c.toggle("vt-keep", r.keep);   // a restored page must not keep it
     try { sessionStorage.setItem("sl-vt", JSON.stringify(r)); } catch (x) {}
   });
   // iOS needs a touch listener for :active
@@ -135,19 +135,19 @@
   var drawn = function (el) { el.classList.add("is-drawn"); };
   // Ruled in (M12) at 25%.
   document.querySelectorAll("[data-rules]").forEach(function (el) { once(el, .25, drawn); });
-  // Every window is the logo (M02): the arcade draws at 90%, cells 120ms apart.
+  // Windows (M02): the arcade draws at 90%, cells 120ms apart.
   document.querySelectorAll(".window-arches").forEach(function (el) {
     var ms = 780 + 120 * el.children.length;
     once(el, .9, function () { M.queue("draw", function () { drawn(el); return wait(ms); }, ms); });
   });
-  // Sundown (M03): the line; .is-dusk is the sunset where scroll timelines are missing.
+  // Sundown (M03): the line; .is-dusk sets the sun without scroll timelines.
   var scene = document.querySelector(".sundown-scene");
   once(scene, .9, function () { M.queue("draw", function () { drawn(scene); return wait(3000); }, 3000); });
   once(scene, .5, function () { scene.classList.add("is-dusk"); });
-  // 404 (D12): the mark's start frame is CSS from first paint; it goes to dusk once.
+  // 404 (D12): the mark starts in CSS at first paint, then goes to dusk once.
   once(document.getElementById("nf-mark"), .9, function (el) { el.classList.add("is-dusk"); }, true);
 
-  // Phone menu (M07): below 861px the closed sheet is inert; open, the page behind is.
+  // Phone menu (M07): below 861px the shut sheet is inert; open, the page behind is.
   var toggle = document.querySelector(".nav-toggle"), nav = document.getElementById("site-nav");
   if (toggle && nav) {
     var behind = document.querySelectorAll("main, .site-footer, .skip");
@@ -157,7 +157,7 @@
     var setMenu = function (open) {
       nav.inert = !open && phone.matches;
       if (open === isOpen()) return;
-      if (open && M.showHeader) M.showHeader(true);   // never inside a moving header
+      if (open && M.showHeader) M.showHeader(true);   // never in a moving header
       toggle.setAttribute("aria-expanded", String(open));
       if (label) label.textContent = open ? "Close" : "Menu";
       nav.classList.toggle("is-open", open);
@@ -179,8 +179,8 @@
     onWidth();
   }
 
-  // Header (spec §4.2): hides scrolling down, returns scrolling up; never near the top, with the menu open, focus
-  // inside or without motion. html.header-hidden moves the index bar.
+  // Header (§4.2): hides going down, back going up; never near the top, menu open, focus inside or no motion.
+  // html.header-hidden moves the index bar.
   var siteHeader = document.querySelector(".site-header");
   if (siteHeader) {
     var lastY = Math.max(0, scrollY), ticking = false;
@@ -207,7 +207,7 @@
     updateHeader();
   }
 
-  // Photos: WebP, then the JPEG, then .is-missing.
+  // Photos: WebP, then JPEG, then .is-missing.
   var photoFailed = function (img) {
     var pic = img.parentNode, ph = img.closest(".ph"), sources = pic.querySelectorAll("source");
     if (sources.length) sources.forEach(function (s) { pic.removeChild(s); });
@@ -218,7 +218,7 @@
     img.addEventListener("error", function () { photoFailed(img); });
     if (img.complete) { if (img.naturalWidth) img.classList.add("is-loaded"); else photoFailed(img); }
   });
-  // Prints in the tray (M10): develops at 20% once decoded; not decoded in 2.5s, missing or done: the veil just goes.
+  // Tray prints (M10) develop at 20% once decoded; undecoded in 2.5s, missing or done: the veil goes.
   document.querySelectorAll(".ph--tray").forEach(function (ph) {
     var img = ph.querySelector("img"), armed = function () { return ph.classList.contains("is-armed"); };
     if (img) once(ph, .2, function () {
@@ -243,21 +243,24 @@
     });
   });
 
-  // Index spy (§4.10): the top target in the band under the bars marks its link; none above the first.
+  // Index spy (§4.10): the top target in the band is current; none above the first or past the last.
   {
     const bar = document.querySelector(".index-bar"), ix = bar && bar.querySelector(".index"), owner = new Map(), band = new Set();
     let current = null;
-    const mark = (a) => {
-      if (a === current) return;
-      if (current) current.removeAttribute("aria-current");
+    const show = (a) => {   // never scrollIntoView
       let left = 0;
-      if ((current = a)) {
-        a.setAttribute("aria-current", "true");
+      if (a) {
         const r = a.getBoundingClientRect(), s = ix.getBoundingClientRect();
-        if (r.left >= s.left && r.right <= s.right - 32) return;   // never scrollIntoView
+        if (r.left >= s.left + 8 && r.right <= s.right - 40) return;
         left = ix.scrollLeft + r.left - s.left - (s.width - r.width) / 2;
       }
       ix.scrollTo({ left, behavior: motionOK() ? "smooth" : "auto" });
+    };
+    const mark = (a, past) => {
+      if (a && a === current) return;
+      if (current) current.removeAttribute("aria-current");
+      if ((current = a)) a.setAttribute("aria-current", "true");
+      if (!past) show(a);
     };
     if (ix) {
       ix.querySelectorAll("a[data-spy]").forEach((a) => a.dataset.spy.split(" ").forEach((id) => {
@@ -265,14 +268,17 @@
         if (t) owner.set(t, a);
       }));
       const targets = [...owner.keys()].sort((a, b) => a.compareDocumentPosition(b) & 2 ? 1 : -1);
+      const edge = 8 + Math.max(document.querySelector(".site-header").offsetHeight + bar.offsetHeight,
+        parseFloat(getComputedStyle(root).scrollPaddingTop) || 0);   // 8px below landing
       const spy = new IntersectionObserver((entries) => {
         entries.forEach((e) => band[e.isIntersecting && e.intersectionRatio > 0 ? "add" : "delete"](e.target));
         const top = targets.find((t) => band.has(t));
         if (top) mark(owner.get(top));
         else if (targets[0]?.getBoundingClientRect().top >= bar.getBoundingClientRect().bottom - 1) mark(null);
-      }, { rootMargin: `-${8 + Math.max(document.querySelector(".site-header").offsetHeight + bar.offsetHeight,
-        parseFloat(getComputedStyle(root).scrollPaddingTop) || 0)}px 0px -55% 0px`, threshold: [0, .001] });   // 8px below landing
+        else if (targets.at(-1)?.getBoundingClientRect().bottom <= edge + 1) mark(null, 1);
+      }, { rootMargin: `-${edge}px 0px -55% 0px`, threshold: [0, .001] });
       [bar.previousElementSibling, ...targets].forEach((t) => t && spy.observe(t));   // the head: a jump up
+      ix.addEventListener("focusin", (e) => show(e.target));
     }
   }
 
@@ -372,9 +378,9 @@
     if (shut || !dlg.open) return;
     shut = 1; gen++;
     const a = list[cur], f = ph(a), o = f.getBoundingClientRect();
-    if (!motionOK()) return M.calm(dlg, "out").then(() => dlg.close());
     if (o.bottom < 0 || o.top > innerHeight)
       root.style.scrollBehavior = "auto", f.scrollIntoView({ block: "center" }), root.style.scrollBehavior = "";
+    if (!motionOK()) return M.calm(dlg, "out").then(() => dlg.close());
     stop(front, 1); front.style.opacity = ""; dlg.classList.add("is-closing");
     if (cover(a)) fx(front, [{ borderRadius: ARCH }], 240, EL, 160, "forwards");
     fx(front, [{ transform: at(f.getBoundingClientRect()) }], 400, ES, 0, "forwards").onfinish = () => {
@@ -526,7 +532,7 @@
   document.querySelectorAll("[data-year]").forEach(function (node) {
     node.textContent = String(new Date().getFullYear());
   });
-  // Back to top: smooth only with motion, then focus the header (tabindex=-1). Without JS, #top is the page top.
+  // Back to top: smooth only with motion, then focus the header. Without JS, #top is the page top.
   document.querySelectorAll(".to-top").forEach(function (a) {
     a.addEventListener("click", function (e) {
       var top = document.querySelector("#top, .site-header");
@@ -537,9 +543,9 @@
     });
   });
 
-  // Golden hour (M03): the hour before NOAA sunset, for Adelaide's date.
+  // Golden hour (M03): the hour before NOAA sunset in Adelaide.
   var golden = document.querySelector("[data-golden]");
-  var sunsetMinutesUTC = window.slSunset = function (y, m, d) {   // minutes UTC
+  var sunsetMinutesUTC = window.slSunset = function (y, m, d) {
     var r = Math.PI / 180, sin = Math.sin, cos = Math.cos, tan = Math.tan, lat = -34.9285 * r;
     var t = (Date.UTC(y, m - 1, d) / 864e5 + 2440587.5 - 2451545) / 36525;
     var L = (280.46646 + t * (36000.76983 + t * .0003032)) % 360 * r;
@@ -554,7 +560,7 @@
     return 720 - 4 * 138.6007 - eq + 4 * Math.acos(cos(90.833 * r) / (cos(lat) * cos(decl)) - tan(lat) * tan(decl)) / r;
   };
   var showGoldenHour = function () {
-    try {   // no Intl time zones: the static text stays
+    try {   // no Intl zones: the static text stays
       var zone = "Australia/Adelaide", day = new Intl.DateTimeFormat("en-AU", { timeZone: zone, year: "numeric", month: "numeric", day: "numeric" });
       var time = new Intl.DateTimeFormat("en-AU", { timeZone: zone, hour: "numeric", minute: "2-digit" });
       var sunsetOn = function (when) {

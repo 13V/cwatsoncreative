@@ -40,7 +40,7 @@ and a gallery only appears once it has photos.
 1. Export at 2000 px on the long edge (JPG, sRGB) and save it under its name below.
 2. Run `python3 tools/prepare_photos.py` (it needs Pillow: `pip install pillow`). It strips camera and
    GPS details from any photo that has them, makes the WebP copies that phones and smaller screens
-   load (480, 800 and 1200 px wide, plus full size), and rebuilds the pages so the new photos appear.
+   load (320, 480, 800, 1000 and 1200 px wide, plus full size), and rebuilds the pages so the new photos appear.
 3. Commit the photos, their `.webp` copies and the rebuilt pages.
 
 ### Wedding photos

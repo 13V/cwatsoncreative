@@ -12,11 +12,13 @@ For each photo:
     camera or GPS details is resized, turned upright and re-saved as a quality-82 progressive JPEG
     with its colour profile kept and everything else removed. Clean 2000 px web exports are left
     exactly as they are, so they lose no quality.
-  * WebP copies are made at 480, 800, 1000 and 1200 px wide (where no wider than the photo) and at
-    full size (quality 80 for the smaller copies, 72 for the full one). The full-size copy is never
-    allowed to be bigger than the JPEG: if quality 72 still is, it steps down a little until it is
-    not. Browsers that take WebP load these, and phones load the small ones (an emulated phone
-    picks the 1000 px copy of a hero, about 160KB instead of 225KB).
+  * WebP copies are made at 320, 480, 800, 1000 and 1200 px wide (where no wider than the photo) and
+    at full size (quality 80 for the copies up to 1000 px, 72 for the 1200 px copy and the full one,
+    so the 1200 copy is always lighter than the full file it stands in for on 3x phones; the build
+    checks it). The full-size copy is never allowed to be bigger than the JPEG: if quality 72 still
+    is, it steps down a little until it is not. Browsers that take WebP load these and pick the
+    smallest copy that covers the slot: thumbnails take the 320 copy, and an emulated phone picks
+    the 1000 px copy of a hero, about 160KB instead of 225KB.
 
 Then the pages are rebuilt (tools/site/build.py), so new photos and galleries appear.
 
@@ -29,8 +31,8 @@ import sys
 from PIL import Image, ImageOps
 
 MAX_EDGE = 2000
-WIDTHS = (480, 800, 1000, 1200)  # tools/site/build.py WIDTHS lists the same rungs
-WEBP_QUALITY = 80       # the smaller copies, seen on phones and in grids
+WIDTHS = (320, 480, 800, 1000, 1200)  # tools/site/build.py WIDTHS lists the same rungs
+WEBP_QUALITY = {320: 80, 480: 80, 800: 80, 1000: 80, 1200: 72}   # per copy width: q80 would make the 1200 copy heavier than the full file
 WEBP_QUALITY_FULL = 72  # the full-size copy, seen up close in the photo viewer
 FULL_FLOOR = 60         # the lowest the full-size copy may step down to stay under its JPEG
 SKIP = {"og-card.jpg"}
@@ -88,7 +90,7 @@ def webp_copies(path, force=False):
             data, quality = full
         else:
             copy = photo.resize((width, round(photo.height * width / photo.width)), Image.LANCZOS)
-            quality = WEBP_QUALITY
+            quality = WEBP_QUALITY[width]
             data = encode(copy, quality, icc)
         out.write_bytes(data)
         made.append(f"{out.name} q{quality}")

@@ -1,4 +1,4 @@
-// Sunday Light. The finished, still page is the CSS default; motion only starts from html.m (motion plan §5).
+// Sunday Light. The still page is the CSS default; motion starts only from html.m (motion plan §5).
 (function () {
   "use strict";
   var root = document.documentElement;
@@ -7,7 +7,7 @@
   var M = window.SL = { motionOK: motionOK };
   var wait = M.wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 
-  // Queues: 2 lines draw, 4 prints develop at once, starts a gap apart; a slot frees when start() settles or after ms+150.
+  // Queues: 2 draws, 4 prints at once, a gap apart; a slot frees when start() settles or at ms+150.
   var Q = { draw: { n: 2, gap: 120, busy: 0, last: 0, wait: [] }, print: { n: 4, gap: 100, busy: 0, last: 0, wait: [] } };
   var pump = function (q) {
     if (q.busy >= q.n || !q.wait.length || q.timer) return;
@@ -20,8 +20,8 @@
   };
   M.queue = function (kind, start, ms) { var q = Q[kind]; q.wait.push([start, ms]); pump(q); };
 
-  // One observer plays every one-shot: on screen at first sight it is done; below the fold armed until `ratio` is seen.
-  // A cold load at #id jumps after the observer's first look, so that look judges where the jump lands.
+  // One observer plays every one-shot: in view at first sight, done; else armed until `ratio` is seen. A cold
+  // load at #id jumps after the first look, which judges where it lands.
   var jobs = new Map(), seen = new WeakSet(), land = document.getElementById(location.hash.slice(1));
   M.done = function (el) {
     el.classList.remove("is-armed", "is-developing");
@@ -64,14 +64,14 @@
     list.push({ ratio: ratio, run: run, done: false, fromStart: !!fromStart });
   };
 
-  // The one animation allowed without motion: 150ms opacity, to and from display: none.
+  // The one move without motion: 150ms opacity, to and from display: none.
   M.calm = function (el, dir) {
     if (!el || !el.animate) return Promise.resolve();
     var a = el.animate({ opacity: dir === "in" ? [0, 1] : [1, 0] }, { duration: 150, easing: "linear", fill: dir === "in" ? "none" : "forwards" });
     return a.finished.then(function () { return a; }, function () {});
   };
 
-  // Settle: every moment jumps to its finished frame (Hold still, or Reduce Motion turned on).
+  // Settle: every moment jumps to its end (Hold still, or Reduce Motion on).
   var settle = function (hold) {
     if (hold) root.classList.add("still");   // first: the CSS kill switch
     root.classList.remove("m");
@@ -105,7 +105,7 @@
     syncStill();
   });
 
-  // Through the arch (M01): remember the tap or doorway (M14); hand over as the page leaves.
+  // Through the arch (M01): note the tap or doorway (M14); hand over as the page leaves.
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href]"), W = innerWidth, r, d, f, b;
     if (!a || e.defaultPrevented || a.target || a.hasAttribute("download") || a.origin !== location.origin) return;
@@ -124,7 +124,7 @@
     r.quiet = c.contains("menu-open") || !!r.hash;
     hd = document.querySelector(".site-header");
     r.keep = !r.quiet && !!hd && hd.getBoundingClientRect().top > -1;
-    c.toggle("vt-keep", r.keep);   // toggle: a restored page must not keep it
+    c.toggle("vt-keep", r.keep);   // a restored page must not keep it
     try { sessionStorage.setItem("sl-vt", JSON.stringify(r)); } catch (x) {}
   });
   // iOS needs a touch listener for :active

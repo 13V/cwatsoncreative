@@ -31,6 +31,15 @@ const send = p => p.$eval('#enquiry-form', f => f.requestSubmit());
 
 module.exports = async ({ browser: b, base, ok, watch }) => {
   base0 = base;
+  for (const vp of [PHONE, DESKTOP]) {   // her photo sits below the form on phones: lazy, so it never competes with the first view; first in line once near
+    const { p, ctx } = await open(b, watch, vp);
+    const r = await p.$eval('.contact-aside .frame img', i => ({ loading: i.getAttribute('loading'), prio: i.getAttribute('fetchpriority'), lcp: i.hasAttribute('data-lcp') }));
+    await p.$eval('.contact-aside .frame', el => el.scrollIntoView({ block: 'center' }));
+    await p.waitForFunction(() => { const i = document.querySelector('.contact-aside .frame img'); return i.complete && i.naturalWidth > 0; }, null, { timeout: 5000 }).catch(() => {});
+    const loaded = await p.$eval('.contact-aside .frame img', i => i.complete && i.naturalWidth > 0);
+    ok(r.loading === 'lazy' && r.prio === 'high' && !r.lcp && loaded, `contact ${vp.viewport.width}: the aside photo is lazy with fetchpriority high (not the LCP), and loads when near`);
+    await ctx.close();
+  }
   {   // a session link arrives with its chip chosen
     const { p, ctx } = await open(b, watch, PHONE, { query: '?session=Couples%2C+engagement+or+proposal' });
     ok(await p.$eval('#session-1', r => r.checked && r.value === 'Couples, engagement or proposal') &&
@@ -59,7 +68,8 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       }).concat([[...document.querySelectorAll('[name="session"]')].every(r => r.getAttribute('aria-invalid') === 'true' && r.getAttribute('aria-describedby') === 'err-session')]));
       ok(inv.every(Boolean), `form ${w}: inline errors with aria-invalid and aria-describedby; every session chip invalid together`);
       ok((await p.textContent('#err-name')).trim() === 'Add your name so I know who I’m writing to.' &&
-         (await p.textContent('#err-session')).trim() === 'Choose the kind of session.', `form ${w}: the error copy is the spec's`);
+         (await p.textContent('#err-session')).trim() === 'Choose the kind of session.' &&
+         (await p.textContent('#err-message')).trim() === 'Add a line or two about what you’re planning.', `form ${w}: the error copy is the spec's`);
       // a fixed field clears as soon as it is right; the chips clear on choosing
       await p.focus('#email'); await p.keyboard.type('sam@');
       ok((await p.getAttribute('#email', 'aria-invalid')) === 'true', `form ${w}: a half-typed fix leaves the message until it is right`);
@@ -109,7 +119,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
           sticky: cs.position, shown: !card.hidden && card.getBoundingClientRect().height > 200, live: live.textContent, outside: !f.contains(live) && !card.contains(live) };
       });
       ok(s.title === 'Thank you, Test.' && s.shown && s.sameCell && s.sticky === 'sticky', `form ${w}: success shows "${s.title}" in the form's own cell, sticky`);
-      ok(s.focused && s.outline === 'solid 2px' && s.formHidden, `form ${w}: focus on the thank-you heading with a visible outline; the form hidden and inert`);
+      ok(s.focused && s.outline.startsWith('none') && s.formHidden, `form ${w}: focus on the thank-you heading, no focus ring on it (${s.outline}); the form hidden and inert`);
       ok(s.live === 'Enquiry sent. Thank you, Test.' && s.outside, `form ${w}: the announcement comes from the live region outside the form ("${s.live}")`);
       ok(await total(p) < .001, `form ${w}: no layout shift through sending and success (${(await total(p)).toFixed(4)})`);
       await ctx.close();

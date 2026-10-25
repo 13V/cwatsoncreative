@@ -1,5 +1,5 @@
 
-  // Photos: WebP, then the JPEG, then .is-missing.
+  // Photos: WebP, then JPEG, then .is-missing.
   var photoFailed = function (img) {
     var pic = img.parentNode, ph = img.closest(".ph"), sources = pic.querySelectorAll("source");
     if (sources.length) sources.forEach(function (s) { pic.removeChild(s); });
@@ -10,7 +10,7 @@
     img.addEventListener("error", function () { photoFailed(img); });
     if (img.complete) { if (img.naturalWidth) img.classList.add("is-loaded"); else photoFailed(img); }
   });
-  // Prints in the tray (M10): develops at 20% once decoded; not decoded in 2.5s, missing or done: the veil just goes.
+  // Tray prints (M10) develop at 20% once decoded; undecoded in 2.5s, missing or done: the veil goes.
   document.querySelectorAll(".ph--tray").forEach(function (ph) {
     var img = ph.querySelector("img"), armed = function () { return ph.classList.contains("is-armed"); };
     if (img) once(ph, .2, function () {

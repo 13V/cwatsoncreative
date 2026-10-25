@@ -25,16 +25,16 @@
 .footer-instagram{gap:var(--sp-8);color:var(--bush-ink)}
 .footer-instagram:focus-visible{color:var(--bark)}
 @media (min-width:600px){.footer-nav{display:flex;flex-wrap:wrap;gap:var(--sp-4) var(--sp-32)}}
-.golden-hour{display:grid;place-items:center;width:min(100%, 26em);min-height:2lh;font:italic 500 1.2rem/1.45 var(--serif);
+.golden-hour{display:grid;place-items:center;width:min(100%, 26em);min-height:2lh;font:italic 300 1.2rem/1.45 var(--serif);
   color:var(--bark);transition:opacity 300ms linear}
 .golden-hour.is-swapping{opacity:0}
 .footer-base{max-width:60em}
-.footer-base a{text-decoration-color:var(--line)}
+.footer-base a{display:inline-flex;align-items:center;min-height:44px;text-decoration-color:var(--paddock)}
 .fb{display:block}
 .fb .dot{display:none}
 .still-toggle, .to-top{display:inline-flex;align-items:center;gap:var(--sp-8);min-height:44px}
-.still-toggle{padding:0;border:0;background:none;color:inherit;cursor:pointer;text-decoration:underline 1px var(--line);text-underline-offset:.25em}
-.still-toggle[aria-pressed="true"]{color:var(--bark);text-decoration-color:var(--paddock)}
+.still-toggle{padding:0;border:0;background:none;color:inherit;cursor:pointer;text-decoration:underline 1px var(--paddock);text-underline-offset:.25em}
+.still-toggle[aria-pressed="true"]{color:var(--bark)}
 .top-sun{transition:transform var(--t-ui) var(--ease-light)}
 .to-top:focus-visible .top-sun{transform:translateY(-2px)}
 @media (min-width:861px){.fb{display:inline;white-space:nowrap}.fb .dot{display:inline}}

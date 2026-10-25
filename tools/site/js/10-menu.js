@@ -1,5 +1,5 @@
 
-  // Phone menu (M07): below 861px the closed sheet is inert; open, the page behind is.
+  // Phone menu (M07): below 861px the shut sheet is inert; open, the page behind is.
   var toggle = document.querySelector(".nav-toggle"), nav = document.getElementById("site-nav");
   if (toggle && nav) {
     var behind = document.querySelectorAll("main, .site-footer, .skip");
@@ -9,7 +9,7 @@
     var setMenu = function (open) {
       nav.inert = !open && phone.matches;
       if (open === isOpen()) return;
-      if (open && M.showHeader) M.showHeader(true);   // never inside a moving header
+      if (open && M.showHeader) M.showHeader(true);   // never in a moving header
       toggle.setAttribute("aria-expanded", String(open));
       if (label) label.textContent = open ? "Close" : "Menu";
       nav.classList.toggle("is-open", open);

@@ -123,6 +123,19 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(!jpegs.length, `${w}: no JPEG requested while the WebP loads` + (jpegs.length ? ': ' + jpegs.join(', ') : ''));
     await ctx.close();
   }
+  for (const [state, vp] of [['reduced', PHONE], ['reduced', DESKTOP], ['still', DESKTOP]]) {   // focus returns to a photo in view
+    const ctx = await context(b, state, vp);
+    const p = await ctx.newPage(); watch(p);
+    await p.goto(`${base}/gallery.html`, { waitUntil: 'networkidle' });
+    await p.focus('[data-index="0"]'); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
+    for (let i = 0; i < 6; i++) { await p.keyboard.press('ArrowRight'); await p.waitForTimeout(200); }
+    await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+    const f = await p.evaluate(() => { const a = document.activeElement, r = a.getBoundingClientRect();
+      return { index: a.dataset.index, top: Math.round(r.top), bottom: Math.round(r.bottom), open: document.querySelector('dialog.viewer').open }; });
+    const h = vp.viewport.height;
+    ok(!f.open && f.index === '6' && f.bottom > 0 && f.top < h, `${vp.viewport.width} ${state}: after paging to photo 7 and closing, focus is on it and it is on screen (top ${f.top}px of ${h})`);
+    await ctx.close();
+  }
   for (const vp of [PHONE, DESKTOP]) {   // Reduce Motion: the 150ms fade only
     const ctx = await context(b, 'reduced', vp);
     const p = await ctx.newPage(); watch(p);

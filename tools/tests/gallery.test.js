@@ -34,6 +34,8 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
         })),
         order: [...document.querySelectorAll('[data-viewer]')].map(a => +a.dataset.index),
         closing: document.querySelector('#closing-title')?.textContent.replace(/\s+/g, ' ').trim(),
+        desc: ['meta[name="description"]', 'meta[property="og:description"]'].map(s => document.querySelector(s)?.content),
+        lead: document.querySelector('.page-head .lead')?.textContent, extras: document.querySelectorAll('main > section.chapter').length,
         old: document.querySelectorAll('blockquote, .duo, .chips, .masonry, .lightbox, .strip, .insta-strip, .words, .sheet').length,
         lcp: (() => { const i = document.querySelector('img[data-lcp]'); return i && { cover: !!i.closest('#getting-ready .chapter-cover'),
           high: i.getAttribute('fetchpriority'), loading: i.getAttribute('loading'), tray: !!i.closest('.ph--tray') }; })(),
@@ -52,6 +54,8 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(same(s.order, s.order.map((_, i) => i)) && s.order.length === 23, 'viewer order (data-index) equals DOM order, 23 photos');
     ok(s.closing === DATA.closing, `the closing shows the Gallery line ("${s.closing}")`);
     ok(s.old === 0, 'no blockquote, duo, chips, masonry, old lightbox, strip or sheet');
+    ok(s.extras || (s.lead.startsWith('Weddings from around Adelaide.') && s.desc.every(d => d === 'Wedding photography from around Adelaide by Sunday Light.')),
+       `the description, like the lead, names only the galleries on the page (${s.desc[0]})`);
     ok(s.lcp && s.lcp.cover && s.lcp.high === 'high' && s.lcp.loading === null && !s.lcp.tray,
        'chapter 01 cover is the LCP photo: eager, fetchpriority high, never a tray print');
     await ctx.close();

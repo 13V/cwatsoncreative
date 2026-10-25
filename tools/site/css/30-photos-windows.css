@@ -33,6 +33,7 @@
 @media (min-width:861px){
   .window--hero{--h:clamp(600px, calc(100svh - var(--header-h)), 1100px)}
   .window--hero:not([data-count="1"]) .window-aperture{inset:0 var(--mat) var(--mat)}
+  .window--hero[data-count="2"] .window-photos{grid-template-columns:minmax(0, 1.001fr) minmax(0, 1fr)}   /* the LCP pane wins ties */
   .window[data-count="3"]{--sw:.78}
   .window[data-count="2"]{--sw:.5}
   .frame-line{--kw:.32}

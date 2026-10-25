@@ -3,15 +3,16 @@
 // and arch rows, none highlighted; the steps ledger; the FAQ; the hours of light (M08) and its finished frame.
 const { context, scrollTo, PHONE, DESKTOP } = require('./lib');
 
-const SPEC = {   // spec §6.3, label → value, in her order; GALLERY is never repeated
+const GALLERY = ['Gallery', 'Every edited image in a professional online gallery'];   // her inclusion, on every session that lists it
+const SPEC = {   // spec §6.3, label → value, in her order
   weddings: [['Coverage', 'Five packages, from 4 to 12 hours of coverage'], ['Previews', 'Sneak peeks within 24 hours'],
              ['Before the day', 'A pre-wedding consultation'], ['Investment', 'From $1,700']],
-  couples: [['Time', 'About 45 minutes'], ['Where', 'Your choice of location around Adelaide (travel further out can be quoted)'], ['Investment', '$350']],
-  family: [['Time', '45 to 60 minutes'], ['Who', 'Up to five people, then $25 for each extra person'],
+  couples: [['Time', 'About 45 minutes'], GALLERY, ['Where', 'Your choice of location around Adelaide (travel further out can be quoted)'], ['Investment', '$350']],
+  family: [['Time', '45 to 60 minutes'], GALLERY, ['Who', 'Up to five people, then $25 for each extra person'],
            ['Where', 'Your choice of location around Adelaide (travel further out can be quoted)'], ['Investment', '$400']],
-  maternity: [['Time', 'About 45 minutes'], ['Where', 'Your choice of location around Adelaide (travel further out can be quoted)'],
+  maternity: [['Time', 'About 45 minutes'], GALLERY, ['Where', 'Your choice of location around Adelaide (travel further out can be quoted)'],
               ['Packages', 'Maternity and newborn packages available'], ['Investment', '$350']],
-  newborn: [['Where', 'At your home or an outdoor location'], ['Packages', 'Maternity and newborn packages available'], ['Investment', '$350']],
+  newborn: [GALLERY, ['Where', 'At your home or an outdoor location'], ['Packages', 'Maternity and newborn packages available'], ['Investment', '$350']],
 };
 const TIERS = ['Basic|Up to 4 hours|$1,700', 'Standard|Up to 6 hours|$2,100', 'Premium|Up to 8 hours|$2,500', 'Deluxe|Up to 10 hours|$2,900', 'Ultimate|Up to 12 hours|$3,300'];
 const INCLUDES = ['Continuous coverage for the hours you choose', 'A fully edited digital gallery', 'Sneak peeks within 24 hours', 'A pre-wedding consultation'];
@@ -48,6 +49,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
         tierLook: all('.tier').map(li => li.className + ' ' + li.attributes.length + ' ' + bg(li) + ' ' + getComputedStyle(li).transform + ' ' + getComputedStyle(li.querySelector('.tier-name')).fontSize),
         hours: all('.tier').map(li => li.dataset.hours), arcs: all('.tier .tier-sky > svg.tier-arc').length,
         notes: all('.tier-notes > div').map(n => [t(n.querySelector('h3')), all('li', n).map(t)]),
+        packagesLead: t(document.querySelector('.packages .head--split .lead')),
         cta: [document.querySelector('.packages .actions .btn--primary').getAttribute('href'), t(document.querySelector('.packages .actions .btn-label'))],
         index: [document.querySelector('.index-bar').getAttribute('aria-label'), all('.index-bar a').map(a => a.getAttribute('href') + ' ' + a.dataset.spy + ' ' + a.textContent)],
         carteLabel: t(document.querySelector('.carte > .wrap > .eyebrow')),
@@ -66,7 +68,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     const ids = ['weddings', 'couples', 'family', 'maternity', 'newborn'];
     ok(ids.every(id => d.sessions[id] && d.sessions[id].kind === (exists[id] ? 'photo' : 'carte') && d.sessions[id].photo === exists[id]),
        'photo rows for the sessions whose photo file exists, carte rows for the rest (' + ids.map(id => id + ':' + (d.sessions[id] || {}).kind).join(', ') + ')');
-    ok(ids.every(id => same(d.sessions[id].rows, SPEC[id])), 'every spec-sheet label and value byte for byte, in her order, the gallery not repeated' +
+    ok(ids.every(id => same(d.sessions[id].rows, SPEC[id])), 'every spec-sheet label and value byte for byte, in her order, the Gallery row on every session that lists it' +
        (ids.every(id => same(d.sessions[id].rows, SPEC[id])) ? '' : ': ' + JSON.stringify(ids.map(id => d.sessions[id].rows))));
     ok(ids.map(id => d.sessions[id].rows.at(-1)[1]).join(' / ') === 'From $1,700 / $350 / $400 / $350 / $350' &&
        ids.every(id => d.sessions[id].priceClass === 't-price' && d.sessions[id].last === 'spec-price' && d.sessions[id].rules),
@@ -82,6 +84,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(same(d.tiers, TIERS) && same(d.hours, ['4', '6', '8', '10', '12']) && d.arcs === 5, 'tiers: names, "Up to 4 hours" … "Up to 12 hours" and prices byte for byte, each with its sun path');
     ok(new Set(d.tierLook).size === 1, 'no tier is highlighted (identical classes, attributes and looks)');
     ok(same(d.notes, [['Every package includes', INCLUDES], ['Good to know', TERMS]]), 'the wedding inclusions and terms, exactly');
+    ok(d.packagesLead === 'The packages differ only in hours. Everything else is the same in every one.', `the packages lead (${d.packagesLead})`);
     ok(new URL(d.cta[0], base + '/').searchParams.get('session') === 'Wedding' && d.cta[1] === 'Check my wedding dates', 'packages CTA: "Check my wedding dates" → the form with Wedding chosen');
     ok(d.index[0] === 'Sessions' && same(d.index[1], ['#weddings weddings wedding-packages Weddings', '#couples couples Couples', '#family family Family', '#maternity maternity Maternity', '#newborn newborn Newborn']),
        'index bar "Sessions": five links, Weddings also spying on the packages');
@@ -222,6 +225,20 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
         spec: document.querySelector('#family .spec').className };
     });
     ok(!r.armed.length && !r.half && /is-done/.test(r.spec), `${vp.viewport.width}: a cold load at #family shows its rules drawn, nothing armed in view (${r.spec})`);
+    await ctx.close();
+  }
+
+  for (const vp of [PHONE, DESKTOP]) {   // the old sessions.html#bump (now Maternity) lands on Maternity, its heading clear of the bars
+    const ctx = await context(b, 'reduced', vp);
+    const p = await ctx.newPage(); watch(p);
+    await p.goto(`${base}/investment.html#bump`, { waitUntil: 'networkidle' }); await p.waitForTimeout(300);
+    const r = await p.evaluate(() => {
+      const bar = document.querySelector('.index-bar').getBoundingClientRect(), h = document.querySelector('#maternity h2').getBoundingClientRect();
+      return { gap: Math.round(h.top - bar.bottom), inView: h.bottom < innerHeight, name: document.querySelector('#maternity h2').textContent,
+        current: (document.querySelector('.index-bar a[aria-current]') || {}).textContent };
+    });
+    ok(r.gap >= 0 && r.inView && r.name === 'Maternity' && r.current === 'Maternity',
+       `${vp.viewport.width}: an old #bump link lands on Maternity below the bar (${r.gap}px, current ${r.current})`);
     await ctx.close();
   }
 
