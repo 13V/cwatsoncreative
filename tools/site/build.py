@@ -487,76 +487,122 @@ def gallery():
 
 
 def investment():
-    intro = ''.join(f'<p>{e(p)}</p>' for p in INVESTMENT_INTRO)
-
-    def package(s, with_photo):
-        body = ''.join(f'<p>{e(p)}</p>' for p in s['body'])
-        enquire = f'contact.html?session={quote_plus(FORM_SESSION[s["id"]])}'
-        photo = fig(s['photo'], LEGACY_SIZES['card'], cls='package-photo', ratio='4/5') if with_photo else ''
-        includes = ''.join(f'<li>{e(i)}</li>' for i in s.get('includes', []))
-        includes = f'<ul class="package-includes">{includes}</ul>' if includes else ''
-        more = link_arrow(*s['more']) if s.get('more') else ''
-        price = (f'<p class="package-price">{e(s["price"])}</p>' if s.get('price')
-                 else '<p class="package-price package-price--ask">Pricing on enquiry</p>')
-        return (f'<article class="package{"" if with_photo else " package--text"}" id="{s["id"]}" aria-labelledby="{s["id"]}-title">'
-                f'{photo}<div class="package-panel"><h3 class="package-name" id="{s["id"]}-title">{e(s["name"])}</h3>'
-                f'<div class="prose">{body}</div>'
-                f'<div class="package-meta">{price}{includes}</div>'
-                f'<div class="package-links">{more}{link_arrow(enquire, "Enquire about " + s.get("short", s["name"]).lower())}</div>'
-                f'</div></article>')
-
-    # Sessions with a photo get a photo card; the rest sit two to a row as text until their photo arrives.
+    """Investment (spec §5.3): split hero, index bar, a photo row per session with a photo (the wedding packages straight
+    after Weddings), the carte for sessions still without one, How it works, Questions, the closing invitation."""
     pictured = [s for s in SESSIONS if exists(PHOTOS[s['photo']][0])]
-    waiting = [s for s in SESSIONS if s not in pictured]
-    packages = ''.join(package(s, True) for s in pictured)
-    if waiting:
-        packages += f'<div class="packages-text">{"".join(package(s, False) for s in waiting)}</div>'
-    tiers = ''.join(f'<li class="tier" style="--i:{i - 1}"><span class="tier-number" aria-hidden="true">{i:02d}</span>'
-                    f'<h3 class="tier-name">{e(name)}</h3><p class="tier-hours">Up to {hours} hours</p>'
-                    f'<p class="tier-price">{e(price)}</p></li>' for i, (name, hours, price) in enumerate(WEDDING_PACKAGES, 1))
-    wedding_includes = ''.join(f'<li>{e(x)}</li>' for x in WEDDING_INCLUDES)
-    wedding_terms = ''.join(f'<li>{e(x)}</li>' for x in WEDDING_TERMS)
-    steps = ''.join(f'<li style="--i:{i}"><h3>{e(t)}</h3><p>{e(d)}</p></li>' for i, (t, d) in enumerate(STEPS))
-    faq = ''.join(f'<details style="--i:{i}"><summary>{e(q)}</summary><p>{e(a)}</p></details>' for i, (q, a) in enumerate(FAQ))
-    sessions_index = index_bar('Sessions', [(['weddings', 'wedding-packages'], 'Weddings', None), (['couples'], 'Couples', None),
-                                            (['family'], 'Family', None), (['maternity'], 'Maternity', None),
-                                            (['newborn'], 'Newborn', None)])
-    main = f'''{window((INVESTMENT_HERO,), "hero")}
-
-{page_head("Investment", "Photos you’ll keep <em>for good.</em>", "", layout="center", cls="panel", extra=f'<div class="prose">{intro}</div><div class="actions">{button("contact.html", "Book a session", variant="secondary")}</div>')}
-
-{sessions_index}
-
-<section class="section packages-section" aria-labelledby="packages-title"><div class="wrap">
-<h2 class="center-title" id="packages-title">Sessions</h2>
-<div class="packages">{packages}</div>
-</div></section>
-
-<section class="section section--lime wedding-packages" id="wedding-packages" aria-labelledby="wedding-packages-title"><div class="wrap">
-<p class="eyebrow eyebrow--center">Weddings</p>
-<h2 class="center-title" id="wedding-packages-title">Wedding <em>packages</em></h2>
-<ol class="tiers" data-rules>{tiers}</ol>
-<div class="tier-notes">
-<div><h3>Every package includes</h3><ul class="package-includes">{wedding_includes}</ul></div>
-<div><h3>Good to know</h3><ul class="package-includes">{wedding_terms}</ul></div>
-</div>
-<div class="center">{link_arrow("contact.html?session=Wedding", "Check my wedding dates")}</div>
-</div></section>
-
-<section class="section" aria-labelledby="how-title"><div class="wrap">
-<h2 class="center-title" id="how-title">How it works</h2>
-<ol class="steps" data-rules>{steps}</ol></div></section>
-
-<section class="section" aria-labelledby="faq-title"><div class="wrap narrow">
-<h2 class="center-title" id="faq-title">Questions, answered</h2>
-<div class="faq" data-rules>{faq}</div></div></section>
-
-{kind_words("investment")}
-
-{closing("investment")}'''
+    worded = [s for s in SESSIONS if s not in pictured]
+    parts = [inv_hero(), index_bar('Sessions', [(['weddings', 'wedding-packages'] if s['id'] == 'weddings' else [s['id']],
+                                                 s.get('short', s['name']), None) for s in pictured + worded])]
+    for i, s in enumerate(pictured):
+        parts.append(session_row(s, mirror=i % 2 == 1))
+        if s['id'] == 'weddings':
+            parts.append(wedding_packages())
+    if worded:
+        parts.append(carte(worded))
+    if 'weddings' not in [s['id'] for s in pictured]:
+        parts.append(wedding_packages())
+    parts += [kind_words('investment'), how_it_works(), questions(), closing('investment')]
     return page('investment', 'investment.html', 'Investment | Sunday Light',
                 'Wedding, couples and engagement, family, maternity and newborn photography sessions in Adelaide: prices and what each includes.',
-                main, lcp=(INVESTMENT_HERO, 'window1'))
+                '\n\n'.join(p for p in parts if p), lcp=(INVESTMENT_HERO, 'inv-hero'))
+
+
+def inv_hero():
+    """Split hero (§4.14): the words on the left, one photo bleeding to the right edge; on phones the photo comes first."""
+    lead, *rest = INVESTMENT_INTRO
+    return (f'<section class="inv-hero sec--flush" aria-labelledby="investment-title">'
+            f'{fig(INVESTMENT_HERO, "inv-hero", cls="inv-hero-photo", fill=True, priority=True)}'
+            f'<div class="inv-hero-text wrap"><p class="eyebrow">Investment</p><h1 id="investment-title">Photos you’ll keep '
+            f'<em>for good.</em></h1><p class="lead">{e(lead)}</p>{"".join(f"<p>{e(p)}</p>" for p in rest)}</div></section>')
+
+
+NUMBER_WORDS = ('no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve')
+
+
+def spec_sheet(s):
+    """Every include but the gallery (the hero intro promises it for every session) as a labelled row, then the price
+    row, or "Pricing on enquiry" in the same slot."""
+    rows = [x for x in s['includes'] if x != GALLERY]
+    price = f'<dd class="t-price">{e(s["price"])}</dd>' if s.get('price') else '<dd class="spec-ask">Pricing on enquiry</dd>'
+    return (f'<dl class="spec" data-rules>'
+            + ''.join(f'<div style="--i:{i}"><dt>{e(SPEC_LABELS[x])}</dt><dd>{e(x)}</dd></div>' for i, x in enumerate(rows))
+            + f'<div class="spec-price" style="--i:{len(rows)}"><dt>Investment</dt>{price}</div></dl>')
+
+
+def session_text(s):
+    """Her paragraphs, the spec sheet and the session's one action."""
+    if s['id'] == 'weddings':
+        action = link_arrow('#wedding-packages', f'See the {NUMBER_WORDS[len(WEDDING_PACKAGES)]} packages')
+    else:
+        action = link_arrow(f'contact.html?session={quote_plus(FORM_SESSION[s["id"]])}',
+                            f'Enquire about {s.get("short", s["name"]).lower()}')
+    body = ''.join(f'<p>{e(p)}</p>' for p in s['body'])
+    return f'<div class="session-body">{body}</div>{spec_sheet(s)}<div class="session-action">{action}</div>'
+
+
+def session_row(s, mirror=False):
+    """A session with its photo: photo in cols 1-6 and words in 8-12 (mirrored on alternate rows); on phones the photo
+    runs full-bleed above the words."""
+    sid = s['id']
+    return (f'<article class="session sec--standard{" session--mirror" if mirror else ""}" id="{sid}" aria-labelledby="{sid}-title">'
+            f'<div class="wrap grid-12">{fig(s["photo"], "session", cls="session-photo", ratio="4/5")}'
+            f'<div class="session-text"><h2 id="{sid}-title">{e(s["name"])}</h2>{session_text(s)}</div></div></article>')
+
+
+def carte(sessions):
+    """Sessions whose photo has not arrived yet: one ruled row each, the name set large, under an eyebrow built from
+    the names. No section head, so it never repeats a neighbour's."""
+    names = [s.get('short', s['name']) for s in sessions]
+    label = (', '.join(names[:-1]) + ' & ' + names[-1]) if len(names) > 1 else names[0]
+    rows = ''.join(f'<article class="session session--word" id="{s["id"]}" aria-labelledby="{s["id"]}-title">'
+                   f'<h2 class="t-word" id="{s["id"]}-title">{e(s.get("short", s["name"]))}</h2>'
+                   f'<div class="session-text">{session_text(s)}</div></article>' for s in sessions)
+    return (f'<section class="carte sec--standard" aria-labelledby="carte-label"><div class="wrap">'
+            f'<p class="eyebrow" id="carte-label">{e(label[0] + label[1:].lower())}</p>{rows}</div></section>')
+
+
+def wedding_packages():
+    """The five packages (§4.15): arch-topped cards from 861px, arch rows below; the hours of light (M08) in each dome.
+    No package is marked: nothing says one is preferred."""
+    longest = max(h for _, h, _ in WEDDING_PACKAGES)
+    tiers = ''.join(f'<li class="tier" data-hours="{h}" style="--i:{i}"><div class="tier-sky">{art.tier_arc(h, longest)}</div>'
+                    f'<h3 class="tier-name">{e(name)}</h3><p class="tier-hours t-caption">{h} hours</p>'
+                    f'<p class="tier-price t-price">{e(price)}</p></li>' for i, (name, h, price) in enumerate(WEDDING_PACKAGES))
+    notes = ''.join(f'<div><h3>{title}</h3><ul role="list">{"".join(f"<li>{e(x)}</li>" for x in items)}</ul></div>'
+                    for title, items in (('Every package includes', WEDDING_INCLUDES), ('Good to know', WEDDING_TERMS)))
+    return (f'<section class="packages sec--band" id="wedding-packages" aria-labelledby="wedding-packages-title"><div class="wrap">'
+            f'<div class="head--split"><h2 id="wedding-packages-title">Wedding <em>packages</em></h2>'
+            f'<p class="lead">The packages differ only in hours. Everything below comes with every one of them.</p></div>'
+            f'<ol class="tiers" role="list" data-rules style="--i:{len(WEDDING_PACKAGES)}">{tiers}</ol>'
+            f'<div class="tier-notes">{notes}</div><div class="actions">{button("contact.html?session=" + quote_plus(FORM_SESSION["weddings"]), "Check my wedding dates")}</div></div></section>')
+
+
+def roman(n):
+    """Lower-roman numerals for the steps."""
+    out = ''
+    for v, r in ((10, 'x'), (9, 'ix'), (5, 'v'), (4, 'iv'), (1, 'i')):
+        out, n = out + r * (n // v), n % v
+    return out
+
+
+def how_it_works():
+    """The steps as a ledger on a thread, each marked by a sun warming from morning to golden hour (§4.16)."""
+    steps = ''.join(f'<li class="step" style="--i:{i}"><span class="step-marker">{art.step_sun(i + 1, len(STEPS))}</span>'
+                    f'<span class="t-numeral" aria-hidden="true">{roman(i + 1)}.</span><h3>{e(t)}</h3><p>{e(d)}</p></li>'
+                    for i, (t, d) in enumerate(STEPS))
+    return (f'<section class="how sec--standard head--left" aria-labelledby="how-title"><div class="wrap">'
+            f'<h2 id="how-title">How it <em>works</em></h2><ol class="steps" role="list" data-rules>{steps}</ol></div></section>')
+
+
+def questions():
+    """FAQ (§4.17): native details (never name="", so a tapped row never jumps), the plus turning to a minus."""
+    ig_url = INSTAGRAM[1]
+    qa = ''.join(f'<details class="qa" style="--i:{i}"><summary><span class="qa-row"><span class="t-question">{e(q)}</span>'
+                 f'{icon("plus")}</span></summary><div class="qa-body"><p>{e(a)}</p></div></details>' for i, (q, a) in enumerate(FAQ))
+    return (f'<section class="questions sec--standard" aria-labelledby="faq-title"><div class="wrap head--split">'
+            f'<div class="faq-head"><h2 id="faq-title">Questions, <em>answered</em></h2>'
+            f'<p>Still wondering? Message me on <a href="{ig_url}" rel="me">Instagram</a>.</p></div>'
+            f'<div class="faq" data-rules style="--i:{len(FAQ)}">{qa}</div></div></section>')
 
 
 def kind_words_page():
