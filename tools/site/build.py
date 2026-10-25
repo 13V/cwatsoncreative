@@ -94,15 +94,16 @@ ARCH = 'M44,206 V100 A56,56 0 0 1 156,100 V206 Z'
 def arch_svg(uid, cls='brand-mark', stroke=6, outline='#5C4D3F', inside='#ECE6DB', wave=True,
              vb='38 38 124 174', label=None):
     aria = f'role="img" aria-label="{e(label)}"' if label else 'aria-hidden="true" focusable="false"'
-    wave_svg = (f'<path d="M58,196 q9,-5 18,0 t18,0 t18,0 t18,0 t18,0" fill="none" stroke="#A7BBC3" '
-                f'stroke-width="{max(2.4, stroke * .6):.1f}" stroke-linecap="round"/>') if wave else ''
+    wave_svg = (f'<path class="mk-wave" pathLength="1" d="M58,196 q9,-5 18,0 t18,0 t18,0 t18,0 t18,0" fill="none" '
+                f'stroke="#A7BBC3" stroke-width="{max(2.4, stroke * .6):.1f}" stroke-linecap="round"/>') if wave else ''
     return (f'<svg class="{cls}" viewBox="{vb}" {aria} xmlns="http://www.w3.org/2000/svg">'
             f'<defs><clipPath id="arch-{uid}"><path d="{ARCH}"/></clipPath></defs>'
             f'<g clip-path="url(#arch-{uid})"><rect x="40" y="40" width="120" height="170" fill="{inside}"/>'
-            f'<circle cx="100" cy="150" r="30" fill="#C3964F"/>'
+            f'<circle class="mk-sun" cx="100" cy="150" r="30" fill="#C3964F"/>'
             f'<path d="M40,168 C70,146 104,150 160,134 V210 H40 Z" fill="#C1C3B2"/>'
             f'<path d="M40,184 C78,168 116,182 160,166 V210 H40 Z" fill="#8B937A"/>{wave_svg}</g>'
-            f'<path d="{ARCH}" fill="none" stroke="{outline}" stroke-width="{stroke}" stroke-linejoin="round"/></svg>')
+            f'<path class="mk-line" pathLength="1" d="{ARCH}" fill="none" stroke="{outline}" stroke-width="{stroke}" '
+            f'stroke-linejoin="round"/></svg>')
 
 
 FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 39 172 172">'
@@ -138,8 +139,13 @@ NAV = [('gallery.html', 'Gallery'), ('investment.html', 'Investment'), ('kind-wo
        ('contact.html', 'Contact')]
 
 
-def nav_links(active):
-    return ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == active else ""}>{t}</a>' for h, t in NAV)
+def nav_links(active, menu=False):
+    if not menu:
+        return ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == active else ""}>{t}</a>' for h, t in NAV)
+    # In the menu each link rises out of its own line box; the current page carries a small gold sun.
+    sun = '<span class="nav-sun" aria-hidden="true"></span>'
+    return ''.join(f'<a href="{h}" style="--i:{i}"{" aria-current=\"page\"" if h == active else ""}>'
+                   f'<span class="nl"><span>{t}</span></span>{sun if h == active else ""}</a>' for i, (h, t) in enumerate(NAV))
 
 
 def header(active):
@@ -149,21 +155,63 @@ def header(active):
             f'<span class="brand-name">Sunday Light</span></a>'
             f'<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">'
             f'<span class="sr-only">Menu</span><span class="bars" aria-hidden="true"></span></button>'
-            f'<nav id="site-nav" class="site-nav" aria-label="Main">{nav_links(active)}'
+            f'<nav id="site-nav" class="site-nav xfade" aria-label="Main"><span class="nav-sheet" aria-hidden="true"></span>'
+            f'{nav_links(active, menu=True)}'
             f'<a class="nav-instagram" href="{ig_url}">Instagram {e(ig_name)}</a></nav></div></header>\n')
+
+
+# The footer scene (M03 Sundown): one gold line draws the gulf horizon, a large arch window and the hills. Inside the
+# window is the logo's own scene, scaled, where the sun sets as the footer scrolls in. Two drawings: phone and wide.
+SCENES = {
+    # key: (viewBox w, h, scale of the logo inside, logo-to-scene offset x, y, gold line, front hill, gulf waves)
+    'm': (390, 230, 1.25, 70, -39.5,
+          'M0,218 H125 V85.5 A70,70 0 0 1 265,85.5 V218 C280,211 298,197 321,195 S361,204 390,200',
+          'M291,230 C305,222 324,215 343,217 S373,226 390,223',
+          ['M14,226 q7,-4 14,0 t14,0 t14,0 t14,0']),
+    'w': (1440, 300, 1.45, 575.2, -8.7,
+          'M0,290 H639 V136.3 A81.2,81.2 0 0 1 801.4,136.3 V290 C846,277 902,241 982,236 S1102,262 1176,259 S1322,234 1440,244',
+          'M934,300 C998,285 1058,268 1128,271 S1268,292 1338,287 S1412,277 1440,279',
+          ['M118,296 q10,-5 20,0 t20,0 t20,0 t20,0 t20,0', 'M352,293 q10,-5 20,0 t20,0 t20,0']),
+}
+
+
+def footer_scene(kind):
+    w, h, s, tx, ty, line, front, waves = SCENES[kind]
+    uid = f'dusk-{kind}'
+    gulf = ''.join(f'<path class="dusk-wave" pathLength="1" d="{d}"/>' for d in waves)
+    return (f'<svg class="dusk dusk--{kind}" viewBox="0 0 {w} {h}" width="{w}" height="{h}" preserveAspectRatio="xMidYMax meet" '
+            f'aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'
+            f'<defs><clipPath id="{uid}-a"><path d="{ARCH}"/></clipPath>'
+            f'<linearGradient id="{uid}-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDD8C0"/>'
+            f'<stop offset="1" stop-color="#E4C08A"/></linearGradient></defs>'
+            f'<g transform="translate({tx} {ty}) scale({s})"><g clip-path="url(#{uid}-a)">'
+            f'<rect x="40" y="40" width="120" height="170" fill="#F6F2EA"/>'
+            f'<rect class="sky-gold" x="40" y="40" width="120" height="170" fill="url(#{uid}-g)"/>'
+            f'<circle class="dusk-sun" cx="100" cy="150" r="30" fill="#C3964F"/>'
+            f'<path d="M40,168 C70,146 104,150 160,134 V210 H40 Z" fill="#C1C3B2"/>'
+            f'<path d="M40,184 C78,168 116,182 160,166 V210 H40 Z" fill="#8B937A"/>'
+            f'<path d="M58,196 q9,-5 18,0 t18,0 t18,0 t18,0 t18,0" fill="none" stroke="#A7BBC3" stroke-width="2.4" stroke-linecap="round"/>'
+            f'<path class="glint" pathLength="1" d="M58,196 q9,-5 18,0 t18,0 t18,0 t18,0 t18,0" fill="none" stroke="#FBF8F2" '
+            f'stroke-width="2.4" stroke-linecap="round"/></g></g>'
+            f'<path class="dusk-line" pathLength="1" d="{line}"/><path class="dusk-line dusk-line--front" pathLength="1" d="{front}"/>'
+            f'{gulf}</svg>')
 
 
 def footer():
     ig_name, ig_url = INSTAGRAM
     dot = '<span class="dot"> · </span>'  # hidden on phones, where each part gets its own line
-    return (f'<footer class="site-footer"><div class="wrap footer-inner">'
-            f'<a class="brand" href="index.html" aria-label="Sunday Light, home">{arch_svg("f")}'
-            f'<span class="brand-name">Sunday Light</span></a>'
+    return (f'<footer class="site-footer">'
+            f'<a class="sundown" href="index.html" aria-label="Sunday Light, home">'
+            f'<span class="sundown-scene">{footer_scene("m")}{footer_scene("w")}</span>'
+            f'<span class="sundown-word" aria-hidden="true"><span>Sunday Light</span></span></a>'
+            f'<div class="wrap footer-inner">'
             f'<nav class="footer-nav" aria-label="Footer">{nav_links("")}</nav>'
             f'<a class="footer-instagram" href="{ig_url}" rel="me">{ICON["instagram"]}<span>{e(ig_name)}</span></a>'
+            f'<p class="golden-hour" data-golden>Golden hour: the last hour before sunset, and the best light of the day.</p>'
             f'<p class="footer-base"><span>&copy; <span data-year>2026</span> Sunday Light</span>{dot}'
             f'<span>Adelaide, South Australia</span>{dot}'
-            f'<span><a href="privacy.html">Privacy</a> · Website by <a href="https://www.lumenadl.com/">Lumen</a></span></p>'
+            f'<span><a href="privacy.html">Privacy</a> · Website by <a href="https://www.lumenadl.com/">Lumen</a></span>{dot}'
+            f'<span><button class="still-toggle" type="button" aria-pressed="false">Hold still</button></span></p>'
             f'</div></footer>\n')
 
 
@@ -178,6 +226,39 @@ JSONLD = {
                    "Family photography", "Maternity photography", "Newborn photography"],
     "sameAs": [INSTAGRAM[1]],
 }
+
+# Runs before first paint. Sets .js; .m when motion is welcome (no reduced motion, not "Hold still"); .first-light
+# on the first page of a visit; and drives the page-change arch: it remembers where a link was tapped and skips the
+# transition for back, forward, reload and restored pages.
+HEAD_SCRIPT = (
+    "(function(h){var c=h.classList,ss,st=false,nav;c.add('js');"
+    "try{st=localStorage.getItem('sl-still')==='1'}catch(e){}if(st)c.add('still');"
+    "if(!st&&!matchMedia('(prefers-reduced-motion: reduce)').matches)c.add('m');"
+    "try{ss=sessionStorage;nav=(performance.getEntriesByType('navigation')[0]||{}).type;"
+    "if(c.contains('m')&&nav==='navigate'&&!ss.getItem('sl-sun')&&!h.hasAttribute('data-nf'))c.add('first-light');"
+    "ss.setItem('sl-sun','1')}catch(e){}"
+    "addEventListener('pageshow',function(e){if(e.persisted)h.dataset.restored='1'});"
+    "document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');"
+    "if(!a||a.origin!==location.origin||a.target||e.defaultPrevented)return;"
+    "var W=innerWidth,H=innerHeight,r={at:Date.now()},d=a.closest('[data-door]'),b=d&&d.getBoundingClientRect();"
+    "if(b&&b.top>=0&&b.bottom<=H){r.x=(b.left+b.width/2)/W*100+'%';r.w=b.width+'px';r.h=b.height+'px';r.sill=H-b.bottom+'px'}"
+    "else r.x=(e.detail?Math.min(80,Math.max(20,e.clientX/W*100)):50)+'%';"
+    "try{ss.setItem('sl-vt',JSON.stringify(r))}catch(x){}},true);"
+    "addEventListener('pageswap',function(e){var vt=e.viewTransition,r={};if(!vt)return;"
+    "if(e.activation&&/traverse|reload/.test(e.activation.navigationType)){vt.skipTransition();return}"
+    "try{r=JSON.parse(ss.getItem('sl-vt')||'{}')}catch(x){}r.quiet=c.contains('menu-open');"
+    "var hd=document.querySelector('.site-header');r.keep=!r.quiet&&!!hd&&hd.getBoundingClientRect().top>-1;"
+    "if(r.keep)c.add('vt-keep');try{ss.setItem('sl-vt',JSON.stringify(r))}catch(x){}});"
+    "addEventListener('pagereveal',function(e){var vt=e.viewTransition,r={},a=window.navigation&&navigation.activation,"
+    "k=['x','w','h','sill'];if(!vt)return;try{r=JSON.parse(ss.getItem('sl-vt')||'{}');ss.removeItem('sl-vt')}catch(x){}"
+    "if(!c.contains('m')||h.dataset.restored||nav==='back_forward'||nav==='reload'||"
+    "(a&&/traverse|reload/.test(a.navigationType))||!(Date.now()-r.at<4000)){vt.skipTransition();return}"
+    "if(r.keep)c.add('vt-keep');if(r.quiet)c.add('vt-quiet');"
+    "k.forEach(function(n){if(r[n])h.style.setProperty('--vt-'+n,r[n])});"
+    "window.slSettled=vt.finished.finally(function(){c.remove('vt-keep','vt-quiet');"
+    "k.forEach(function(n){h.style.removeProperty('--vt-'+n)})})})"
+    "})(document.documentElement)"
+)
 
 # Fonts used near the top of every page are fetched straight away, so the headings don't jump when they swap in.
 FONTS = {'serif': 'cormorant-garamond-500', 'italic': 'cormorant-garamond-500-italic',
@@ -197,13 +278,13 @@ def head(title, desc, jsonld=False, italic=False):
             f'<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">\n'
             f'<link rel="apple-touch-icon" href="apple-touch-icon.png">\n'
             f'{preload}<link rel="stylesheet" href="styles.css">\n'
-            f'<script>document.documentElement.classList.add("js")</script>\n'
+            f'<script>{HEAD_SCRIPT}</script>\n'
             f'<script src="main.js" defer></script>\n{ld}')
 
 
-def page(active, title, desc, main, jsonld=False, body_extra=''):
+def page(active, title, desc, main, jsonld=False, body_extra='', html_attrs=''):
     italic = '<em>' in main.split('</h1>', 1)[0]
-    return ('<!doctype html>\n<html lang="en-AU">\n<head>\n<meta charset="utf-8">\n'
+    return (f'<!doctype html>\n<html lang="en-AU"{html_attrs}>\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
             + head(title, desc, jsonld, italic) + '</head>\n<body>\n' + header(active)
             + f'<main id="main">\n{main}\n</main>\n' + footer() + body_extra + '</body>\n</html>\n')
@@ -383,13 +464,13 @@ def investment():
     packages = ''.join(package(s, True) for s in pictured)
     if waiting:
         packages += f'<div class="packages-text">{"".join(package(s, False) for s in waiting)}</div>'
-    tiers = ''.join(f'<li class="tier"><span class="tier-number" aria-hidden="true">{i:02d}</span>'
+    tiers = ''.join(f'<li class="tier" style="--i:{i - 1}"><span class="tier-number" aria-hidden="true">{i:02d}</span>'
                     f'<h3 class="tier-name">{e(name)}</h3><p class="tier-hours">Up to {hours} hours</p>'
                     f'<p class="tier-price">{e(price)}</p></li>' for i, (name, hours, price) in enumerate(WEDDING_PACKAGES, 1))
     wedding_includes = ''.join(f'<li>{e(x)}</li>' for x in WEDDING_INCLUDES)
     wedding_terms = ''.join(f'<li>{e(x)}</li>' for x in WEDDING_TERMS)
-    steps = ''.join(f'<li><h3>{e(t)}</h3><p>{e(d)}</p></li>' for t, d in STEPS)
-    faq = ''.join(f'<details><summary>{e(q)}</summary><p>{e(a)}</p></details>' for q, a in FAQ)
+    steps = ''.join(f'<li style="--i:{i}"><h3>{e(t)}</h3><p>{e(d)}</p></li>' for i, (t, d) in enumerate(STEPS))
+    faq = ''.join(f'<details style="--i:{i}"><summary>{e(q)}</summary><p>{e(a)}</p></details>' for i, (q, a) in enumerate(FAQ))
     main = f'''{window(INVESTMENT_HERO, "window--hero window--short", priority=True)}
 
 {page_head("Investment", "Photos you’ll keep <em>for good.</em>", "", f'<div class="prose">{intro}</div><div class="actions">{button("contact.html", "Book a session")}</div>')}
@@ -402,7 +483,7 @@ def investment():
 <section class="section section--lime wedding-packages" id="wedding-packages" aria-labelledby="wedding-packages-title"><div class="wrap">
 <p class="eyebrow eyebrow--center">Weddings</p>
 <h2 class="center-title" id="wedding-packages-title">Wedding <em>packages</em></h2>
-<ol class="tiers">{tiers}</ol>
+<ol class="tiers" data-rules>{tiers}</ol>
 <div class="tier-notes">
 <div><h3>Every package includes</h3><ul class="package-includes">{wedding_includes}</ul></div>
 <div><h3>Good to know</h3><ul class="package-includes">{wedding_terms}</ul></div>
@@ -412,11 +493,11 @@ def investment():
 
 <section class="section" aria-labelledby="how-title"><div class="wrap">
 <h2 class="center-title" id="how-title">How it works</h2>
-<ol class="steps">{steps}</ol></div></section>
+<ol class="steps" data-rules>{steps}</ol></div></section>
 
 <section class="section" aria-labelledby="faq-title"><div class="wrap narrow">
 <h2 class="center-title" id="faq-title">Questions, answered</h2>
-<div class="faq">{faq}</div></div></section>
+<div class="faq" data-rules>{faq}</div></div></section>
 
 {kind_words()}
 
@@ -466,10 +547,10 @@ def contact():
 </form>
 <div id="form-success" class="form-success" hidden><p class="eyebrow">Sent</p><h2 tabindex="-1">Thank you.</h2><p>Your enquiry is on its way. I’ll be in touch soon with dates and details.</p>{link_arrow("gallery.html", "Browse the gallery")}</div>
 </div>
-<aside class="aside" aria-label="What happens next">
-<div><h2>What happens next</h2><p>I’ll reply with available dates, pricing and a few ideas for your session.</p></div>
-<div><h2>Prefer Instagram?</h2><p>Send a message to <a href="{ig_url}">{e(ig_name)}</a>.</p></div>
-<div><h2>Based in Adelaide</h2><p>Sessions on the coast, in the hills and at home.</p></div>
+<aside class="aside" aria-label="What happens next" data-rules>
+<div style="--i:0"><h2>What happens next</h2><p>I’ll reply with available dates, pricing and a few ideas for your session.</p></div>
+<div style="--i:1"><h2>Prefer Instagram?</h2><p>Send a message to <a href="{ig_url}">{e(ig_name)}</a>.</p></div>
+<div style="--i:2"><h2>Based in Adelaide</h2><p>Sessions on the coast, in the hills and at home.</p></div>
 </aside>
 </div></section>
 
@@ -496,7 +577,7 @@ def not_found():
 <p class="eyebrow">Page not found</p><h1>This page has <em>wandered off.</em></h1>
 <p class="lead">It may have moved, or the link may be old.</p>
 <div class="actions">{button("index.html", "Back home")}{link_arrow("gallery.html", "See the gallery")}</div></div></section>'''
-    out = page('', 'Page not found | Sunday Light', 'This page could not be found.', main)
+    out = page('', 'Page not found | Sunday Light', 'This page could not be found.', main, html_attrs=' data-nf')
     # served for missing paths at any depth, so resolve every link from the site root
     return out.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<base href="/">', 1)
 

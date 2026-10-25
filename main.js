@@ -1,8 +1,75 @@
-// Sunday Light: menu, photos, gentle reveals, the sessions list, the photo viewer and the enquiry form.
+// Sunday Light: motion kernel, menu, photos, the kind words slider, the photo viewer, the enquiry form and the
+// golden-hour clock. The page's finished, still state is the CSS default; motion only ever starts from .m.
 (function () {
   "use strict";
   var root = document.documentElement;
-  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reduceQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  var motionOK = function () { return root.classList.contains("m"); };
+
+  // ---------------------------------------------------------------- motion kernel
+  // One observer for every one-shot moment. Anything on screen when first seen stays finished; anything below the
+  // fold is armed (put in its start state while off-screen) and plays once when enough of it arrives.
+  var jobs = new Map();
+  var seen = typeof WeakSet === "function" ? new WeakSet() : null;
+  var settled = function () { return window.slSettled || Promise.resolve(); };
+  var observer = ("IntersectionObserver" in window) ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var el = entry.target, list = jobs.get(el);
+      if (!list) return;
+      if (seen && !seen.has(el)) {
+        seen.add(el);
+        if (entry.isIntersecting || !motionOK()) { jobs.delete(el); observer.unobserve(el); return; }
+        el.classList.add("is-armed");
+        return;
+      }
+      list.forEach(function (job) {
+        if (job.done || entry.intersectionRatio < job.ratio) return;
+        job.done = true;
+        settled().then(function () { job.run(el); });
+      });
+      if (list.every(function (job) { return job.done; })) { jobs.delete(el); observer.unobserve(el); }
+    });
+  }, { threshold: [0, .1, .2, .25, .3] }) : null;
+  var once = function (el, ratio, run) {
+    if (!observer || !seen || !el) return;
+    var list = jobs.get(el);
+    if (!list) { list = []; jobs.set(el, list); observer.observe(el); }
+    list.push({ ratio: ratio, run: run, done: false });
+  };
+  // Everything jumps to its finished frame (reduced motion switched on, or "Hold still").
+  var settleAll = function () {
+    root.classList.remove("m");
+    if (document.getAnimations) document.getAnimations().forEach(function (a) { try { a.finish(); } catch (e) { a.cancel(); } });
+    document.querySelectorAll(".is-armed").forEach(function (el) { el.classList.add("is-done"); });
+  };
+  var stillButton = document.querySelector(".still-toggle");
+  var isStill = function () { return root.classList.contains("still"); };
+  if (stillButton) {
+    stillButton.setAttribute("aria-pressed", String(isStill()));
+    stillButton.addEventListener("click", function () {
+      var on = !isStill();
+      root.classList.toggle("still", on);
+      stillButton.setAttribute("aria-pressed", String(on));
+      try { localStorage.setItem("sl-still", on ? "1" : "0"); } catch (e) {}
+      if (on) settleAll();
+      else if (!(reduceQuery && reduceQuery.matches)) root.classList.add("m");
+    });
+  }
+  if (reduceQuery) {
+    var onPreference = function () {
+      if (reduceQuery.matches) settleAll();
+      else if (!isStill()) root.classList.add("m");
+    };
+    if (reduceQuery.addEventListener) reduceQuery.addEventListener("change", onPreference);
+    else if (reduceQuery.addListener) reduceQuery.addListener(onPreference);
+  }
+  var draw = function (el) { el.classList.add("is-drawn"); };
+  // Ruled in: eyebrow dashes and the rules of steps, questions, the contact column and the wedding tiers.
+  document.querySelectorAll(".eyebrow, [data-rules]").forEach(function (el) { once(el, .25, draw); });
+  // Sundown: the footer line draws once; where scroll timelines are missing, the sunset also plays once.
+  var footerEl = document.querySelector(".site-footer");
+  once(footerEl, .1, draw);
+  once(footerEl, .25, function (el) { el.classList.add("is-dusk"); });
 
   // Menu. On phones it opens as a full screen, so the page behind is locked and set inert.
   var toggle = document.querySelector(".nav-toggle");
@@ -25,7 +92,7 @@
       }
     });
     if (window.matchMedia) { // widening the window past the phone layout closes it
-      var wide = window.matchMedia("(min-width: 821px)");
+      var wide = window.matchMedia("(min-width: 861px)");
       var onWide = function () { if (wide.matches) setMenu(false); };
       if (wide.addEventListener) wide.addEventListener("change", onWide);
       else if (wide.addListener) wide.addListener(onWide);
@@ -51,33 +118,6 @@
       else photoFailed(image);
     }
   });
-  root.classList.add("fade-ready"); // photos that haven't arrived yet now fade in when they do
-
-  // Sections ease in as they scroll into view. Anything already on screen is left alone.
-  if ("IntersectionObserver" in window && !reduceMotion) {
-    var staggered = ".tiles, .steps, .duo-grid, .faq";
-    var targets = document.querySelectorAll(
-      ".quote .wrap > *, .intro-grid > *, .duo a, .center-title, .tiles li, .center, .words, .package, .review, " +
-      ".steps li, .faq details, .aside > div, .gallery-head, .text > *"
-    );
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-in");
-        observer.unobserve(entry.target);
-      });
-    }, { rootMargin: "0px 0px -6% 0px" });
-    targets.forEach(function (el) {
-      if (el.getBoundingClientRect().top < window.innerHeight) return;
-      if (el.parentNode.matches && el.parentNode.matches(staggered)) {
-        var index = Array.prototype.indexOf.call(el.parentNode.children, el);
-        el.style.transitionDelay = (index % 4) * 90 + "ms";
-        el.addEventListener("transitionend", function () { el.style.transitionDelay = ""; }, { once: true });
-      }
-      el.classList.add("reveal");
-      observer.observe(el);
-    });
-  }
 
   // Kind words: one review at a time, with arrows and swipes.
   document.querySelectorAll(".words").forEach(function (box) {
@@ -271,4 +311,66 @@
   document.querySelectorAll("[data-year]").forEach(function (node) {
     node.textContent = String(new Date().getFullYear());
   });
+
+  // ---------------------------------------------------------------- golden hour in Adelaide
+  // NOAA sunset equation for Adelaide; golden hour is taken as the hour before sunset. Shown in Adelaide time.
+  var golden = document.querySelector("[data-golden]");
+  var sunsetMinutesUTC = function (y, m, d) {
+    var rad = Math.PI / 180, lat = -34.9285, lng = 138.6007;
+    var t = (Date.UTC(y, m - 1, d) / 86400000 + 2440587.5 - 2451545) / 36525;
+    var L0 = (280.46646 + t * (36000.76983 + t * 0.0003032)) % 360;
+    var M = 357.52911 + t * (35999.05029 - 0.0001537 * t);
+    var ecc = 0.016708634 - t * (0.000042037 + 0.0000001267 * t);
+    var C = Math.sin(M * rad) * (1.914602 - t * (0.004817 + 0.000014 * t)) + Math.sin(2 * M * rad) * (0.019993 - 0.000101 * t) +
+      Math.sin(3 * M * rad) * 0.000289;
+    var omega = 125.04 - 1934.136 * t;
+    var lambda = L0 + C - 0.00569 - 0.00478 * Math.sin(omega * rad);
+    var eps = 23 + (26 + (21.448 - t * (46.815 + t * (0.00059 - t * 0.001813))) / 60) / 60 + 0.00256 * Math.cos(omega * rad);
+    var decl = Math.asin(Math.sin(eps * rad) * Math.sin(lambda * rad));
+    var yy = Math.pow(Math.tan(eps / 2 * rad), 2);
+    var eqTime = 4 / rad * (yy * Math.sin(2 * L0 * rad) - 2 * ecc * Math.sin(M * rad) + 4 * ecc * yy * Math.sin(M * rad) * Math.cos(2 * L0 * rad) -
+      0.5 * yy * yy * Math.sin(4 * L0 * rad) - 1.25 * ecc * ecc * Math.sin(2 * M * rad));
+    var ha = Math.acos(Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(decl)) - Math.tan(lat * rad) * Math.tan(decl)) / rad;
+    return 720 - 4 * lng - eqTime + 4 * ha;
+  };
+  window.slSunset = sunsetMinutesUTC; // for checking against published tables
+  var showGoldenHour = function () {
+    if (!golden || !window.Intl || !Intl.DateTimeFormat) return;
+    try {
+      var zone = "Australia/Adelaide";
+      var dateParts = function (when) {
+        var parts = {};
+        new Intl.DateTimeFormat("en-AU", { timeZone: zone, year: "numeric", month: "numeric", day: "numeric" })
+          .formatToParts(when).forEach(function (p) { parts[p.type] = Number(p.value); });
+        return parts;
+      };
+      var sunsetOn = function (when) {
+        var p = dateParts(when);
+        return Date.UTC(p.year, p.month - 1, p.day) + sunsetMinutesUTC(p.year, p.month, p.day) * 60000;
+      };
+      var time = new Intl.DateTimeFormat("en-AU", { timeZone: zone, hour: "numeric", minute: "2-digit" });
+      var now = Date.now(), sunset = sunsetOn(new Date(now)), start = sunset - 3600000, text;
+      if (!isFinite(sunset)) return;
+      if (now < start) text = "Golden hour in Adelaide tonight \u00b7 from " + time.format(start);
+      else if (now < sunset) text = "Golden hour in Adelaide now \u00b7 until " + time.format(sunset);
+      else text = "Golden hour tomorrow \u00b7 from " + time.format(sunsetOn(new Date(now + 86400000)) - 3600000);
+      golden.classList.add("is-swapping");
+      setTimeout(function () { golden.textContent = text; golden.classList.remove("is-swapping"); }, motionOK() ? 300 : 0);
+    } catch (e) {}
+  };
+  // Only worked out as the footer comes near: the time-zone formatter is costly to create on a slow phone.
+  if (golden) {
+    var later = function () {
+      if ("requestIdleCallback" in window) requestIdleCallback(showGoldenHour, { timeout: 1500 });
+      else setTimeout(showGoldenHour, 200);
+    };
+    if ("IntersectionObserver" in window) {
+      var near = new IntersectionObserver(function (entries) {
+        if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
+        near.disconnect();
+        later();
+      }, { rootMargin: "0px 0px 900px 0px" });
+      near.observe(golden);
+    } else later();
+  }
 })();
