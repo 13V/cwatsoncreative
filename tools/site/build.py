@@ -13,7 +13,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from content import (PHOTOS, PORTFOLIO_WEDDINGS, EXTRA_GALLERIES, SESSIONS, STEPS, FAQ, INSTAGRAM, ENDPOINT,  # noqa: E402
                      FOCUS, FORM_SESSION, FORM_OPTIONS, HERO, HERO_CAPTION, HOME_WINDOWS, INTRO, TILES, INSTAGRAM_STRIP,
-                     KIND_WORDS, KIND_WORDS_ARE_PLACEHOLDERS, INVESTMENT_HERO, INVESTMENT_INTRO)
+                     KIND_WORDS, KIND_WORDS_ARE_PLACEHOLDERS, INVESTMENT_HERO, INVESTMENT_INTRO,
+                     WEDDING_PACKAGES, WEDDING_INCLUDES, WEDDING_TERMS)
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))  # the photos are looked up here
 
@@ -366,13 +367,15 @@ def investment():
         photo = fig(s['photo'], SIZES['card'], 'package-photo') if with_photo else ''
         includes = ''.join(f'<li>{e(i)}</li>' for i in s.get('includes', []))
         includes = f'<ul class="package-includes">{includes}</ul>' if includes else ''
+        more = link_arrow(*s['more']) if s.get('more') else ''
         price = (f'<p class="package-price">{e(s["price"])}</p>' if s.get('price')
                  else '<p class="package-price package-price--ask">Pricing on enquiry</p>')
         return (f'<article class="package{"" if with_photo else " package--text"}" id="{s["id"]}" aria-labelledby="{s["id"]}-title">'
                 f'{photo}<div class="package-panel"><h3 class="package-name" id="{s["id"]}-title">{e(s["name"])}</h3>'
                 f'<div class="prose">{body}</div>'
                 f'<div class="package-meta">{price}{includes}</div>'
-                f'{link_arrow(enquire, "Enquire about " + s.get("short", s["name"]).lower())}</div></article>')
+                f'<div class="package-links">{more}{link_arrow(enquire, "Enquire about " + s.get("short", s["name"]).lower())}</div>'
+                f'</div></article>')
 
     # Sessions with a photo get a photo card; the rest sit two to a row as text until their photo arrives.
     pictured = [s for s in SESSIONS if exists(PHOTOS[s['photo']][0])]
@@ -380,6 +383,11 @@ def investment():
     packages = ''.join(package(s, True) for s in pictured)
     if waiting:
         packages += f'<div class="packages-text">{"".join(package(s, False) for s in waiting)}</div>'
+    tiers = ''.join(f'<li class="tier"><span class="tier-number" aria-hidden="true">{i:02d}</span>'
+                    f'<h3 class="tier-name">{e(name)}</h3><p class="tier-hours">Up to {hours} hours</p>'
+                    f'<p class="tier-price">{e(price)}</p></li>' for i, (name, hours, price) in enumerate(WEDDING_PACKAGES, 1))
+    wedding_includes = ''.join(f'<li>{e(x)}</li>' for x in WEDDING_INCLUDES)
+    wedding_terms = ''.join(f'<li>{e(x)}</li>' for x in WEDDING_TERMS)
     steps = ''.join(f'<li><h3>{e(t)}</h3><p>{e(d)}</p></li>' for t, d in STEPS)
     faq = ''.join(f'<details><summary>{e(q)}</summary><p>{e(a)}</p></details>' for q, a in FAQ)
     main = f'''{window(INVESTMENT_HERO, "window--hero window--short", priority=True)}
@@ -391,7 +399,18 @@ def investment():
 <div class="packages">{packages}</div>
 </div></section>
 
-<section class="section section--lime" aria-labelledby="how-title"><div class="wrap">
+<section class="section section--lime wedding-packages" id="wedding-packages" aria-labelledby="wedding-packages-title"><div class="wrap">
+<p class="eyebrow eyebrow--center">Weddings</p>
+<h2 class="center-title" id="wedding-packages-title">Wedding <em>packages</em></h2>
+<ol class="tiers">{tiers}</ol>
+<div class="tier-notes">
+<div><h3>Every package includes</h3><ul class="package-includes">{wedding_includes}</ul></div>
+<div><h3>Good to know</h3><ul class="package-includes">{wedding_terms}</ul></div>
+</div>
+<div class="center">{link_arrow("contact.html?session=Wedding", "Check my wedding dates")}</div>
+</div></section>
+
+<section class="section" aria-labelledby="how-title"><div class="wrap">
 <h2 class="center-title" id="how-title">How it works</h2>
 <ol class="steps">{steps}</ol></div></section>
 

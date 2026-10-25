@@ -101,10 +101,12 @@ Gallery and Investment pages show one review at a time with arrows, and the Kind
 
 ## Prices
 
-Prices and what each session includes are in `SESSIONS` in `tools/site/content.py` (`price` and `includes`).
-As of October 2026: couples, engagements and proposals $350; family $400 (up to five people, then $25 each);
-maternity $350; newborn $350. Weddings show "Pricing on enquiry" until the wedding packages are added. Mini
-sessions ($220) are limited-time specials, so they are left off. Change a price there and rebuild.
+Prices and what each session includes are in `SESSIONS` in `tools/site/content.py` (`price` and `includes`),
+and the five wedding packages are in `WEDDING_PACKAGES`, `WEDDING_INCLUDES` and `WEDDING_TERMS`. As of October
+2026: weddings from $1,700 (Basic 4 hours $1,700, Standard 6 hours $2,100, Premium 8 hours $2,500, Deluxe 10
+hours $2,900, Ultimate 12 hours $3,300); couples, engagements and proposals $350; family $400 (up to five
+people, then $25 each); maternity $350; newborn $350. Mini sessions ($220) are limited-time specials, so they
+are left off. Change a price there and rebuild.
 
 ## Editing the pages
 
@@ -138,7 +140,7 @@ engines only index the site once it's on its real domain.
 - [ ] Add the session photos under "Still needed", then run `tools/prepare_photos.py`.
 - [ ] Replace the Kind words placeholders with real reviews (see Kind words).
 - [x] Add session prices.
-- [ ] Add the wedding packages (see Prices).
+- [x] Add the wedding packages.
 - [ ] Create the n8n webhook and send a test enquiry.
 - [ ] Once the domain is set, add `<link rel="canonical">`, make `og:image` an absolute URL on every
       page, and add a `sitemap.xml` (and a `Sitemap:` line in `robots.txt`).

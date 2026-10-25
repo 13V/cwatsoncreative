@@ -367,6 +367,37 @@ p { margin: 0; }
   .package:nth-child(even) > .ph, .review:nth-child(even) > .ph { order: 0; }
 }
 
+.package-links { display: flex; flex-wrap: wrap; gap: 18px 32px; }
+
+/* investment: the five wedding packages, arch-topped like the logo's window */
+.eyebrow--center { justify-content: center; }
+.eyebrow--center::after { content: ""; flex: none; width: 28px; height: 1px; background: var(--paddock); }
+.wedding-packages { scroll-margin-top: 16px; }
+.tiers { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px); margin: 0; padding: 0; list-style: none; }
+.tier {
+  display: grid; justify-items: center; align-content: start; gap: 8px; text-align: center;
+  padding: clamp(40px, 4vw, 56px) 14px clamp(26px, 3vw, 36px); background: var(--paper); border-radius: 999px 999px 0 0;
+}
+.tier-number { font: italic 500 1.45rem/1 var(--serif); color: var(--paddock-ink); }
+.tier-name { font-size: clamp(1.5rem, 2vw, 1.85rem); }
+.tier-hours { font: 500 .7rem/1.5 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--bush-ink); }
+.tier-price { width: 64%; margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--line); font: 500 clamp(1.7rem, 2.3vw, 2.1rem)/1 var(--serif); color: var(--paddock-ink); }
+.tier-notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 5vw, 72px); max-width: 920px; margin: clamp(44px, 6vw, 72px) auto 0; }
+.tier-notes h3 { font-size: 1.5rem; margin-bottom: 16px; }
+@media (max-width: 1000px) and (min-width: 761px) { .tier { padding-inline: 8px; } .tier-price { width: 80%; } }
+@media (max-width: 760px) {
+  .tiers { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .tier {
+    grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; justify-items: start; gap: 2px 14px; text-align: left;
+    padding: 18px 2px; background: none; border-radius: 0; border-top: 1px solid var(--line);
+  }
+  .tier:last-child { border-bottom: 1px solid var(--line); }
+  .tier-number { grid-row: 1 / 3; }
+  .tier-name, .tier-hours { grid-column: 2; }
+  .tier-price { grid-column: 3; grid-row: 1 / 3; width: auto; margin: 0; padding: 0; border: 0; }
+  .tier-notes { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* steps and questions */
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(24px, 3vw, 44px); list-style: none; margin: 0; padding: 0; counter-reset: step; }
 .steps li { display: grid; gap: 10px; align-content: start; border-top: 1px solid var(--bark); padding-top: 22px; counter-increment: step; }

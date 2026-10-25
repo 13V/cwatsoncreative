@@ -52,13 +52,25 @@ PORTFOLIO_WEDDINGS = ['arch-mirror', 'gilded-mirror', 'bridesmaids-seated', 'bri
                       'jaguar-kiss', 'field-dusk', 'grass-overhead', 'vineyard-sunset']
 assert sorted(PORTFOLIO_WEDDINGS) == sorted(WEDDING_KEYS)
 
+# Wedding packages, from her package sheet (October 2026). They differ only in hours, so what every package
+# includes is listed once. (name, hours of continuous coverage, price)
+WEDDING_PACKAGES = [('Basic', 4, '$1,700'), ('Standard', 6, '$2,100'), ('Premium', 8, '$2,500'),
+                    ('Deluxe', 10, '$2,900'), ('Ultimate', 12, '$3,300')]
+WEDDING_INCLUDES = ['Continuous coverage for the hours you choose', 'A fully edited digital gallery',
+                    'Sneak peeks within 24 hours', 'A pre-wedding consultation']
+WEDDING_TERMS = ['Your full gallery within three months',
+                 'A 25% non-refundable deposit secures your date',
+                 'Payment plans available, with the balance due 14 days before the wedding']
+
 # Sessions on the Investment page, with her prices (October 2026). A session without a price shows
 # "Pricing on enquiry". `includes` is the short list under the price. A session's photo card appears once its
 # photo exists. Mini sessions ($220) are left off on purpose: they run as limited-time specials.
 LOCATION = 'Your choice of location around Adelaide (travel further out can be quoted)'
 GALLERY = 'Every edited image in a professional online gallery'
 SESSIONS = [
- dict(id='weddings', name='Weddings', photo='bougainvillea-embrace',
+ dict(id='weddings', name='Weddings', photo='bougainvillea-embrace', price='From $1,700',
+      includes=['Five packages, from 4 to 12 hours of coverage', 'Sneak peeks within 24 hours', 'A pre-wedding consultation'],
+      more=('#wedding-packages', 'See the wedding packages'),
       body=['I photograph weddings the way they feel: getting ready, the nerves, the vows, the champagne and the dance floor.',
             'I keep things calm and quiet, step in when you need direction and stay out of the way when you don’t. '
             'I’ll also help you plan the timeline, so your portraits land in the best light of the day.']),
