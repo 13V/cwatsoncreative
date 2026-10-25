@@ -250,7 +250,31 @@ def kind_words(where):
     the reviews are placeholders. (The body is WP4's.)"""
     if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:
         return ''
-    return ''
+    r = review_for(where)
+    return (f'<section class="interlude sec--breath panel head--center" aria-label="Kind words"><div class="wrap">'
+            f'{art.orn_window()}<figure><blockquote><p class="t-quote"><span class="q-open">“</span>{review_words(r, True)}”</p>'
+            f'</blockquote><figcaption class="cite">{review_cite(r)}</figcaption></figure></div></section>')
+
+
+def review_for(where):
+    """The interlude's review: a featured one first; on Investment a wedding review, and a different one from Home's
+    when there is one."""
+    pool = [r for r in KIND_WORDS if r.get('feature')] or KIND_WORDS
+    if where == 'investment':
+        weddings = [r for r in pool if 'wedding' in r['session'].lower()] or pool
+        return next((r for r in weddings if r is not pool[0]), weddings[0])
+    return pool[0]
+
+
+def review_words(r, pull=False):
+    """A review exactly as written (never edited), escaped; its pull phrase, an exact part of it, set in italic."""
+    assert not r['pull'] or r['pull'] in r['words'], f'the pull phrase must be an exact part of the review: {r["pull"]!r}'
+    words = e(r['words'])
+    return words.replace(e(r['pull']), f'<em>{e(r["pull"])}</em>', 1) if pull and r['pull'] else words
+
+
+def review_cite(r):
+    return ' · '.join(e(v) for v in (r['names'], r['session'], r.get('place'), r.get('season')) if v)
 
 
 # ------------------------------------------------------------------ chrome
@@ -560,66 +584,129 @@ def investment():
 
 
 def kind_words_page():
+    """Kind words: real reviews as stories (spec §5.4), or, until there are some, the honest holding state (§5.5): her
+    photo, the page's promise in plain words and the newest sessions on Instagram. Kept out of search meanwhile."""
     ig_name, ig_url = INSTAGRAM
     title, desc = 'Kind words | Sunday Light', 'What couples and families say about their sessions with Sunday Light, Adelaide photographer.'
+    h1 = 'From the people <em>in the photos.</em>'
     if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:
-        main = f'''<section class="page-head holding"><div class="wrap narrow">
-{fig(KIND_WORDS_HOLDING_PHOTO, "(max-width: 600px) 64vw, 380px", cls="arch holding-photo", ratio="3/4", priority=True)}
-<p class="eyebrow">Kind words</p><h1>From the people <em>in the photos.</em></h1>
+        main = f'''<section class="page-head kw-holding sec--compact head--center"><div class="wrap">
+{arch_frame(KIND_WORDS_HOLDING_PHOTO, "kw-holding", "3x4", priority=True)}
+<p class="eyebrow">Kind words</p><h1>{h1}</h1>
 <p class="lead">This is where couples and families share how their sessions felt. The newest sessions go up on Instagram first.</p>
-<div class="actions">{link_arrow(ig_url, "Newest sessions on Instagram", external=True)}</div>
+<div class="actions">{link_arrow(ig_url, "See the newest sessions on Instagram", external=True)}</div>
 </div></section>
 
 {instagram_sheet("limestone")}
 
 {closing("kind-words")}'''
-        # kept out of search until there are real reviews to show
         return page('kind-words', 'kind-words.html', title, desc, main, robots='noindex')
-    reviews = ''.join(
-        f'<article class="review">{fig(r["photo"], LEGACY_SIZES["card"], cls="review-photo", ratio="4/5", alt="") if r["photo"] and r["photo_is_theirs"] else ""}'
-        f'<div class="review-panel"><blockquote><p>“{e(r["words"])}”</p></blockquote><p class="review-name">{e(r["names"])}</p>'
-        f'<p class="review-session">{e(r["session"])}</p></div></article>' for r in KIND_WORDS)
-    main = f'''{page_head("Kind words", "From the people <em>in the photos.</em>", "A few words from the couples and families I’ve photographed.", layout="center")}
+    stories = ''.join(kw_story(n, r) for n, r in enumerate(KIND_WORDS, 1))
+    main = f'''{page_head("Kind words", h1, "A few words from the couples and families I’ve photographed.", layout="left")}
 
-<section class="section reviews-section"><div class="wrap">
-<div class="reviews">{reviews}</div>
-</div></section>
+<section class="stories sec--standard"><div class="wrap">{stories}</div></section>
 
 {closing("kind-words")}'''
     return page('kind-words', 'kind-words.html', title, desc, main)
 
 
-def contact():
-    ig_name, ig_url = INSTAGRAM
-    opts = ''.join(f'<option>{e(o)}</option>' for o in FORM_OPTIONS)
-    heard = ''.join(f'<option>{o}</option>' for o in ['Instagram', 'A friend', 'Google', 'A wedding vendor', 'Somewhere else'])
-    main = f'''{page_head("Contact", "Let’s plan <em>something lovely.</em>", "Tell me a little about what you’re planning. I’ll get back to you with availability and pricing.", layout="center")}
+def kw_story(n, r):
+    """One review (spec §4.13): its number, the photo only when it is of the people who wrote it, the pull line (a
+    repeat, so hidden from screen readers), the review as written, and who wrote it. Photos alternate sides."""
+    assert not r['photo'] or r['photo_is_theirs'], f'a photo may only sit beside the review of the people in it ({r["names"]})'
+    photo = arch_frame(r['photo'], 'cover', '4x5', cls='story-photo') if r['photo'] and r['photo_is_theirs'] else ''
+    side = (' story--photo' + (' story--flip' if n % 2 == 0 else '')) if photo else ''
+    pull = f'<p class="t-quote story-pull" aria-hidden="true"><em>{e(r["pull"])}</em></p>' if r['pull'] else ''
+    return (f'<article class="story{side}" id="review-{n}">{photo}<div class="story-text">'
+            f'<p class="eyebrow--num"><span class="t-count">No. {n:02d}</span></p>{pull}<figure><blockquote>'
+            f'<p class="t-quote-body">“{review_words(r)}”</p></blockquote><figcaption class="cite">{review_cite(r)}</figcaption>'
+            f'</figure></div></article>')
 
-<section class="section" style="padding-top:0"><div class="wrap enquire-grid">
-<div>
-<form id="enquiry-form" class="form" data-endpoint="{ENDPOINT}" novalidate>
-<div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" autocapitalize="words" required maxlength="200"></div>
-<div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required maxlength="254"></div>
-<div class="field"><label for="phone">Phone <span>(optional)</span></label><input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="40"></div>
-<div class="field"><label for="session">Type of session</label><select id="session" name="session">{opts}</select></div>
-<div class="field"><label for="date">Date or season <span>(rough is fine)</span></label><input id="date" name="date" placeholder="e.g. March 2027" maxlength="120"></div>
-<div class="field"><label for="location">Where <span>(optional)</span></label><input id="location" name="location" autocapitalize="words" placeholder="Beach, hills, home or venue" maxlength="200"></div>
-<div class="field full"><label for="message">Tell me about it</label><textarea id="message" name="message" required maxlength="4000" placeholder="Who’s involved, what you’re picturing, anything I should know"></textarea></div>
-<div class="field"><label for="heard">How did you find me? <span>(optional)</span></label><select id="heard" name="heard"><option value="">Choose one</option>{heard}</select></div>
-<div class="hp" aria-hidden="true"><label for="company">Leave this empty</label><input id="company" name="company" tabindex="-1" autocomplete="off"></div>
-<div id="form-error" class="form-error" tabindex="-1" hidden>Your enquiry didn’t send. Your details are still here, so please try again, or message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</div>
-<div class="form-foot"><button class="btn btn--primary btn--send" type="submit"><span>Send</span> <i class="btn-rule" aria-hidden="true"></i> <span>enquiry</span></button><p id="form-status" class="form-status" role="status" aria-live="polite"></p></div>
-</form>
-<div id="form-success" class="form-success" hidden><p class="eyebrow">Sent</p><h2 tabindex="-1">Thank you.</h2><p>Your enquiry is on its way. I’ll be in touch soon with dates and details.</p>{link_arrow("gallery.html", "Browse the gallery")}</div>
+
+def contact():
+    """Contact (spec §5.6, §4.18): the head and the enquiry in one column, her photo and the details beside them. The
+    field names, option strings, honeypot and endpoint are the webhook's, so they never change."""
+    ig_name, ig_url = INSTAGRAM
+    # the summary's links, one per required field, shown by 60-form.js for the fields that need a look (spec §4.18)
+    summary = ''.join(f'<li data-n="{n}" hidden><a href="#{t}"></a></li>' for n, t in
+                      (('name', 'name'), ('email', 'email'), ('session', 'session-0'), ('message', 'message')))
+    main = f'''<section class="contact sec--standard" aria-labelledby="contact-title"><div class="wrap grid-12">
+<div class="contact-main">
+<p class="eyebrow">Contact</p>
+<h1 id="contact-title">Let’s plan <em>something lovely.</em></h1>
+<p class="lead">Tell me a little about what you’re planning. I’ll get back to you with availability and pricing.</p>
+<div class="enquire-slot">
+<form id="enquiry-form" class="form" method="post" action="{ENDPOINT}" data-endpoint="{ENDPOINT}">
+<div id="form-summary" class="form-summary" role="group" aria-labelledby="form-summary-title" tabindex="-1" data-n="One thing,Two things,Three things,Four things" hidden><h2 id="form-summary-title" class="t-question">Things to check</h2><ul>{summary}</ul></div>
+<fieldset class="fs"><legend class="t-question">About you</legend>
+{form_field("name", "Your name", 'autocomplete="name" autocapitalize="words" required maxlength="200"', err="Add your name so I know who I’m writing to.")}
+<div class="fields">{form_field("email", "Email", 'type="email" autocomplete="email" required maxlength="254"', err="Add your email so I can reply.", bad="That email doesn’t look quite right.")}
+{form_field("phone", "Phone", 'type="tel" autocomplete="tel" maxlength="40"', hint="(optional)")}</div>
+</fieldset>
+<fieldset class="fs"><legend class="t-question">What are we celebrating?</legend>
+<div class="chips">{form_chips("session", FORM_OPTIONS, required=True)}</div>
+{form_error("session", "Choose the kind of session.")}
+</fieldset>
+<fieldset class="fs"><legend class="t-question">When and where?</legend>
+<div class="fields">{form_field("date", "Date or season", 'placeholder="e.g. March 2027" maxlength="120"', hint="(rough is fine)")}
+{form_field("location", "Where", 'autocapitalize="words" placeholder="Beach, hills, home or venue" maxlength="200"', hint="(optional)")}</div>
+</fieldset>
+<div class="fs field field--letter"><label class="legend t-question" for="message">Tell me about it</label>
+<textarea id="message" name="message" required maxlength="4000" placeholder="Who’s involved, what you’re picturing, anything I should know" aria-describedby="err-message"></textarea>
+{form_error("message", "A line or two is plenty.")}
 </div>
-<aside class="aside" aria-label="What happens next" data-rules>
-<div style="--i:0"><h2>What happens next</h2><p>I’ll reply with available dates, pricing and a few ideas for your session.</p></div>
-<div style="--i:1"><h2>Prefer Instagram?</h2><p>Send a message to <a href="{ig_url}">{e(ig_name)}</a>.</p></div>
-<div style="--i:2"><h2>Based in Adelaide</h2><p>Sessions on the coast, in the hills and at home.</p></div>
-</aside>
+<fieldset class="fs"><legend class="t-question">How did you find me? (optional)</legend>
+<div class="chips">{form_chips("heard", ["Instagram", "A friend", "Google", "A wedding vendor", "Somewhere else"])}</div>
+</fieldset>
+<div class="hp sr-only" aria-hidden="true"><label for="company">Leave this empty</label><input id="company" name="company" tabindex="-1" autocomplete="off"></div>
+<div class="form-foot"><button class="btn btn--primary btn--send" type="submit"><span>Send</span> <i class="btn-rule" aria-hidden="true"></i> <span>enquiry</span></button>
+<div class="form-report"><p id="form-status" class="form-status t-caption" aria-hidden="true">Sending…</p>
+<div id="form-error" class="form-error" role="group" aria-labelledby="form-error-text" tabindex="-1" hidden><p id="form-error-text" class="t-small">Your enquiry didn’t send. Your details are still here, so please try again, or message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</p></div></div>
+</div>
+</form>
+<section id="form-success" class="form-success head--center" aria-labelledby="success-title" hidden>{mark("success", "lg")}
+<p class="eyebrow">Sent</p><h2 id="success-title" class="success-title" tabindex="-1">Thank you.</h2>
+<p>Your enquiry is on its way. I’ll be in touch soon with dates and details.</p>
+<div class="actions">{link_arrow("gallery.html", "Browse the gallery")}{link_arrow(ig_url, "Instagram", external=True)}</div>
+</section>
+</div>
+<p id="form-live" class="sr-only" role="status"></p>
+</div>
+<div class="contact-aside">
+{arch_frame(CONTACT_PHOTO, "contact", "3x4", keyline=True, eager=True)}
+<dl class="details" data-rules>
+<div style="--i:0"><dt>What happens next</dt><dd class="t-small">I’ll reply with available dates, pricing and a few ideas for your session.</dd></div>
+<div style="--i:1"><dt>Instagram</dt><dd>{link_arrow(ig_url, ig_name, external=True)}</dd></div>
+<div style="--i:2"><dt>Based in</dt><dd class="t-small">Adelaide, South Australia.<p class="t-caption">Sessions on the coast, in the hills and at home.</p></dd></div>
+</dl>
+</div>
 </div></section>'''
     return page('contact', 'contact.html', 'Contact | Sunday Light',
                 'Check dates for wedding, couples, family, maternity and newborn photography in Adelaide.', main)
+
+
+def form_error(name, message, bad=''):
+    """A required field's error slot: always there (one line reserved, so a message never moves anything), linked by
+    aria-describedby, filled by 60-form.js from its data-m (empty) and data-bad (malformed) messages."""
+    bad = f' data-bad="{e(bad)}"' if bad else ''
+    return f'<p class="field-error t-caption" id="err-{name}" data-m="{e(message)}"{bad}>{icon("alert")}<span></span></p>'
+
+
+def form_field(name, label, attrs, *, hint='', err='', bad=''):
+    """A text field: label (with its hint), input, then the error slot; an optional field keeps an empty slot too, so
+    every field has the same rhythm."""
+    hint = f' <span class="t-caption">{e(hint)}</span>' if hint else ''
+    described = f' aria-describedby="err-{name}"' if err else ''
+    slot = form_error(name, err, bad) if err else '<p class="field-error t-caption"></p>'
+    return (f'<div class="field"><label for="{name}">{e(label)}{hint}</label><input id="{name}" name="{name}" {attrs}{described}>'
+            f'{slot}</div>')
+
+
+def form_chips(name, options, *, required=False):
+    """Radio chips: each input lies over its chip, so the chip is the control (one swipe, one focus box)."""
+    extra = f' required aria-describedby="err-{name}"' if required else ''
+    return ''.join(f'<label class="chip"><input class="chip-input" type="radio" name="{name}" id="{name}-{i}" value="{e(o)}"{extra}>'
+                   f'<span class="chip-face">{e(o)}</span></label>' for i, o in enumerate(options))
 
 
 def privacy():
