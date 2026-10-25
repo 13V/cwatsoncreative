@@ -273,37 +273,6 @@
       targets.forEach((t) => spy.observe(t));
     }
   }
-  // Kind words: one review at a time, with arrows and swipes.
-  document.querySelectorAll(".words").forEach(function (box) {
-    var items = box.querySelectorAll(".words-item");
-    var photos = box.querySelectorAll(".words-photo");
-    var count = box.querySelector(".words-count");
-    if (items.length < 2 || !count) return;
-    var current = 0;
-    var go = function (index) {
-      current = (index + items.length) % items.length;
-      items.forEach(function (item, i) { item.classList.toggle("is-current", i === current); });
-      photos.forEach(function (photo, i) { photo.classList.toggle("is-current", i === current); });
-      count.textContent = (current + 1) + " / " + items.length;
-    };
-    box.querySelector(".words-prev").addEventListener("click", function () { go(current - 1); });
-    box.querySelector(".words-next").addEventListener("click", function () { go(current + 1); });
-    var startX = null;
-    var startY = 0;
-    box.addEventListener("touchstart", function (event) {
-      if (event.touches.length !== 1) { startX = null; return; }
-      startX = event.touches[0].clientX;
-      startY = event.touches[0].clientY;
-    }, { passive: true });
-    box.addEventListener("touchend", function (event) {
-      if (startX === null) return;
-      var dx = event.changedTouches[0].clientX - startX;
-      var dy = event.changedTouches[0].clientY - startY;
-      startX = null;
-      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) go(current + (dx < 0 ? 1 : -1));
-    }, { passive: true });
-  });
-
 
   // The arch opens (M05): the ring draws once the whole frame is seen; without scroll timelines the arch opens at 25%.
   {
@@ -318,15 +287,8 @@
     const tiers = document.querySelector(".tiers");
     if (tiers) once(tiers, .9, () => M.queue("draw", () => { tiers.classList.add("is-lit"); return wait(1200); }, 1200));
   }
-  // Contact: "Enquire about…" links arrive with the session already chosen.
-  var sessionField = document.getElementById("session");
-  if (sessionField && window.URLSearchParams) {
-    var wanted = new URLSearchParams(location.search).get("session");
-    Array.prototype.forEach.call(sessionField.options, function (option) {
-      if (wanted && option.value === wanted) sessionField.value = option.value;
-    });
-  }
-
+  // Contact: ?session=Wedding arrives with that chip chosen (§4.18).
+  for (const r of document.querySelectorAll('[name="session"]')) if (r.value == new URLSearchParams(location.search).get("session")) r.checked = true;
   // Viewer (§4.12; M06, M11); fades are CSS; the close event cleans up
   viewer: {
   const dlg = document.querySelector(".viewer"), links = [...document.querySelectorAll("[data-viewer]")];
@@ -466,74 +428,96 @@
     if (o) fx(dark, { opacity: [o, 1] }, 240, EL);
   };
   }
-  // Enquiry form: posts JSON to the webhook in data-endpoint.
-  var form = document.getElementById("enquiry-form");
-  if (form) {
-    var status = document.getElementById("form-status");
-    var failure = document.getElementById("form-error");
-    var success = document.getElementById("form-success");
-    var button = form.querySelector('button[type="submit"]');
-    var sending = false;
-    var emailOk = function (value) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); };
+  // Enquiry (§4.18, M09, D15): a field checks on blur once typed in, and on send. #form-live sits outside the form.
+  enquiry: {
+    const form = document.getElementById("enquiry-form");
+    if (!form) break enquiry;
+    const $ = id => document.getElementById(id), err = n => $("err-" + n);
+    const live = $("form-live"), card = $("form-success"), title = $("success-title"), sum = $("form-summary"),
+      failure = $("form-error"), radios = [...form.elements.session], NAMES = ["name", "email", "session", "message"], typed = {};
+    const attr = (el, a, on) => on ? el.setAttribute(a, "true") : el.removeAttribute(a);
+    form.noValidate = true;   // without JS the browser checks
 
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-      if (sending) return;
+    const problem = n => {
+      const d = err(n).dataset, v = n == "session" ? radios.some(r => r.checked) : form.elements[n].value.trim();
+      return !v ? d.m : n == "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? d.bad : "";
+    };
+    const show = (n, m, s = err(n)) => {
+      (n == "session" ? radios : [form.elements[n]]).forEach(el => attr(el, "aria-invalid", m));
+      s.lastChild.textContent = m;
+      s.classList.toggle("is-on", !!m);
+    };
+    form.addEventListener("input", e => {
+      const n = e.target.name;
+      if (NAMES.includes(n) && (typed[n] = 1) && err(n).classList.contains("is-on") && !problem(n)) show(n, "");
+    });
+    form.addEventListener("focusout", e => {
+      const n = e.target.name;
+      if (n == "session" ? !e.target.closest("fieldset").contains(e.relatedTarget) : typed[n]) show(n, problem(n));
+    });
+    sum.addEventListener("click", e => {
+      const a = e.target.closest("a");
+      if (a) { e.preventDefault(); $(a.hash.slice(1)).focus(); }
+    });
+
+    // M09: a couple whole (≤ 24 characters) or a clear first name; no titles, no surnames.
+    const firstName = v => {
+      v = v.trim().replace(/\s+/g, " ").replace(/[\s.,;:!?]+$/, "");
+      if (/^((mr|mrs|ms|miss|mx|dr)\b|the )/i.test(v)) return "";
+      if (/ (&|\+|and) /i.test(v)) return v.length > 24 ? "" : v;
+      v = v.split(" ")[0];
+      return !/^\p{L}[\p{L}'’-]{0,22}\p{L}$/u.test(v) ? "" : v == v.toLowerCase() || v == v.toUpperCase() ? v[0].toUpperCase() + v.slice(1).toLowerCase() : v;
+    };
+    const sending = on => { form.classList.toggle("is-sending", on); attr(form, "aria-busy", on); attr(form.querySelector("button"), "aria-disabled", on); };
+    const sent = play => {   // motion: fields fade, the card rises through its arch (CSS)
+      const n = firstName(form.elements.name.value), em = document.createElement("em"), hide = () => form.classList.add("is-sent");
+      const focus = () => title.focus();
+      em.textContent = n;
+      title.textContent = n ? "Thank you, " : "Thank you.";
+      if (n) title.append(em, ".");
+      live.textContent = "Enquiry sent. " + title.textContent;
+      card.hidden = false;
+      form.inert = true;
+      const top = card.getBoundingClientRect().top;
+      if (top < 0) scrollBy(0, top - 16);   // short phones
+      if (play && !motionOK()) return M.calm(form, "out").then(a => { hide(); a && a.cancel(); }), M.calm(card, "in").then(focus);
+      hide();
+      if (!play) return focus();
+      form.parentNode.classList.add("is-sent");
+      setTimeout(focus, 720);
+    };
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      if (form.classList.contains("is-sending")) return;
       failure.hidden = true;
-      var firstProblem = null;
-      ["name", "email", "message"].forEach(function (name) {
-        var field = form.elements[name];
-        var value = field.value.trim();
-        var bad = !value || (name === "email" && !emailOk(value));
-        if (bad) {
-          field.setAttribute("aria-invalid", "true");
-          firstProblem = firstProblem || field;
-        } else {
-          field.removeAttribute("aria-invalid");
-        }
+      const bad = NAMES.filter(n => { const m = problem(n); show(n, m); return m; });
+      sum.querySelectorAll("li").forEach(li => {
+        li.hidden = !bad.includes(li.dataset.n);
+        li.firstChild.textContent = err(li.dataset.n).lastChild.textContent;
       });
-      if (firstProblem) {
-        status.textContent = "Please add your name, a valid email and a short message.";
-        firstProblem.focus();
-        return;
+      if ((sum.hidden = !bad.length)) {
+        if (form.elements.company.value) return sent();   // honeypot: the card, nothing sent
+        const data = {};
+        for (const [k, v] of new FormData(form)) if (k != "company") data[k] = v.trim();
+        data.heard ??= "";
+        data.submitted = new Date().toISOString();
+        data.source = location.host + location.pathname;
+        sending(true);
+        live.textContent = "Sending…";
+        return fetch(form.dataset.endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), signal: AbortSignal.timeout(20000) })
+          .then(r => { if (!r.ok) throw r; sending(false); sent(1); })
+          .catch(() => {   // in its kept space; values stay
+            sending(false);
+            failure.hidden = false;
+            if (!motionOK()) M.calm(failure, "in");
+            failure.focus();
+            live.textContent = "Your enquiry didn’t send.";
+          });
       }
-      if (form.elements.company.value) { // filled in by bots only
-        form.hidden = true;
-        success.hidden = false;
-        return;
-      }
-      var data = {};
-      new FormData(form).forEach(function (value, key) {
-        if (key !== "company") data[key] = String(value).trim();
-      });
-      data.submitted = new Date().toISOString();
-      data.source = location.host + location.pathname;
-
-      sending = true;
-      button.disabled = true;
-      status.textContent = "Sending…";
-      var controller = typeof AbortController === "function" ? new AbortController() : null;
-      var timer = controller ? setTimeout(function () { controller.abort(); }, 20000) : null;
-      fetch(form.getAttribute("data-endpoint"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        signal: controller ? controller.signal : undefined
-      }).then(function (response) {
-        if (!response.ok) throw new Error("Enquiry failed");
-        status.textContent = "";
-        form.hidden = true;
-        success.hidden = false;
-        success.querySelector("h2").focus();
-      }).catch(function () {
-        status.textContent = "";
-        failure.hidden = false;
-        failure.focus();
-      }).then(function () {
-        if (timer) clearTimeout(timer);
-        sending = false;
-        button.disabled = false;
-      });
+      live.textContent = sum.firstChild.textContent = sum.dataset.n.split(",")[bad.length - 1] + " to check";
+      sum.scrollIntoView({ block: "start" });
+      sum.focus({ preventScroll: true });
     });
   }
 

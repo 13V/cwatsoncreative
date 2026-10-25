@@ -1,9 +1,2 @@
-  // Contact: "Enquire about…" links arrive with the session already chosen.
-  var sessionField = document.getElementById("session");
-  if (sessionField && window.URLSearchParams) {
-    var wanted = new URLSearchParams(location.search).get("session");
-    Array.prototype.forEach.call(sessionField.options, function (option) {
-      if (wanted && option.value === wanted) sessionField.value = option.value;
-    });
-  }
-
+  // Contact: ?session=Wedding arrives with that chip chosen (§4.18).
+  for (const r of document.querySelectorAll('[name="session"]')) if (r.value == new URLSearchParams(location.search).get("session")) r.checked = true;

@@ -1,38 +1,25 @@
-/* bp: legacy */
-/* kind words: a photo beside one review at a time */
-.words-section { padding-block: clamp(64px, 9vw, 120px); }
-.words { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); min-height: clamp(440px, 42vw, 580px); background: var(--limestone); }
-.words-photos { position: relative; }
-.words-photo { position: absolute; inset: 0; opacity: 0; transition: opacity .8s ease; }
-.words-photo.is-current { opacity: 1; }
-.words-panel { display: grid; align-content: center; justify-items: start; gap: 26px; padding: clamp(36px, 5.5vw, 80px); }
-.words-panel h2 { font-size: clamp(2.1rem, 3.4vw, 2.9rem); }
-.words-items { display: grid; }
-.js .words-items > .words-item { grid-area: 1 / 1; }
-.words-item { margin: 0; transition: opacity .6s ease, visibility .6s ease; }
-.words-item + .words-item { margin-top: 28px; }
-.js .words-item + .words-item { margin-top: 0; }
-.js .words-item:not(.is-current) { opacity: 0; visibility: hidden; }
-.words-item blockquote, .review blockquote { margin: 0; }
-.words-item blockquote p { font: 500 clamp(1.25rem, 1.8vw, 1.5rem)/1.5 var(--serif); color: var(--ink); max-width: 30em; }
-.words-item figcaption { display: grid; gap: 6px; margin-top: 22px; }
-.words-name, .review-name { font: 500 .74rem/1.5 var(--sans); letter-spacing: .26em; text-transform: uppercase; color: var(--bark); }
-.words-session, .review-session { font-size: .92rem; color: var(--bush-ink); }
-.words-nav { display: none; align-items: center; gap: 16px; }
-.js .words-nav { display: flex; }
-.words-nav button {
-  display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%;
-  border: 1px solid var(--line); background: transparent; color: var(--bark); cursor: pointer; transition: border-color .3s ease, background-color .3s ease;
+/* Kind words (spec §4.13, §5.4, §5.5): the holding head, the interlude and the stories */
+.kw-holding .frame{width:min(48vw, 300px);margin:0 auto var(--sp-24)}
+:is(.interlude, .story) :is(figure, blockquote){margin:0}
+.interlude .orn{display:block;margin:0 auto var(--sp-32)}
+.interlude .t-quote{max-width:24ch;margin-inline:auto}
+:is(.interlude, .story) .cite{display:block;margin-top:var(--sp-24)}
+@supports not (hanging-punctuation:first){.q-open{margin-left:-.42em}}
+.stories{padding-top:var(--sp-32)}
+.story{display:grid;gap:var(--sp-32);padding-block:var(--sp-64)}
+.story:first-child{padding-top:0}
+.story:last-child{padding-bottom:0}
+.story + .story{border-top:1px solid var(--line)}
+.story-photo{width:min(82vw, 455px)}
+.story-text{max-width:38rem}
+.story:not(.story--photo) .story-text{margin-inline:auto;text-align:center}
+.story-pull{margin-bottom:var(--sp-24)}
+@media (min-width:861px){
+  .story--photo{grid-template-columns:repeat(12, minmax(0, 1fr));column-gap:var(--col-gap);align-items:center}
+  .story--photo .story-photo{grid-column:1 / span 5;width:auto}
+  .story--photo .story-text{grid-column:7 / span 6}
+  .story--flip .story-photo{grid-column:8 / span 5;grid-row:1}
+  .story--flip .story-text{grid-column:1 / span 6;grid-row:1}
 }
-.words-nav svg { width: 18px; height: 18px; }
-.words-count { font: 500 .74rem/1 var(--sans); letter-spacing: .2em; font-variant-numeric: tabular-nums; color: var(--bark); }
-@media (max-width: 760px) {
-  .words { grid-template-columns: minmax(0, 1fr); min-height: 0; }
-  .words-photos { aspect-ratio: 4 / 5; }
-}
-
-
-/* Kind words holding state (no reviews yet): an arch photo over the page head */
-.holding .holding-photo { width: min(64vw, 380px); aspect-ratio: 3 / 4; margin: 0 auto clamp(32px, 5vw, 48px); }
-.holding .holding-photo img { object-position: 50% 40%; }
-.holding .actions { justify-content: center; }
+/* the holding link wraps on phones: as one block of inline text, each line keeps its own underline */
+@media (max-width:599px){.kw-holding .link-arrow{display:block;line-height:2.2;text-wrap:balance}.kw-holding .arw{margin:0 0 0 8px}}
