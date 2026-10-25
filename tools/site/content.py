@@ -234,16 +234,6 @@ def rhythm(chapters=None):
     return [[t for t, _ in groups] for groups in rhythm_groups(chapters)]
 
 
-# --- legacy shims: delete at merge ---
-# Only the pre-redesign page bodies use these; new code must not.
-PORTFOLIO_WEDDINGS = ['arch-mirror', 'gilded-mirror', 'bridesmaids-seated', 'bridesmaids-steps', 'groomsmen-steps',
-                      'castle-laugh', 'castle-window', 'castle-dip', 'castle-balcony', 'bougainvillea-bride',
-                      'bougainvillea-embrace', 'silver-car-bouquet', 'car-window-smile', 'winery-champagne',
-                      'olive-grove-confetti', 'dam-kiss', 'jaguar-window-kiss', 'jaguar-veil', 'jaguar-flare',
-                      'jaguar-kiss', 'field-dusk', 'grass-overhead', 'vineyard-sunset']
-# --- end of legacy shims ---
-
-
 # ------------------------------------------------------------------ the honesty net (the build fails if any is false)
 assert WEDDING_PACKAGES == [('Basic', 4, '$1,700'), ('Standard', 6, '$2,100'), ('Premium', 8, '$2,500'),
                             ('Deluxe', 10, '$2,900'), ('Ultimate', 12, '$3,300')]

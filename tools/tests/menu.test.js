@@ -93,6 +93,13 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       const seen = await p.$eval('.index-bar a[aria-current]', a => { const r = a.getBoundingClientRect(), s = a.closest('.index').getBoundingClientRect(); return r.left >= s.left - 1 && r.right <= s.right + 1; }).catch(() => false);
       ok(JSON.stringify(s.current) === JSON.stringify([name + '=true']) && seen, `#${id}: the spy marks ${name} (${s.current.join(', ')}), scrolled into view`);
     }
+    // a jump from the very bottom to the top crosses no session, yet the spy clears and the bar returns to its start
+    const jump = async top => { await p.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), top); await p.waitForTimeout(800); };
+    await jump(1e6);
+    const bottom = await p.evaluate(() => document.querySelector('.index').scrollLeft);
+    await jump(0);
+    const back = await p.evaluate(() => ({ n: document.querySelectorAll('.index-bar a[aria-current]').length, left: document.querySelector('.index').scrollLeft }));
+    ok(bottom > 0 && !back.n && back.left === 0, `back at the top: no link current, the bar at its start (scrollLeft ${bottom} → ${back.left})`);
     await ctx.close();
   }
   for (const vp of [PHONE, DESKTOP]) {   // a cold load at a session lands with its heading clear of the header and bar

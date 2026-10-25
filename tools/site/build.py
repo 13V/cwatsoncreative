@@ -53,7 +53,7 @@ SIZES = {
     'inv-hero': f'{PHONE} 100vw, 50vw',
     'statement': f'(max-width: 499px) 80vw, {PHONE} 400px, {WIDE} calc(30vw - 12px), 360px',
     'contact': f'{PHONE} 64vw, {WIDE} calc(30vw - 12px), 360px',
-    'cover': f'{PHONE} 82vw, {WIDE} calc(38vw - 14px), 455px',
+    'cover': f'{PHONE} min(82vw, 480px), {WIDE} calc(38vw - 14px), 455px',
     'kw-holding': f'{PHONE} 48vw, 300px',
     'tile': f'{PHONE} calc(50vw - 26px), {WIDE} calc(30vw - 16px), 355px',
     'session': f'{PHONE} 100vw, {WIDE} calc(45vw - 8px), 548px',
@@ -374,10 +374,10 @@ def lcp_preload(lcp):
             f'imagesizes="{SIZES.get(sizes, sizes)}" fetchpriority="high">\n')
 
 
-def head(title, desc, *, jsonld=False, italic=False, lcp=None):
-    # The LCP photo first, then Cormorant 300 (and its italic where the h1 has one); every other face swaps onto its
-    # metric-matched fallback without moving anything.
-    preload = (lcp_preload(lcp) if lcp else '') + font_preload('cormorant-garamond-300')
+def head(title, desc, *, jsonld=False, italic=False, lcp=None, fonts=()):
+    # The LCP photo first, then Cormorant 300 (and any faces a page names in fonts, then the italic where the h1 has
+    # one); every other face swaps onto its metric-matched fallback without moving anything.
+    preload = (lcp_preload(lcp) if lcp else '') + ''.join(map(font_preload, ('cormorant-garamond-300', *fonts)))
     if italic:
         preload += font_preload('cormorant-garamond-300-italic')
     ld = f'<script type="application/ld+json">{json.dumps(JSONLD, ensure_ascii=False)}</script>\n' if jsonld else ''
@@ -392,15 +392,16 @@ def head(title, desc, *, jsonld=False, italic=False, lcp=None):
             f'<script src="main.js" defer></script>\n{ld}')
 
 
-def page(page_key, active, title, desc, main, *, lcp=None, jsonld=False, robots=None, body_extra=''):
+def page(page_key, active, title, desc, main, *, lcp=None, jsonld=False, robots=None, body_extra='', fonts=()):
     """A whole page. page_key: home | gallery | investment | kind-words | contact | privacy | 404 (data-page). lcp: the
-    LCP photo as (key, SIZES key) on pages that preload it (Home, Investment)."""
+    LCP photo as (key, SIZES key) on pages that preload it (Home, Investment). fonts: extra faces to preload, only where
+    a centred first view would otherwise shift when they swap in (plan D22's exception: Kind words' holding page)."""
     italic = '<em>' in main.split('</h1>', 1)[0]
     attrs = f' data-page="{page_key}"' + (' data-nf' if page_key == '404' else '')
     out = (f'<!doctype html>\n<html lang="en-AU"{attrs}>\n<head>\n<meta charset="utf-8">\n'
            '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
            + (f'<meta name="robots" content="{robots}">\n' if robots else '')
-           + head(title, desc, jsonld=jsonld, italic=italic, lcp=lcp) + '</head>\n<body>\n' + header(active)
+           + head(title, desc, jsonld=jsonld, italic=italic, lcp=lcp, fonts=fonts) + '</head>\n<body>\n' + header(active)
            + f'<main id="main" tabindex="-1">\n{main}\n</main>\n' + footer(active) + body_extra + '</body>\n</html>\n')
     return root_absolute(out) if page_key == '404' else out
 
@@ -416,14 +417,6 @@ def root_absolute(out):
 
 
 # ------------------------------------------------------------------ pages
-# The pre-redesign page bodies below keep building against the new helpers until the page packages replace them.
-# --- legacy shims: delete at merge ---
-from content import PORTFOLIO_WEDDINGS  # noqa: E402
-LEGACY_SIZES = {   # the old layouts' photo sizes, for the old page bodies only
-    'card': '(max-width: 760px) calc(100vw - 36px), 560px',
-    'grid': '(max-width: 600px) 48vw, (max-width: 1000px) 46vw, 370px',
-}
-# --- end of legacy shims ---
 
 
 def index():
@@ -545,8 +538,6 @@ def gallery():
                 body_extra=viewer(index))
 
 
-# SIZES['cover'], with the cover capped at 30rem from 600px (an 82vw arch would fill a tablet); merge into SIZES.
-COVER_SIZES = f'{PHONE} min(82vw, 480px), {WIDE} calc(38vw - 14px), 455px'
 RG_SIZES = {'wide': ['rg-wide'], 'land-pair': ['rg-land', 'rg-land'], 'pair-l': ['rg-pair-wide', 'rg-pair-narrow'],
             'pair-r': ['rg-pair-narrow', 'rg-pair-wide'], 'solo-l': ['rg-solo'], 'solo-r': ['rg-solo']}
 
@@ -560,7 +551,7 @@ def ph_link(key, index, chapter, inner, cls=''):
 def gallery_section(c, cid, title, line, keys, groups, index, numbered=True):
     """A chapter (or an extra gallery): the cover-first opener (spec §4.11), then the rest of its photos in the rhythm
     grid, one .rg per group from content.rhythm_groups(). Chapter 01's cover is the page's LCP photo (spec §7.6)."""
-    cover = arch_frame(keys[0], COVER_SIZES, '2x3', priority=c == 0)
+    cover = arch_frame(keys[0], 'cover', '2x3', priority=c == 0)
     count = f'{len(keys)} photograph{"s" if len(keys) > 1 else ""}'
     num = (f'<span class="t-count">No. {c + 1:02d}</span> ' if numbered else '') + f'<span class="t-caption">{count}</span>'
     head = (f'<div class="chapter-head grid-12">{ph_link(keys[0], index, title, cover, " chapter-cover")}'
@@ -731,12 +722,10 @@ def kind_words_page():
 
 {closing("kind-words")}'''
         # The holding head is centred and fills the first phone screen, so its Cormorant 500 lead and Jost labels
-        # swapping in after the first paint would move centred lines sideways (a layout shift). They are preloaded
-        # here, after Cormorant 300, so they are in before the first paint (plan D22's exception for this page).
-        anchor = font_preload('cormorant-garamond-300')
-        return page('kind-words', 'kind-words.html', title, desc, main, robots='noindex').replace(
-            anchor, anchor + font_preload('cormorant-garamond-500') + font_preload('jost-300-600'), 1)
-    stories =''.join(kw_story(n, r) for n, r in enumerate(KIND_WORDS, 1))
+        # swapping in after the first paint would move centred lines sideways (a layout shift): preload them.
+        return page('kind-words', 'kind-words.html', title, desc, main, robots='noindex',
+                    fonts=('cormorant-garamond-500', 'jost-300-600'))
+    stories = ''.join(kw_story(n, r) for n, r in enumerate(KIND_WORDS, 1))
     main = f'''{page_head("Kind words", h1, "A few words from the couples and families I’ve photographed.", layout="left")}
 
 <section class="stories sec--standard"><div class="wrap">{stories}</div></section>
@@ -889,7 +878,6 @@ TOTAL_BUDGET = {'css': 64 * KB, 'js': 32 * KB}
 HEAD_SCRIPT_BUDGET = 1.25 * KB
 SVG_BUDGET = (20_000, 3_000)   # inline SVG per page: raw, gzipped
 BREAKPOINTS = {399, 400, 599, 600, 860, 861, 1099, 1100, 1439, 1440}
-LEGACY_MARKER = '/* bp: legacy */'   # a page part still holding pre-redesign CSS: exempt from the breakpoint and slice checks
 BANNED = ('placeholder.svg', 'ph--empty', '<use', '<symbol', 'icon-sprite', 'sprig', 'mark-ellipse', 'mark-swash',
           'mark-underline', 'sc-quote', 'mark-quote', '<base')
 HONESTY = re.compile(r'will go here|placeholder|names’?\b|Send three to six|coming soon', re.I)
@@ -992,13 +980,11 @@ def check_css(fail):
         name = os.path.basename(path)[:-4]
         text = open(path, encoding='utf-8').read()
         sizes[name] = len(text.encode())
-        legacy = text.startswith(LEGACY_MARKER)
         bare = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
-        if not legacy:
-            for q in re.findall(r'@media([^{]*)\{', bare):
-                problem = bad_query(q)
-                if problem:
-                    fail(f'{name}.css: @media{q.rstrip()}: {problem}')
+        for q in re.findall(r'@media([^{]*)\{', bare):
+            problem = bad_query(q)
+            if problem:
+                fail(f'{name}.css: @media{q.rstrip()}: {problem}')
         for outer, sel in css_rules(text):
             if ':hover' in sel and not any(HOVER_GATE.search(p) for p in outer):
                 fail(f'{name}.css: ":hover" outside @media (hover: hover) and (pointer: fine): {sel[:80]}')
@@ -1017,10 +1003,8 @@ def check_budgets(fail, css_sizes):
             fail(f'{kind}: {total} bytes, over the {TOTAL_BUDGET[kind]} byte total')
         for pkg, (names, limit) in PART_BUDGET[kind].items():
             used = sum(sizes.get(n, 0) for n in names)
-            legacy = kind == 'css' and any(open(os.path.join(HERE, 'css', n + '.css'), encoding='utf-8').read().startswith(LEGACY_MARKER)
-                                           for n in names if n in sizes)
-            report.append(f'  {pkg} {used / KB:.1f}/{limit / KB:.1f}KB' + (' (legacy, not held yet)' if legacy else ''))
-            if used > limit and not legacy:
+            report.append(f'  {pkg} {used / KB:.1f}/{limit / KB:.1f}KB')
+            if used > limit:
                 fail(f'{kind} {pkg}: {used} bytes, over its {int(limit)} byte slice')
     print('sizes: ' + ' · '.join(f'{n} {s / KB:.1f}' for n, s in {**css_sizes, **js_sizes}.items()))
     print('budgets: ' + ' | '.join(report))

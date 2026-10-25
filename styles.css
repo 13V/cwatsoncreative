@@ -122,10 +122,6 @@ br.br-md{display:none}
   text-decoration:none}
 .skip:focus{left:var(--sp-12)}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-
-/* legacy bodies (delete at merge) */
-.section{padding-block:var(--sec-standard)}
-.wrap.narrow{max-width:900px}
 /* buttons and links (§4.1, M13, D7) */
 .btn{--btn-fill:var(--bark);position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;
   justify-content:center;gap:var(--sp-12);min-height:52px;padding:0 var(--sp-32);border:1px solid var(--bark);

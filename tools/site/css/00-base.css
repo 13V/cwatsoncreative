@@ -121,7 +121,3 @@ br.br-md{display:none}
   text-decoration:none}
 .skip:focus{left:var(--sp-12)}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-
-/* legacy bodies (delete at merge) */
-.section{padding-block:var(--sec-standard)}
-.wrap.narrow{max-width:900px}
