@@ -1,0 +1,4 @@
+/* text pages */
+.text { max-width: 44em; display: grid; gap: 1.1em; margin-inline: auto; }
+.text h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin-top: .8em; }
+

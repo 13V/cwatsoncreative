@@ -1,0 +1,77 @@
+/* investment: one card per session, and the kind words page: one card per review */
+.packages, .reviews { display: grid; gap: clamp(24px, 4vw, 48px); }
+.package, .review { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: var(--lime); }
+.review { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+.package { scroll-margin-top: 24px; }
+.package:nth-child(even) > .ph, .review:nth-child(even) > .ph { order: 2; }
+.package > .ph, .review > .ph { aspect-ratio: 4 / 5; }
+.package-panel, .review-panel { display: grid; align-content: center; justify-items: start; gap: 20px; padding: clamp(32px, 5.5vw, 80px); }
+.package-name { font-size: clamp(2rem, 3vw, 2.6rem); }
+.packages-text { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); }
+.package--text { grid-template-columns: minmax(0, 1fr); }
+.package--text .package-panel { align-content: start; padding: clamp(32px, 4.5vw, 64px); }
+@media (max-width: 760px) { .packages-text { grid-template-columns: minmax(0, 1fr); } }
+.package-meta { display: grid; gap: 14px; width: 100%; padding-top: 22px; border-top: 1px solid var(--line); }
+.package-price { font: 500 clamp(2rem, 3vw, 2.5rem)/1 var(--serif); color: var(--paddock-ink); }
+.package-price--ask { font: 500 .74rem/1.5 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--bush-ink); }
+.package-includes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: .98rem; line-height: 1.55; }
+.package-includes li { position: relative; padding-left: 26px; }
+.package-includes li::before { content: ""; position: absolute; left: 0; top: .78em; width: 14px; height: 1px; background: var(--paddock); }
+.review blockquote p { font: 500 clamp(1.3rem, 2vw, 1.7rem)/1.45 var(--serif); color: var(--ink); }
+.review-panel { gap: 10px; }
+.review-panel blockquote { margin-bottom: 14px; }
+@media (max-width: 760px) {
+  .package, .review { grid-template-columns: minmax(0, 1fr); }
+  .package:nth-child(even) > .ph, .review:nth-child(even) > .ph { order: 0; }
+}
+
+.package-links { display: flex; flex-wrap: wrap; gap: 18px 32px; }
+
+/* investment: the five wedding packages, arch-topped like the logo's window */
+.eyebrow--center { justify-content: center; }
+.wedding-packages { scroll-margin-top: 16px; }
+.tiers { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px); margin: 0; padding: 0; list-style: none; }
+.tier {
+  display: grid; justify-items: center; align-content: start; gap: 8px; text-align: center;
+  padding: clamp(40px, 4vw, 56px) 14px clamp(26px, 3vw, 36px); background: var(--paper); border-radius: 999px 999px 0 0;
+}
+.tier-number { font: italic 500 1.55rem/1 var(--serif); color: var(--paddock-ink); } /* 24px+: large text, so 3:1 on Limestone */
+.tier-name { font-size: clamp(1.5rem, 2vw, 1.85rem); }
+.tier-hours { font: 500 .7rem/1.5 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--bush-ink); }
+.tier-price { position: relative; width: 64%; margin-top: 10px; padding-top: 16px; border-top: 1px solid transparent; font: 500 clamp(1.7rem, 2.3vw, 2.1rem)/1 var(--serif); color: var(--paddock-ink); }
+.tier-price::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; border-top: 1px solid var(--line); transform-origin: 50% 50%; }
+.tier-notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 5vw, 72px); max-width: 920px; margin: clamp(44px, 6vw, 72px) auto 0; }
+.tier-notes h3 { font-size: 1.5rem; margin-bottom: 16px; }
+@media (max-width: 1000px) and (min-width: 761px) { .tier { padding-inline: 8px; } .tier-price { width: 80%; } }
+@media (max-width: 760px) {
+  .tiers { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .tier {
+    grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; justify-items: start; gap: 2px 14px; text-align: left;
+    position: relative; padding: 18px 2px; background: none; border-radius: 0; border-top: 1px solid transparent;
+  }
+  .tier::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; border-top: 1px solid var(--line); transform-origin: 0 50%; }
+  .tier-price::before { display: none; }
+  .tier:last-child { border-bottom: 1px solid var(--line); }
+  .tier-number { grid-row: 1 / 3; }
+  .tier-name, .tier-hours { grid-column: 2; }
+  .tier-price { grid-column: 3; grid-row: 1 / 3; width: auto; margin: 0; padding: 0; border: 0; }
+  .tier-notes { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* steps and questions */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(24px, 3vw, 44px); list-style: none; margin: 0; padding: 0; counter-reset: step; }
+.steps li { position: relative; display: grid; gap: 10px; align-content: start; border-top: 1px solid transparent; padding-top: 22px; counter-increment: step; }
+.steps li::after { content: ""; position: absolute; left: 0; right: 0; top: -1px; border-top: 1px solid var(--bark); transform-origin: 0 50%; }
+.steps li::before { content: counter(step); font: italic 500 2.6rem/1 var(--serif); color: var(--paddock-ink); }
+.steps h3 { font-size: 1.5rem; }
+@media (max-width: 900px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.faq details { border-top: 1px solid transparent; }
+.faq summary::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; border-top: 1px solid var(--line); transform-origin: 0 50%; }
+.faq details:last-child { border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; list-style: none; font: 500 1.45rem/1.3 var(--serif); color: var(--bark); padding: 20px 44px 20px 0; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font: 300 1.6rem/1 var(--sans); color: var(--paddock-ink); }
+.faq details[open] summary::after { content: "\2212"; }
+.faq details p { padding: 0 0 22px; max-width: 40em; }
+

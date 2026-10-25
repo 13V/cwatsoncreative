@@ -3,10 +3,11 @@
 #   python3 tools/site/build.py           # writes into the repo root
 #   python3 tools/site/build.py out_dir   # or somewhere else, for a look before replacing the real pages
 #
-# Writes the HTML pages, favicon.svg and images/placeholder.svg. styles.css and main.js live in the repo
-# root and are edited there directly. A photo only appears once its file exists, so run this again after
-# adding photos (tools/prepare_photos.py does that for you).
-import html, json, os, sys
+# Writes the HTML pages, styles.css, main.js, favicon.svg and images/placeholder.svg. styles.css and main.js are
+# joined from the numbered parts in tools/site/css/ and tools/site/js/ (in file-name order), so edit the parts, not
+# the joined files. A photo only appears once its file exists, so run this again after adding photos
+# (tools/prepare_photos.py does that for you).
+import glob, html, json, os, sys
 from urllib.parse import quote_plus
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -129,9 +130,20 @@ PLACEHOLDER = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" pr
 ICON = {name: (f'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="{d}" fill="none" '
                'stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>')
         for name, d in [('prev', 'M15 5l-7 7 7 7'), ('next', 'M9 5l7 7-7 7'),
-                        ('close', 'M6 6l12 12M18 6L6 18'), ('arrow', 'M4 12h15M13 6l6 6-6 6'),
+                        ('close', 'M6 6l12 12M18 6L6 18'),
                         ('instagram', 'M7.5 3h9A4.5 4.5 0 0 1 21 7.5v9a4.5 4.5 0 0 1-4.5 4.5h-9A4.5 4.5 0 0 1 3 16.5v-9A4.5 4.5 0 0 1 7.5 3z'
                                       'M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zM17.3 6.7h.01')]}
+
+
+# The long editorial arrow: a thin shaft that reaches forward on hover, and a small open head (spec B1, B2).
+ICON['arrow'] = ('<svg class="arw" viewBox="0 0 32 12" width="28" height="10.5" overflow="visible" aria-hidden="true" focusable="false">'
+                 '<path class="arw-shaft" d="M1 6H30" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" vector-effect="non-scaling-stroke"/>'
+                 '<path class="arw-head" d="M25.5 1.5 30 6l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" '
+                 'stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>')
+ICON['arrow-ne'] = ('<svg class="arw arw--ne" viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" focusable="false">'
+                    '<path class="arw-shaft" d="M2.5 11.5 11.5 2.5" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" vector-effect="non-scaling-stroke"/>'
+                    '<path class="arw-head" d="M4.5 2.5h7v7" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" '
+                    'stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>')
 
 
 # ------------------------------------------------------------------ shared chrome
@@ -144,20 +156,25 @@ def nav_links(active, menu=False):
         return ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == active else ""}>{t}</a>' for h, t in NAV)
     # In the menu each link rises out of its own line box; the current page carries a small gold sun.
     sun = '<span class="nav-sun" aria-hidden="true"></span>'
-    return ''.join(f'<a href="{h}" style="--i:{i}"{" aria-current=\"page\"" if h == active else ""}>'
+    return ''.join(f'<a href="{h}" style="--i:{i}"{" class=\"nav-contact\"" if h == "contact.html" else ""}'
+                   f'{" aria-current=\"page\"" if h == active else ""}>'
                    f'<span class="nl"><span>{t}</span></span>{sun if h == active else ""}</a>' for i, (h, t) in enumerate(NAV))
 
 
 def header(active):
     ig_name, ig_url = INSTAGRAM
-    return (f'<a class="skip" href="#main">Skip to content</a>\n<header class="site-header"><div class="wrap header-inner">'
-            f'<a class="brand" href="index.html" aria-label="Sunday Light, home">{arch_svg("h")}'
-            f'<span class="brand-name">Sunday Light</span></a>'
-            f'<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">'
-            f'<span class="sr-only">Menu</span><span class="bars" aria-hidden="true"></span></button>'
+    here = ' aria-current="page"' if active == 'contact.html' else ''
+    return (f'<a class="skip" href="#main">Skip to content</a>\n<header class="site-header" id="top"><div class="wrap header-inner">'
             f'<nav id="site-nav" class="site-nav xfade" aria-label="Main"><span class="nav-sheet" aria-hidden="true"></span>'
             f'{nav_links(active, menu=True)}'
-            f'<a class="nav-instagram" href="{ig_url}">Instagram {e(ig_name)}</a></nav></div></header>\n')
+            f'<div class="menu-foot"><a class="nav-instagram" href="{ig_url}" rel="me">{ICON["instagram"]}<span>{e(ig_name)}</span></a>'
+            f'<span class="menu-place">Adelaide, South Australia</span></div></nav>'
+            f'<a class="brand" href="index.html" aria-label="Sunday Light, home">{arch_svg("h")}'
+            f'<span class="brand-name">Sunday Light</span></a>'
+            f'<a class="btn btn--sm header-cta" href="contact.html"{here}>Enquire</a>'
+            f'<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">'
+            f'<span class="nav-toggle-label">Menu</span><span class="bars" aria-hidden="true"></span></button>'
+            f'</div></header>\n')
 
 
 # The footer scene (M03 Sundown): one gold line draws the gulf horizon, a large arch window and the hills. Inside the
@@ -290,12 +307,13 @@ def page(active, title, desc, main, jsonld=False, body_extra='', html_attrs=''):
             + f'<main id="main">\n{main}\n</main>\n' + footer() + body_extra + '</body>\n</html>\n')
 
 
-def link_arrow(href, text):
-    return f'<a class="link-arrow" href="{href}">{e(text)} <span aria-hidden="true">→</span></a>'
+def link_arrow(href, text, cls=''):
+    return (f'<a class="link-arrow{(" " + cls) if cls else ""}" href="{href}"><span class="la-label">{e(text)}</span>'
+            f'{ICON["arrow"]}</a>')
 
 
-def button(href, text):
-    return f'<a class="btn" href="{href}">{e(text)}</a>'
+def button(href, text, cls='btn--secondary'):
+    return f'<a class="btn {cls}" href="{href}"><span class="btn-label">{e(text)}</span>{ICON["arrow"]}</a>'
 
 
 # ------------------------------------------------------------------ building blocks
@@ -543,7 +561,7 @@ def contact():
 <div class="field"><label for="heard">How did you find me? <span>(optional)</span></label><select id="heard" name="heard"><option value="">Choose one</option>{heard}</select></div>
 <div class="hp" aria-hidden="true"><label for="company">Leave this empty</label><input id="company" name="company" tabindex="-1" autocomplete="off"></div>
 <div id="form-error" class="form-error" tabindex="-1" hidden>Your enquiry didn’t send. Your details are still here, so please try again, or message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</div>
-<div class="form-foot"><button class="btn btn--solid" type="submit">Send enquiry</button><p id="form-status" class="form-status" role="status" aria-live="polite"></p></div>
+<div class="form-foot"><button class="btn btn--primary btn--send" type="submit"><span>Send</span> <i class="btn-rule" aria-hidden="true"></i> <span>enquiry</span></button><p id="form-status" class="form-status" role="status" aria-live="polite"></p></div>
 </form>
 <div id="form-success" class="form-success" hidden><p class="eyebrow">Sent</p><h2 tabindex="-1">Thank you.</h2><p>Your enquiry is on its way. I’ll be in touch soon with dates and details.</p>{link_arrow("gallery.html", "Browse the gallery")}</div>
 </div>
@@ -587,8 +605,18 @@ PAGES = {'index.html': index, 'gallery.html': gallery, 'investment.html': invest
 RETIRED = ['portfolio.html', 'sessions.html', 'about.html', 'enquire.html']  # replaced by the pages above
 
 
+def assemble(out):
+    """Join the stylesheet and script parts into styles.css and main.js."""
+    for ext, name, note in (('css', 'styles.css', '/* Sunday Light. Built from tools/site/css/ by tools/site/build.py: edit the parts there. */\n'),
+                            ('js', 'main.js', '// Sunday Light. Built from tools/site/js/ by tools/site/build.py: edit the parts there.\n')):
+        parts = sorted(glob.glob(os.path.join(HERE, ext, f'*.{ext}')))
+        with open(os.path.join(out, name), 'w', encoding='utf-8') as f:
+            f.write(note + ''.join(open(part, encoding='utf-8').read() for part in parts))
+
+
 def main(out=ROOT):
     os.makedirs(os.path.join(out, 'images'), exist_ok=True)
+    assemble(out)
     for name, fn in PAGES.items():
         with open(os.path.join(out, name), 'w', encoding='utf-8') as f:
             f.write(fn())

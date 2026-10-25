@@ -1,0 +1,21 @@
+/* hover effects, only on devices with a pointer that can hover */
+@media (hover: hover) and (pointer: fine) {
+  a:hover { color: var(--paddock-ink); }
+  .brand:hover { color: var(--bark); }
+  .btn:hover { color: var(--paper); }
+  .btn:hover::before { transform: translateY(-58%); transition: transform 420ms var(--ease-light); }
+  .btn:hover .arw-shaft, .link-arrow:hover .arw-shaft { transform: scaleX(1.2); }
+  .btn:hover .arw-head, .link-arrow:hover .arw-head { transform: translateX(6px); }
+  .btn--send:hover .btn-rule { transform: none; }
+  .link-arrow:hover .la-label { background-size: 100% 1px, 100% 1px; }
+  .site-nav a:hover, .link-arrow:hover { color: var(--bark); }
+  .site-nav a:not([aria-current]):hover::after { clip-path: inset(0); }
+  .duo a:hover .duo-title, .tile:hover .tile-name { color: var(--paddock-ink); font-style: italic; }
+  .tile:hover img, .masonry a:hover img { transform: scale(1.03); }
+  .chips a:hover { border-color: var(--bark); color: var(--bark); }
+  .words-nav button:hover { border-color: var(--bark); background: rgba(92, 77, 63, .06); }
+  .insta-link:hover .insta-label { background: rgba(30, 25, 20, .5); }
+  .lb-btn:hover { background: rgba(246, 242, 234, .12); border-color: rgba(246, 242, 234, .6); }
+  .footer-nav a:hover, .footer-instagram:hover { color: var(--paddock-ink); }
+}
+

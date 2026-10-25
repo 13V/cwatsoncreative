@@ -1,0 +1,104 @@
+/* header: sticky, the same on every page. Desktop: links | brand | Enquire. Phones: brand | Menu.
+   It slides away as you scroll down and comes back as soon as you scroll up (never while the menu is open). */
+.site-header {
+  position: sticky; top: 0; z-index: 40; background: var(--paper); border-bottom: 1px solid transparent;
+  transition: transform var(--t-ui) var(--ease-light), border-color var(--t-ui) linear;
+}
+.site-header.is-scrolled { border-bottom-color: rgb(92 77 63 / .14); }
+.site-header.is-hidden { transform: translateY(-101%); transition: transform var(--t-ui) var(--ease-exit), border-color var(--t-ui) linear; }
+.header-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 20px; min-height: var(--header); }
+.brand { grid-column: 2; display: inline-flex; align-items: center; gap: 12px; min-height: 44px; text-decoration: none; color: var(--bark); }
+.brand-mark { width: auto; height: 38px; flex: none; }
+.brand-name { font: 400 1rem/1 var(--caps); letter-spacing: .16em; text-transform: uppercase; white-space: nowrap; }
+.site-nav { grid-column: 1; grid-row: 1; justify-self: start; display: flex; align-items: center; flex-wrap: wrap; gap: clamp(24px, 2.6vw, 40px); }
+.site-nav a {
+  position: relative; font: 500 .75rem/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; text-decoration: none;
+  color: var(--bark); padding-block: 14px; transition: color .3s ease;
+}
+.site-nav .nav-contact { display: none; }   /* the Enquire pill stands in for it */
+.site-nav .nl { display: block; overflow: hidden; overflow: clip; }
+.site-nav .nl > span { display: block; }
+.nav-sun { position: absolute; left: 50%; bottom: 3px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--paddock-ink); }
+.site-nav a:not([aria-current])::after {   /* hover: the logo's little wave draws in under the word */
+  content: ""; position: absolute; left: 0; right: .2em; bottom: 2px; height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 6'%3E%3Cpath d='M0 3q3-3 6 0t6 0t6 0t6 0' fill='none' stroke='%23C3964F' stroke-width='1.25'/%3E%3C/svg%3E") repeat-x 0 100% / 24px 6px;
+  clip-path: inset(0 100% 0 0); transition: clip-path var(--t-ui) var(--ease-pen);
+}
+.site-nav a:not([aria-current]):focus-visible::after { clip-path: inset(0); }
+.header-cta { grid-column: 3; justify-self: end; }
+.nav-sheet, .menu-foot { display: none; }
+.nav-toggle { display: none; }
+@media (max-width: 860px) {
+  :root { --header: 64px; }
+  .header-inner { display: flex; justify-content: space-between; }
+  .brand-mark { height: 32px; }
+  .brand-name { font-size: .875rem; letter-spacing: .14em; }
+  .brand { position: relative; z-index: 2; }
+  .header-cta { display: none; }
+  .js .nav-toggle {
+    position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 4px; margin-right: -4px;
+    border: 0; background: transparent; color: var(--bark); cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .nav-toggle-label { font: 500 .75rem/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; }
+  .nav-toggle .bars { position: relative; display: block; width: 26px; height: 7px; }
+  .nav-toggle .bars::before, .nav-toggle .bars::after {
+    content: ""; position: absolute; right: 0; height: 0; border-top: 1px solid currentColor;
+    transition: transform var(--t-ui) var(--ease-shutter), top var(--t-ui) var(--ease-shutter), width var(--t-ui) var(--ease-shutter);
+  }
+  .nav-toggle .bars::before { top: 0; width: 26px; }
+  .nav-toggle .bars::after { top: 6px; width: 18px; }
+  .nav-toggle[aria-expanded="true"] .bars::before { top: 3px; width: 22px; transform: rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] .bars::after { top: 3px; width: 22px; transform: rotate(-45deg); }
+  /* On phones the menu opens as a full screen of large serif links. */
+  .js .site-nav {
+    position: fixed; inset: 0; z-index: 1; overflow-y: auto; overscroll-behavior: contain; justify-self: stretch; align-self: stretch;
+    flex-direction: column; flex-wrap: nowrap; align-items: flex-start; justify-content: center; gap: 0;
+    padding: calc(var(--header) + 24px) max(var(--gutter), env(safe-area-inset-right, 0px)) calc(96px + env(safe-area-inset-bottom, 0px)) max(var(--gutter), env(safe-area-inset-left, 0px));
+    background: transparent; visibility: hidden; opacity: 0;
+  }
+  .js .site-nav.is-open { visibility: visible; opacity: 1; }
+  .m .site-nav { opacity: 1; transition: visibility 0s linear 280ms; }   /* stays visible while the sheet folds away */
+  .m .site-nav.is-open { transition: none; }
+  .js .site-nav a {
+    font: 500 clamp(2.5rem, 11vw, 3.3rem)/1.1 var(--serif); letter-spacing: -.01em; text-transform: none;
+    display: flex; align-items: center; gap: 14px; padding-block: 6px;
+  }
+  .js .site-nav a::after { display: none; }
+  .js .site-nav a[aria-current="page"] { font-style: italic; color: var(--paddock-ink); }
+  .js .site-nav .nav-sun { position: static; flex: none; margin: 0; }
+  .js .site-nav .nav-contact { display: flex; }
+  .js .menu-foot {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+    position: absolute; left: max(var(--gutter), env(safe-area-inset-left, 0px)); right: max(var(--gutter), env(safe-area-inset-right, 0px));
+    bottom: 0; padding: 18px 0 max(18px, env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line);
+  }
+  .js .site-nav .nav-instagram {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0;
+    font: 500 .75rem/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--bark);
+  }
+  .js .site-nav .nav-instagram svg { width: 18px; height: 18px; }
+  .menu-place { font: 500 .6875rem/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--bush-ink); }
+  /* the sheet: the logo's window, growing up and out from the bottom centre until its round top clears the corners */
+  .js .nav-sheet { display: block; position: fixed; inset: 0; z-index: -1; overflow: hidden; overflow: clip; pointer-events: none; }
+  .nav-sheet::before {
+    content: ""; position: absolute; left: 50%; bottom: 0; width: 160vw; height: calc(100vh + 60vw); height: calc(100lvh + 60vw);
+    margin-left: -80vw; border-radius: 80vw 80vw 0 0; background: var(--paper); transform-origin: 50% 100%;
+    transform: scale(.12); opacity: 0; transition: transform 280ms var(--ease-exit), opacity 80ms linear 200ms;
+  }
+  .is-open > .nav-sheet::before { transform: none; opacity: 1; transition: transform var(--t-move) var(--ease-light), opacity 60ms linear; }
+  .nav-sheet::after {   /* a low sun glow at the foot of the sheet */
+    content: ""; position: absolute; left: -10vw; right: -10vw; bottom: -28vw; height: 60vw; border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(195 150 79 / .18), rgb(195 150 79 / 0)); opacity: 0; transition: opacity 140ms linear;
+  }
+  .is-open > .nav-sheet::after { opacity: 1; transform: translateY(6%); transition: opacity 300ms linear 120ms, transform 900ms var(--ease-light) 120ms; }
+  .m .site-nav .nl > span { opacity: 0; transform: translateY(var(--rise-line)); transition: opacity 140ms var(--ease-exit), transform 0s 280ms; }
+  .m .site-nav.is-open .nl > span {
+    opacity: 1; transform: none;
+    transition: transform 520ms var(--ease-light) calc(140ms + var(--i, 0) * var(--stagger-line)), opacity 200ms linear calc(140ms + var(--i, 0) * var(--stagger-line));
+  }
+  .m .site-nav .nav-sun, .m .site-nav .menu-foot { opacity: 0; transition: opacity 140ms linear; }
+  .m .site-nav.is-open .nav-sun { opacity: 1; transition: opacity 300ms linear 360ms; }
+  .m .site-nav.is-open .menu-foot { opacity: 1; transition: opacity 300ms linear 400ms; }
+}
+@media (max-width: 420px) { .brand-name { font-size: .98rem; letter-spacing: .14em; } }
+

@@ -24,7 +24,7 @@ The old pages (`portfolio`, `sessions`, `enquire` and `about`) redirect to their
 ## The scroll effect
 
 The full-width photo bands hold still while the page slides up over them, then fade to black and white
-as they leave the screen. It's all CSS (scroll-driven animations, under "Photo windows" in `styles.css`),
+as they leave the screen. It's all CSS (scroll-driven animations, in `tools/site/css/30-photos-windows.css`),
 with no JavaScript. Browsers that don't support scroll-driven animations yet, and devices set to reduce
 motion, show the same photos still and in colour.
 
@@ -111,8 +111,10 @@ are left off. Change a price there and rebuild.
 ## Editing the pages
 
 The words, photo slots and galleries are in `tools/site/content.py`, and the page layouts are in
-`tools/site/build.py`. After changing either, run `python3 tools/site/build.py` to rewrite the HTML.
-Styles are in `styles.css` and behaviour in `main.js`; edit those directly.
+`tools/site/build.py`. Styles and behaviour are written as small numbered parts in `tools/site/css/` and
+`tools/site/js/`; the build joins them, in file-name order, into `styles.css` and `main.js`. After changing any of
+these, run `python3 tools/site/build.py` to rewrite the HTML, `styles.css` and `main.js`. Don't edit the joined files
+directly: the next build overwrites them.
 
 ## Enquiry form
 

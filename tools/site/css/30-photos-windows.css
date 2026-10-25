@@ -1,0 +1,45 @@
+/* photo slots: a photo once the file exists, landscape art until then */
+.ph { position: relative; margin: 0; overflow: hidden; background: var(--lime); }
+.section--lime .ph, .words .ph, .package .ph, .review .ph { background-color: #E3DACB; }
+.ph--empty, .ph.is-missing { background: #EEE6D8 url("images/placeholder.svg") 50% 100% / cover no-repeat; }
+.ph picture { display: block; width: 100%; height: 100%; }
+.ph img { width: 100%; height: 100%; object-fit: cover; transition: opacity .9s ease, transform 1.6s var(--ease); }
+.ph.is-missing img { opacity: 0; }
+.arch { border-radius: var(--arch); }
+
+/* Photo windows: full-width photos (side by side on large screens, one on phones). Where the browser
+   supports scroll-linked animation, the photos hold still while the page slides past them, and fade to
+   black and white as they leave. Elsewhere they are simply still photos. */
+.window { --h: 80vh; position: relative; height: 80vh; overflow: hidden; background: #DDD5C7; }
+.window--hero { --h: calc(100svh - var(--header)); height: calc(100vh - var(--header)); height: calc(100svh - var(--header)); min-height: 440px; }
+.window--short { --h: 64vh; height: 64vh; }
+.window-photos { position: absolute; inset: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.window-photos .ph { height: 100%; background-color: #DDD5C7; }
+.window--hero::after {
+  content: ""; position: absolute; inset: auto 0 0; z-index: 1; height: 45%; pointer-events: none;
+  background: linear-gradient(to top, rgba(30, 25, 20, .42), rgba(30, 25, 20, 0));
+}
+.window-caption {
+  position: absolute; z-index: 2; left: max(var(--gutter), env(safe-area-inset-left, 0px)); right: var(--gutter); bottom: clamp(24px, 4vw, 48px);
+  max-width: 26em; color: #FBF8F2; font: 500 .76rem/1.7 var(--sans); letter-spacing: .28em; text-transform: uppercase;
+}
+@media (max-width: 700px) {
+  .window { --h: 70svh; height: 70vh; height: 70svh; }
+  .window--hero { --h: calc(100svh - var(--header)); height: calc(100svh - var(--header)); }
+  .window--short { --h: 58vh; height: 58vh; }
+  .window-photos .ph:not(:first-child) { display: none; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .window { view-timeline: --window block; }
+    /* Each effect only applies while it is happening, so windows further down the page cost nothing until reached. */
+    .window-photos {
+      inset: 0 0 auto; height: 100vh;
+      animation: window-hold linear none; animation-timeline: --window; animation-range: cover 0% cover 100%;
+    }
+    .window-photos .ph img { animation: to-mono linear forwards; animation-timeline: --window; animation-range: exit 0% exit 80%; }
+  }
+}
+@keyframes window-hold { from { transform: translateY(-100vh); } to { transform: translateY(var(--h)); } }
+@keyframes to-mono { from { filter: grayscale(0); } to { filter: grayscale(1); } }
+

@@ -1,0 +1,9 @@
+/* page heads */
+.page-head { padding-block: clamp(48px, 8vw, 104px) clamp(36px, 5vw, 64px); text-align: center; }
+.page-head .eyebrow { justify-content: center; }
+.page-head h1 { margin-bottom: 24px; }
+.page-head .lead, .page-head .prose { margin-inline: auto; }
+.page-head .prose { text-align: center; }
+.page-head .actions { justify-content: center; }
+.page-head .nf-mark { display: block; width: auto; height: 110px; margin: 0 auto 28px; }
+

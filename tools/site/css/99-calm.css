@@ -1,0 +1,17 @@
+/* Reduced motion and "Hold still": every scene shows its finished frame; state changes become a quick crossfade */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .xfade { transition: opacity var(--t-calm) linear !important; }
+  .js .site-nav.xfade { transition: opacity var(--t-calm) linear, visibility 0s linear var(--t-calm) !important; }
+  .js .site-nav.xfade.is-open { transition: opacity var(--t-calm) linear !important; }
+}
+html.still { scroll-behavior: auto; }
+html.still *, html.still *::before, html.still *::after { animation: none !important; transition: none !important; }
+html.still .xfade { transition: opacity var(--t-calm) linear !important; }
+html.still .js .site-nav.xfade, html.still.js .site-nav.xfade { transition: opacity var(--t-calm) linear, visibility 0s linear var(--t-calm) !important; }
+html.still.js .site-nav.xfade.is-open { transition: opacity var(--t-calm) linear !important; }
+@media (forced-colors: active) { .nav-sheet::after { display: none; } }
+@media print {
+  .site-footer .dusk, .sundown-word { display: none; }
+}

@@ -1,3 +1,4 @@
+// Sunday Light. Built from tools/site/js/ by tools/site/build.py: edit the parts there.
 // Sunday Light: motion kernel, menu, photos, the kind words slider, the photo viewer, the enquiry form and the
 // golden-hour clock. The page's finished, still state is the CSS default; motion only ever starts from .m.
 (function () {
@@ -76,14 +77,26 @@
   var nav = document.getElementById("site-nav");
   if (toggle && nav) {
     var behind = document.querySelectorAll("main, .site-footer");
+    var label = toggle.querySelector(".nav-toggle-label");
     var setMenu = function (open) {
+      if (open === nav.classList.contains("is-open")) return;
       toggle.setAttribute("aria-expanded", String(open));
+      if (label) label.textContent = open ? "Close" : "Menu";
       nav.classList.toggle("is-open", open);
       root.classList.toggle("menu-open", open);
       behind.forEach(function (el) { el.inert = open; });
+      if (open) {
+        var first = nav.querySelector("a[href]");
+        if (first) first.focus({ preventScroll: true });
+      }
     };
     toggle.addEventListener("click", function () {
       setMenu(toggle.getAttribute("aria-expanded") !== "true");
+    });
+    // A link to somewhere on the same page closes the menu (other links leave the page anyway).
+    nav.addEventListener("click", function (event) {
+      var link = event.target.closest && event.target.closest("a[href]");
+      if (link && nav.classList.contains("is-open") && link.getAttribute("href").charAt(0) === "#") setMenu(false);
     });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && nav.classList.contains("is-open")) {
@@ -99,6 +112,30 @@
     }
   }
 
+
+  // Header: sticky. It gains a hairline once the page has scrolled, slides away while you scroll down and comes back
+  // as soon as you scroll up. It never hides near the top, while the menu is open or while it holds focus, and never
+  // with reduced motion or "Hold still", where it simply stays.
+  var siteHeader = document.querySelector(".site-header");
+  if (siteHeader) {
+    var lastY = Math.max(0, window.scrollY || 0), ticking = false;
+    var updateHeader = function () {
+      ticking = false;
+      var y = Math.max(0, window.scrollY || 0), dy = y - lastY;
+      siteHeader.classList.toggle("is-scrolled", y > 0);
+      if (Math.abs(dy) <= 6) return;
+      var tall = siteHeader.offsetHeight * 2;
+      var hide = dy > 0 && y > tall && motionOK() && !root.classList.contains("menu-open") && !siteHeader.contains(document.activeElement);
+      siteHeader.classList.toggle("is-hidden", hide);
+      root.classList.toggle("header-hidden", hide);
+      lastY = y;
+    };
+    window.addEventListener("scroll", function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(updateHeader); }
+    }, { passive: true });
+    siteHeader.addEventListener("focusin", function () { siteHeader.classList.remove("is-hidden"); root.classList.remove("header-hidden"); });
+    updateHeader();
+  }
   // Photos: the WebP copies first, then the JPEG, then the landscape art if the file has gone.
   var photoFailed = function (image) {
     var picture = image.parentNode;
