@@ -211,6 +211,20 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     await ctx.close();
   }
 
+  for (const vp of [PHONE, DESKTOP]) {   // a cold load at #family: what is in view is finished at once (never armed, never half drawn)
+    const ctx = await context(b, 'motion', vp);
+    const p = await ctx.newPage(); watch(p);
+    await p.goto(`${base}/investment.html#family`, { waitUntil: 'networkidle' }); await p.waitForTimeout(150);
+    const r = await p.evaluate(() => {
+      const inView = el => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+      return { armed: [...document.querySelectorAll('.is-armed')].filter(inView).map(el => el.className),
+        half: [...document.querySelectorAll('#family .spec > div')].filter(inView).map(d => getComputedStyle(d, '::before').transform).filter(t => t !== 'none').length,
+        spec: document.querySelector('#family .spec').className };
+    });
+    ok(!r.armed.length && !r.half && /is-done/.test(r.spec), `${vp.viewport.width}: a cold load at #family shows its rules drawn, nothing armed in view (${r.spec})`);
+    await ctx.close();
+  }
+
   for (const vp of [PHONE, DESKTOP]) {   // a jump from the index bar lands with the heading clear and nothing half drawn
     const ctx = await context(b, 'motion', vp);
     const p = await ctx.newPage(); watch(p);
