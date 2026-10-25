@@ -405,31 +405,17 @@ LEGACY_SIZES = {   # the old layouts' photo sizes, for the old page bodies only
 
 
 def index():
-    tiles = ''.join(f'<li><a class="tile" href="{href}">{fig(key, LEGACY_SIZES["tile"], cls="tile-photo", ratio="4/5")}'
-                    f'<span class="tile-name">{e(name)}</span></a></li>' for name, key, href in TILES if exists(PHOTOS[key][0]))
-    intro = ''.join(f'<p>{e(p)}</p>' for p in INTRO)
-    main = f'''{window(HERO, "hero")}
+    """Home (spec §5.1): hero window → statement → window A → sessions band → window B → (interlude) → Instagram
+    sheet → closing. Every section after a window is a .panel that slides over the held photo."""
+    main = f'''{window(HERO, "hero", overlay=home_hero_copy(), label_id="hero-title")}
 
-<section class="quote panel"><div class="wrap narrow">
-<h1>Photographs that feel like a <em>Sunday afternoon.</em></h1>
-<p class="quote-line">Weddings, couples, families, maternity and newborns, from the coast to the hills</p>
-</div></section>
-
-<section class="section intro" aria-labelledby="intro-title"><div class="wrap intro-grid">
-<div><p class="eyebrow">Why Sunday Light</p><h2 id="intro-title">The best light of the week.</h2>
-<div class="prose">{intro}</div><div class="actions">{button("contact.html", "Book a session", variant="secondary")}</div></div>
-{fig("arch-mirror", LEGACY_SIZES["arch"], cls="arch")}
-</div></section>
+{home_statement()}
 
 {window(HOME_WINDOWS[0], "a", above="paper")}
 
-<section class="section panel" aria-labelledby="work-title"><div class="wrap">
-<h2 class="center-title" id="work-title">See the work</h2>
-<ul class="tiles">{tiles}</ul>
-<div class="center">{link_arrow("gallery.html", "View the gallery")}</div>
-</div></section>
+{home_sessions()}
 
-{window(HOME_WINDOWS[1], "b", above="paper")}
+{window(HOME_WINDOWS[1], "b", above="limestone")}
 
 {kind_words("index")}
 
@@ -439,6 +425,63 @@ def index():
     return page('home', 'index.html', 'Sunday Light | Adelaide wedding & family photographer',
                 'Natural, light-filled photography for weddings, couples, families, maternity and newborns across Adelaide. Relaxed sessions on the coast, in the hills and at home.',
                 main, lcp=(HERO[0], 'hero'), jsonld=True)
+
+
+def home_hero_copy():
+    """The h1 on the hero photo (§4.4): Mist over a scrim anchored to the photo's bottom edge, so every glyph sits in
+    the measured contrast bands (§2.2). Nothing here moves at load."""
+    cue = (f'<a class="scroll-cue" href="#statement" aria-label="Scroll to read more">'
+           f'<span class="t-micro" aria-hidden="true">Scroll</span>{art.scroll_cue()}</a>')
+    return (f'<div class="hero-scrim" aria-hidden="true"></div><div class="hero-copy">'
+            f'<h1 class="hero-title t-display" id="hero-title">{lines(HERO_TITLE)}</h1>'
+            f'<div class="hero-meta">{link_arrow("contact.html", "Check my dates", light=True)}{cue}</div></div>')
+
+
+def home_statement():
+    """Her first sentence as the type moment, then the arch photo (M05) beside the rest of her intro (§4.8). The last
+    two sentences of INTRO[1] are the closing's line, so nothing repeats."""
+    first, rest = INTRO[0].split('. ', 1)
+    guide, after = INTRO[1].split('. ', 1)
+    assert plain(STATEMENT_LINE) == first + '.' and after == plain(CLOSING['index'])
+    body = ''.join(f'<p>{e(p)}</p>' for p in (rest, guide + '.'))
+    sizes = f'{PHONE} 80vw, {WIDE} calc(30vw - 12px), 360px'   # phones: 80vw, not SIZES['statement']'s 72vw
+    return (f'<section class="statement sec--breath panel" id="statement"><div class="wrap">'
+            f'<p class="t-display-xl statement-line">{lines(STATEMENT_LINE)}</p>'
+            f'<div class="statement-body grid-12">{arch_frame(HOME_STATEMENT_PHOTO, sizes, "2x3", keyline=True)}'
+            f'<div class="statement-text">{body}{link_arrow("investment.html", "Sessions & pricing")}</div></div>'
+            f'</div></section>')
+
+
+# Where each session's Home tile leads, and what its small label says (§4.9, §6.3).
+HOME_TILE_LINK = {'weddings': ('gallery.html', 'See the gallery'),
+                  'couples': ('investment.html#couples', 'Engagements & proposals too')}
+
+
+def home_sessions():
+    """Session tiles (§4.9): an arch photo tile for every session with a photo (it opens the next page through its
+    arch, M14, and develops as it arrives, M10); every session without one is named in a single text tile."""
+    items, words = [], []
+    for s in SESSIONS:
+        name = s.get('short', s['name'])
+        href, sub = HOME_TILE_LINK.get(s['id'], (f'investment.html#{s["id"]}', 'Sessions & pricing'))
+        photo = arch_frame(HOME_TILE_PHOTO.get(s['id'], s['photo']), 'tile', '3x4', door=True, tray=True, alt='')
+        if not photo:
+            words.append(s)
+            continue
+        items.append(f'<li style="--i:{len(items)}"><a class="tile" href="{href}" data-door>{photo}'
+                     f'<span class="tile-name">{e(name)}</span><span class="sr-only">, </span>'
+                     f'<span class="tile-sub t-label">{e(sub)}</span></a></li>')
+    if words:
+        names = '<br> '.join(e(s.get('short', s['name'])) for s in words)
+        items.append(f'<li class="tiles-words" style="--i:{len(items)}"><a class="tile tile--words" '
+                     f'href="investment.html#{words[0]["id"]}"><span class="tile-words">{names}</span>'
+                     f'<span class="tile-rule" aria-hidden="true"></span><span class="sr-only">, </span>'
+                     f'<span class="tile-sub t-label">Sessions &amp; pricing</span></a></li>')
+    return (f'<section class="sessions sec--band panel" aria-labelledby="sessions-title"><div class="wrap">'
+            f'<div class="sessions-head"><p class="eyebrow">Sessions</p>'
+            f'<h2 id="sessions-title">From the coast <em>to the hills.</em></h2>'
+            f'<p class="sessions-lead">Weddings, couples, families, maternity and newborns.</p></div>'
+            f'<ul class="tiles" role="list">{"".join(items)}</ul></div></section>')
 
 
 def gallery_item(path, alt, i, first_gallery):
