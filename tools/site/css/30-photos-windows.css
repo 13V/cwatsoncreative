@@ -1,45 +1,54 @@
-/* photo slots: a photo once the file exists, landscape art until then */
-.ph { position: relative; margin: 0; overflow: hidden; background: var(--lime); }
-.section--lime .ph, .words .ph, .package .ph, .review .ph { background-color: #E3DACB; }
-.ph--empty, .ph.is-missing { background: #EEE6D8 url("images/placeholder.svg") 50% 100% / cover no-repeat; }
-.ph picture { display: block; width: 100%; height: 100%; }
-.ph img { width: 100%; height: 100%; object-fit: cover; transition: opacity .9s ease, transform 1.6s var(--ease); }
-.ph.is-missing img { opacity: 0; }
-.arch { border-radius: var(--arch); }
+/* photos (§4.6); B8 for a failed photo */
+.ph{position:relative;margin:0;overflow:hidden;background-color:var(--ph, var(--sand))}
+.ph picture{display:block;width:100%;height:100%}
+.ph img{width:100%;height:100%;object-fit:cover;object-position:var(--focus, 50% 50%);transition:transform 1.6s var(--ease-light)}
+.ph.is-missing{background:var(--ph, var(--sand)) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='38 38 124 174'%3E%3Cpath d='M44 206V100a56 56 0 0 1 112 0v106z' fill='none' stroke='%235C4D3F' stroke-opacity='.22' stroke-width='5'/%3E%3C/svg%3E") 50% 50% / auto 28px no-repeat}
+.ph.is-missing img{visibility:hidden}
+.frame{position:relative}
+.frame--arch, .sheet-photos .ph{-webkit-mask-image:-webkit-radial-gradient(white, black)}
+.frame--2x3 .frame--arch{border-radius:var(--arch-2x3)}
+.frame--3x4 .frame--arch{border-radius:var(--arch-3x4)}
+.frame--4x5 .frame--arch{border-radius:var(--arch-4x5)}
+.frame-line{position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);pointer-events:none}
+.frame-line path{stroke-width:var(--kw, .36);stroke-dasharray:1 2}
+.arch{border-radius:var(--r-arch)}
 
-/* Photo windows: full-width photos (side by side on large screens, one on phones). Where the browser
-   supports scroll-linked animation, the photos hold still while the page slides past them, and fade to
-   black and white as they leave. Elsewhere they are simply still photos. */
-.window { --h: 80vh; position: relative; height: 80vh; overflow: hidden; background: #DDD5C7; }
-.window--hero { --h: calc(100svh - var(--header)); height: calc(100vh - var(--header)); height: calc(100svh - var(--header)); min-height: 440px; }
-.window--short { --h: 64vh; height: 64vh; }
-.window-photos { position: absolute; inset: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
-.window-photos .ph { height: 100%; background-color: #DDD5C7; }
-.window--hero::after {
-  content: ""; position: absolute; inset: auto 0 0; z-index: 1; height: 45%; pointer-events: none;
-  background: linear-gradient(to top, rgba(30, 25, 20, .42), rgba(30, 25, 20, 0));
+/* windows (§4.4, §4.5, M02) */
+.window{--h:100svh;--sw:.7;position:relative;isolation:isolate;height:var(--h);overflow:hidden;background:var(--above, var(--paper))}
+.window--hero{--h:max(520px, calc(100svh - var(--header-h)))}
+.window-aperture{position:absolute;inset:0;overflow:hidden}
+.window-photos, .window-arches{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0, 1fr);gap:var(--mat)}
+.window-photos{position:absolute;inset:0}
+.window-photos .ph{height:100%}
+.window-arches{position:absolute;inset:0 0 auto;z-index:var(--z-on-photo);pointer-events:none}
+.window-arches > span{display:flex;justify-content:center;overflow:hidden}
+.hole{position:relative;flex:none;width:min(100%, calc(var(--h) * .9));aspect-ratio:2 / 1;
+  border-radius:50% 50% 0 0 / 100% 100% 0 0;box-shadow:0 0 0 100vmax var(--above)}
+.hole svg{position:absolute;inset:0;width:100%;height:100%}
+.hole .frame{stroke-width:var(--sw);stroke-dasharray:1 2}
+@media (max-width:860px){.ph--wide-only, .window-arches > span:not(:first-child){display:none}}
+@media (min-width:400px){.window{--sw:.52}}
+@media (min-width:600px){.window{--sw:.38}}
+@media (max-width:860px) and (max-height:500px){.window{--sw:.8}}
+@media (min-width:861px){
+  .window--hero{--h:clamp(600px, calc(100svh - var(--header-h)), 1100px)}
+  .window--hero:not([data-count="1"]) .window-aperture{inset:0 var(--mat) var(--mat)}
+  .window[data-count="3"]{--sw:.78}
+  .window[data-count="2"]{--sw:.5}
+  .frame-line{--kw:.32}
 }
-.window-caption {
-  position: absolute; z-index: 2; left: max(var(--gutter), env(safe-area-inset-left, 0px)); right: var(--gutter); bottom: clamp(24px, 4vw, 48px);
-  max-width: 26em; color: #FBF8F2; font: 500 .76rem/1.7 var(--sans); letter-spacing: .28em; text-transform: uppercase;
-}
-@media (max-width: 700px) {
-  .window { --h: 70svh; height: 70vh; height: 70svh; }
-  .window--hero { --h: calc(100svh - var(--header)); height: calc(100svh - var(--header)); }
-  .window--short { --h: 58vh; height: 58vh; }
-  .window-photos .ph:not(:first-child) { display: none; }
-}
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .window { view-timeline: --window block; }
-    /* Each effect only applies while it is happening, so windows further down the page cost nothing until reached. */
-    .window-photos {
-      inset: 0 0 auto; height: 100vh;
-      animation: window-hold linear none; animation-timeline: --window; animation-range: cover 0% cover 100%;
+@media (min-width:1100px){.window[data-count="3"]{--sw:.6}.window[data-count="2"]{--sw:.4}.frame-line{--kw:.28}}
+@media (min-width:1440px){.window[data-count="3"]{--sw:.5}.window[data-count="2"]{--sw:.32}}
+
+/* hold and silver exit */
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    :root:not(.still){
+      .window{view-timeline:--window block;view-timeline-inset:0px}
+      .window-photos{inset:0 0 auto;height:100lvh;animation:window-hold linear none;animation-timeline:--window;animation-range:cover 0% cover 100%}
+      .window .ph img{animation:to-mono linear forwards;animation-timeline:--window;animation-range:exit 0% exit 80%}
     }
-    .window-photos .ph img { animation: to-mono linear forwards; animation-timeline: --window; animation-range: exit 0% exit 80%; }
   }
 }
-@keyframes window-hold { from { transform: translateY(-100vh); } to { transform: translateY(var(--h)); } }
-@keyframes to-mono { from { filter: grayscale(0); } to { filter: grayscale(1); } }
-
+@keyframes window-hold{from{transform:translateY(-100vh)}to{transform:translateY(var(--h))}}
+@keyframes to-mono{to{filter:grayscale(1)}}

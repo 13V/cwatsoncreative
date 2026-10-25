@@ -1,4 +1,4 @@
-/* text pages */
-.text { max-width: 44em; display: grid; gap: 1.1em; margin-inline: auto; }
-.text h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin-top: .8em; }
-
+/* long text (Privacy) */
+.text-page{padding-top:0}
+.text{display:grid;gap:1.1em;max-width:var(--wrap-text)}
+.text h2{margin-top:var(--sp-24)}

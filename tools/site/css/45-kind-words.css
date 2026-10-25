@@ -1,6 +1,7 @@
+/* bp: legacy */
 /* kind words: a photo beside one review at a time */
 .words-section { padding-block: clamp(64px, 9vw, 120px); }
-.words { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); min-height: clamp(440px, 42vw, 580px); background: var(--lime); }
+.words { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); min-height: clamp(440px, 42vw, 580px); background: var(--limestone); }
 .words-photos { position: relative; }
 .words-photo { position: absolute; inset: 0; opacity: 0; transition: opacity .8s ease; }
 .words-photo.is-current { opacity: 1; }

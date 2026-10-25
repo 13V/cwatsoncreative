@@ -1,13 +1,21 @@
-/* instagram strip */
-.insta-link { position: relative; display: block; color: #FBF8F2; text-decoration: none; }
-.insta-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.insta-grid .ph { aspect-ratio: 1; }
-.insta-label {
-  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; text-align: center;
-  background: rgba(30, 25, 20, .34); transition: background-color .4s ease;
+/* Instagram sheet (§4.20) */
+.sheet--limestone{background:var(--limestone)}
+.sheet-link{display:block;color:var(--bark);text-decoration:none}
+.sheet-link:focus-visible{outline-offset:4px}
+.sheet-label{display:flex;align-items:center;gap:var(--sp-16);margin-bottom:var(--sp-24)}
+.sheet-label .eyebrow{margin:0;white-space:nowrap}
+.sheet-label .icon{flex:none}
+.sheet-rule{flex:1;height:2px;background:radial-gradient(circle, var(--saltbush) .6px, transparent .8px) 0 50% / 6px 2px repeat-x}
+.sheet-handle{position:relative;display:inline-flex;align-items:center;gap:var(--sp-8);white-space:nowrap;font:500 1.25rem/1 var(--serif)}
+.sheet-handle::after{bottom:-6px}
+.sheet-photos{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:6px}
+.sheet-photos .ph{display:block;aspect-ratio:4 / 5}
+.sheet-photos .ph:nth-child(2){border-radius:var(--arch-4x5)}
+.sheet-link:focus-visible .ph img{transform:scale(1.03)}
+@media (max-width:599px){.sheet-label{flex-wrap:wrap;row-gap:var(--sp-8)}.sheet-rule{min-width:30%}}
+@media (min-width:861px){
+  .sheet-photos{grid-template-columns:repeat(6, minmax(0, 1fr));gap:clamp(6px, 1vw, 12px);align-items:end}
+  .sheet-photos .ph:is(:nth-child(1), :nth-child(6)){aspect-ratio:1}
+  .sheet-photos .ph:nth-child(2){border-radius:0}
+  .sheet-photos .ph:is(:nth-child(3), :nth-child(4)){aspect-ratio:2 / 3;border-radius:var(--arch-2x3)}
 }
-.insta-label svg { width: 26px; height: 26px; }
-.insta-title { font: 500 clamp(2rem, 3.4vw, 2.8rem)/1 var(--serif); }
-.insta-handle { font: 500 .72rem/1 var(--sans); letter-spacing: .26em; text-transform: uppercase; }
-@media (max-width: 700px) { .insta-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-

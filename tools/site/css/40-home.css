@@ -1,5 +1,6 @@
+/* bp: legacy */
 /* home: the quote band */
-.quote { background: var(--lime); padding-block: clamp(64px, 9vw, 120px); text-align: center; }
+.quote { background: var(--limestone); padding-block: clamp(64px, 9vw, 120px); text-align: center; }
 .quote h1 { font-size: clamp(2.5rem, 5.4vw, 4.5rem); line-height: 1.04; max-width: 15em; margin-inline: auto; }
 .quote-line { margin: 26px auto 0; max-width: 34em; font: 500 .74rem/1.9 var(--sans); letter-spacing: .26em; text-transform: uppercase; color: var(--bush-ink); }
 

@@ -1,105 +1,91 @@
 // Sunday Light. Built from tools/site/js/ by tools/site/build.py: edit the parts there.
-// Sunday Light: motion kernel, menu, photos, the kind words slider, the photo viewer, the enquiry form and the
-// golden-hour clock. The page's finished, still state is the CSS default; motion only ever starts from .m.
+// Sunday Light. The finished, still page is the CSS default; motion only starts from html.m (motion plan §5).
 (function () {
   "use strict";
   var root = document.documentElement;
-  var reduceQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  var reduceQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   var motionOK = function () { return root.classList.contains("m"); };
+  var M = window.SL = { motionOK: motionOK };
+  var wait = M.wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 
-  // ---------------------------------------------------------------- motion kernel
-  // One observer plays every one-shot moment. Anything on screen when first seen stays finished; anything below the
-  // fold is armed (put in its start state while off-screen) and plays once when enough of it arrives. The shared
-  // pieces live on window.SL so later parts (and the tests) can use them.
-  var M = window.SL = {};
-  M.motionOK = motionOK;
-  var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
-  M.wait = wait;
-
-  // Queues: at most two lines drawing and four photos developing at once, with a small gap between starts.
+  // Queues: 2 lines draw, 4 prints develop at once, starts a gap apart; a slot frees when start() settles or after ms+150.
   var Q = { draw: { n: 2, gap: 120, busy: 0, last: 0, wait: [] }, print: { n: 4, gap: 100, busy: 0, last: 0, wait: [] } };
   var pump = function (q) {
     if (q.busy >= q.n || !q.wait.length || q.timer) return;
     q.timer = setTimeout(function () {
-      var job = q.wait.shift();
+      var job = q.wait.shift(), free = function () { q.busy--; pump(q); };
       q.timer = 0; q.busy++; q.last = performance.now();
-      Promise.race([Promise.resolve().then(job[0]), wait(job[1] + 150)]).then(function () { q.busy--; pump(q); }, function () { q.busy--; pump(q); });
+      Promise.race([Promise.resolve().then(job[0]), wait(job[1] + 150)]).then(free, free);
       pump(q);
     }, Math.max(0, q.last + q.gap - performance.now()));
   };
   M.queue = function (kind, start, ms) { var q = Q[kind]; q.wait.push([start, ms]); pump(q); };
 
-  var jobs = new Map();
-  var seen = typeof WeakSet === "function" ? new WeakSet() : null;
+  // One observer plays every one-shot: on screen at first sight it is done; below the fold armed until `ratio` is seen.
+  var jobs = new Map(), seen = new WeakSet();
   M.done = function (el) {
     el.classList.remove("is-armed", "is-developing");
     el.classList.add("is-done");
     if (observer) observer.unobserve(el);
     jobs.delete(el);
   };
-  var observer = ("IntersectionObserver" in window && seen) ? new IntersectionObserver(function (entries) {
+  var observer = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
     var ready = [];
     entries.forEach(function (entry) {
-      var el = entry.target, list = jobs.get(el);
+      var el = entry.target, list = jobs.get(el), view;
       if (!list) return;
       if (!seen.has(el)) {
         seen.add(el);
         if (entry.isIntersecting || !motionOK()) {
-          // On screen at first sight: finished, except jobs whose start state is in the CSS from first paint.
           list = list.filter(function (job) { return job.fromStart && motionOK(); });
           if (!list.length) { M.done(el); return; }
           jobs.set(el, list);
-        } else {
-          el.classList.add("is-armed");
-          return;
-        }
+        } else { el.classList.add("is-armed"); return; }
       }
-      var view = entry.rootBounds ? entry.rootBounds.height : window.innerHeight;
+      view = entry.rootBounds ? entry.rootBounds.height : innerHeight;
       list.forEach(function (job) {
-        if (job.done) return;
-        if (entry.intersectionRatio >= job.ratio || (entry.isIntersecting && entry.intersectionRect.height >= job.ratio * view)) {
+        if (!job.done && (entry.intersectionRatio >= job.ratio || (entry.isIntersecting && entry.intersectionRect.height >= job.ratio * view))) {
           job.done = true;
           ready.push([entry.boundingClientRect, el, job]);
         }
       });
       if (list.every(function (job) { return job.done; })) { observer.unobserve(el); jobs.delete(el); }
     });
-    // Reading order: by on-screen top (to the nearest 8px), then left.
+    // reading order; nothing plays under the page change
     ready.sort(function (a, b) { return (Math.round(a[0].top / 8) - Math.round(b[0].top / 8)) || (a[0].left - b[0].left); })
       .forEach(function (r) { Promise.resolve(window.slSettled).then(function () { r[2].run(r[1]); }); });
   }, { threshold: [0, .05, .1, .15, .2, .25, .3, .5, .75, .9, 1] }) : null;
-  // Register a job: run(el) once when `ratio` of el is in view (or that share of the screen is filled by it).
-  M.once = function (el, ratio, run, fromStart) {
+  var once = M.once = function (el, ratio, run, fromStart) {
     if (!observer || !el) return;
     var list = jobs.get(el);
-    if (!list) { list = []; jobs.set(el, list); observer.observe(el); }
+    if (!list) { jobs.set(el, list = []); observer.observe(el); }
     list.push({ ratio: ratio, run: run, done: false, fromStart: !!fromStart });
   };
-  var once = M.once;
 
-  // The one animation allowed without motion: a 150ms fade for things that appear from or leave to display: none.
+  // The one animation allowed without motion: 150ms opacity, to and from display: none.
   M.calm = function (el, dir) {
     if (!el || !el.animate) return Promise.resolve();
     var a = el.animate({ opacity: dir === "in" ? [0, 1] : [1, 0] }, { duration: 150, easing: "linear", fill: dir === "in" ? "none" : "forwards" });
     return a.finished.then(function () { return a; }, function () {});
   };
 
-  // Everything jumps to its finished frame (Hold still pressed, or reduced motion switched on mid-visit).
+  // Settle: every moment jumps to its finished frame (Hold still, or Reduce Motion turned on).
   var settle = function (hold) {
-    if (hold) root.classList.add("still");   // first: the kill switch now cancels every CSS animation and transition
+    if (hold) root.classList.add("still");   // first: the CSS kill switch
     root.classList.remove("m");
     if (document.getAnimations) document.getAnimations().forEach(function (a) {
       var t = a.effect && a.effect.getTiming ? a.effect.getTiming() : {};
       try { if (t.iterations === Infinity) throw 0; a.finish(); } catch (e) { a.cancel(); }
     });
     document.querySelectorAll(".is-armed").forEach(M.done);
+    if (M.showHeader) M.showHeader();
   };
   var isStill = function () { return root.classList.contains("still"); };
   var stillButton = document.querySelector(".still-toggle");
   var syncStill = function () {
     if (!stillButton) return;
     stillButton.setAttribute("aria-pressed", String(isStill()));
-    stillButton.parentNode.hidden = !!(reduceQuery && reduceQuery.matches);   // it could change nothing
+    stillButton.parentNode.hidden = reduceQuery.matches;
   };
   if (stillButton) {
     syncStill();
@@ -107,32 +93,28 @@
       var on = !isStill();
       try { localStorage.setItem("sl-still", on ? "1" : "0"); } catch (e) {}
       if (on) settle(true);
-      else { root.classList.remove("still"); if (!(reduceQuery && reduceQuery.matches)) root.classList.add("m"); }
+      else { root.classList.remove("still"); if (!reduceQuery.matches) root.classList.add("m"); }
       syncStill();
     });
   }
-  if (reduceQuery) {
-    var onPreference = function () {
-      if (reduceQuery.matches) settle(false);
-      else if (!isStill()) root.classList.add("m");
-      syncStill();
-    };
-    if (reduceQuery.addEventListener) reduceQuery.addEventListener("change", onPreference);
-    else if (reduceQuery.addListener) reduceQuery.addListener(onPreference);
-  }
+  reduceQuery.addEventListener("change", function () {
+    if (reduceQuery.matches) settle(false);
+    else if (!isStill()) root.classList.add("m");
+    syncStill();
+  });
 
-  // Through the arch: remember where a link was tapped (or which doorway), then hand over as the page leaves.
+  // Through the arch (M01): remember the tap or doorway (M14); hand over as the page leaves.
   document.addEventListener("click", function (e) {
-    var a = e.target.closest && e.target.closest("a[href]"), W = window.innerWidth, r, d, b;
+    var a = e.target.closest && e.target.closest("a[href]"), W = innerWidth, r, d, f, b;
     if (!a || e.defaultPrevented || a.target || a.hasAttribute("download") || a.origin !== location.origin) return;
     r = { at: Date.now(), hash: !!a.hash };
-    d = a.querySelector("[data-door]"); b = d && d.getBoundingClientRect();
-    if (b && b.top >= 0 && b.bottom <= window.innerHeight) {
+    d = a.closest("[data-door]"); f = d && (d.querySelector("[data-door-frame]") || d); b = f && f.getBoundingClientRect();
+    if (b && b.top >= 0 && b.bottom <= innerHeight) {
       r.x = (b.left + b.width / 2) / W * 100 + "%"; r.top = b.top + "px"; r.w = b.width + "px"; r.h = b.height + "px";
     } else r.x = (e.detail ? Math.min(80, Math.max(20, e.clientX / W * 100)) : 50) + "%";   // keyboard: centre
     try { sessionStorage.setItem("sl-vt", JSON.stringify(r)); } catch (x) {}
   });
-  window.addEventListener("pageswap", function (e) {
+  addEventListener("pageswap", function (e) {
     var vt = e.viewTransition, r = {}, c = root.classList, hd;
     if (!vt) return;
     if (e.activation && /traverse|reload/.test(e.activation.navigationType)) { vt.skipTransition(); return; }
@@ -140,106 +122,154 @@
     r.quiet = c.contains("menu-open") || !!r.hash;
     hd = document.querySelector(".site-header");
     r.keep = !r.quiet && !!hd && hd.getBoundingClientRect().top > -1;
-    c.toggle("vt-keep", r.keep);   // toggle, never just add: a restored page must not keep it
+    c.toggle("vt-keep", r.keep);   // toggle: a restored page must not keep it
     try { sessionStorage.setItem("sl-vt", JSON.stringify(r)); } catch (x) {}
   });
-  // iOS only applies :active reliably when a touch listener exists, and every tap should answer within a frame.
+  // iOS needs a touch listener for :active
   document.addEventListener("touchstart", function () {}, { passive: true });
 
-  // Ruled in: eyebrow dashes and the rules of steps, questions, the contact column and the wedding tiers.
-  var draw = function (el) { el.classList.add("is-drawn"); };
-  document.querySelectorAll(".eyebrow, [data-rules]").forEach(function (el) { once(el, .25, draw); });
-  // Sundown: the footer's gold line draws once when the scene is in view; where scroll timelines are missing, the
-  // sunset also plays once.
-  var sundown = document.querySelector(".sundown");
-  once(sundown, .9, function (el) {
-    M.queue("draw", function () { el.classList.add("is-drawn"); return wait(2300); }, 2300);
+  // Moments (CSS: 97-motion.css).
+  var drawn = function (el) { el.classList.add("is-drawn"); };
+  // Ruled in (M12) at 25%.
+  document.querySelectorAll("[data-rules]").forEach(function (el) { once(el, .25, drawn); });
+  // Every window is the logo (M02): the arcade draws at 90%, cells 120ms apart.
+  document.querySelectorAll(".window-arches").forEach(function (el) {
+    var ms = 780 + 120 * el.children.length;
+    once(el, .9, function () { M.queue("draw", function () { drawn(el); return wait(ms); }, ms); });
   });
-  once(sundown, .5, function (el) { el.classList.add("is-dusk"); });
-  // Menu. On phones it opens as a full screen, so the page behind is locked and set inert.
-  var toggle = document.querySelector(".nav-toggle");
-  var nav = document.getElementById("site-nav");
+  // Sundown (M03): the line; .is-dusk is the sunset where scroll timelines are missing.
+  var scene = document.querySelector(".sundown-scene");
+  once(scene, .9, function () { M.queue("draw", function () { drawn(scene); return wait(3000); }, 3000); });
+  once(scene, .5, function () { scene.classList.add("is-dusk"); });
+  // 404 (D12): the mark's start frame is CSS from first paint; it goes to dusk once.
+  once(document.getElementById("nf-mark"), .9, function (el) { el.classList.add("is-dusk"); }, true);
+
+  // Phone menu (M07): below 861px the closed sheet is inert; open, the page behind is.
+  var toggle = document.querySelector(".nav-toggle"), nav = document.getElementById("site-nav");
   if (toggle && nav) {
-    var behind = document.querySelectorAll("main, .site-footer");
+    var behind = document.querySelectorAll("main, .site-footer, .skip");
     var label = toggle.querySelector(".nav-toggle-label");
+    var phone = matchMedia("(max-width: 860px)");
+    var isOpen = function () { return nav.classList.contains("is-open"); };
     var setMenu = function (open) {
-      if (open === nav.classList.contains("is-open")) return;
+      nav.inert = !open && phone.matches;
+      if (open === isOpen()) return;
+      if (open && M.showHeader) M.showHeader(true);   // never inside a moving header
       toggle.setAttribute("aria-expanded", String(open));
       if (label) label.textContent = open ? "Close" : "Menu";
       nav.classList.toggle("is-open", open);
       root.classList.toggle("menu-open", open);
       behind.forEach(function (el) { el.inert = open; });
-      if (open) {
-        var first = nav.querySelector("a[href]");
-        if (first) first.focus({ preventScroll: true });
-      }
+      if (open) { var first = nav.querySelector("a[href]"); if (first) first.focus({ preventScroll: true }); }
     };
-    toggle.addEventListener("click", function () {
-      setMenu(toggle.getAttribute("aria-expanded") !== "true");
+    toggle.addEventListener("click", function () { setMenu(!isOpen()); });
+    // same-page links close it (the page change reads .menu-open)
+    nav.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("a[href]");
+      if (a && a.getAttribute("href").charAt(0) === "#") setMenu(false);
     });
-    // A link to somewhere on the same page closes the menu (other links leave the page anyway).
-    nav.addEventListener("click", function (event) {
-      var link = event.target.closest && event.target.closest("a[href]");
-      if (link && nav.classList.contains("is-open") && link.getAttribute("href").charAt(0) === "#") setMenu(false);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && isOpen()) { setMenu(false); toggle.focus(); }
     });
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && nav.classList.contains("is-open")) {
-        setMenu(false);
-        toggle.focus();
-      }
-    });
-    if (window.matchMedia) { // widening the window past the phone layout closes it
-      var wide = window.matchMedia("(min-width: 861px)");
-      var onWide = function () { if (wide.matches) setMenu(false); };
-      if (wide.addEventListener) wide.addEventListener("change", onWide);
-      else if (wide.addListener) wide.addListener(onWide);
-    }
+    var onWidth = function () { setMenu(isOpen() && phone.matches); };
+    phone.addEventListener("change", onWidth);
+    onWidth();
   }
 
-
-  // Header: sticky. It gains a hairline once the page has scrolled, slides away while you scroll down and comes back
-  // as soon as you scroll up. It never hides near the top, while the menu is open or while it holds focus, and never
-  // with reduced motion or "Hold still", where it simply stays.
+  // Header (spec §4.2): hides scrolling down, returns scrolling up; never near the top, with the menu open, focus
+  // inside or without motion. html.header-hidden moves the index bar.
   var siteHeader = document.querySelector(".site-header");
   if (siteHeader) {
-    var lastY = Math.max(0, window.scrollY || 0), ticking = false;
-    var updateHeader = function () {
-      ticking = false;
-      var y = Math.max(0, window.scrollY || 0), dy = y - lastY;
-      siteHeader.classList.toggle("is-scrolled", y > 0);
-      if (Math.abs(dy) <= 6) return;
-      var tall = siteHeader.offsetHeight * 2;
-      var hide = dy > 0 && y > tall && motionOK() && !root.classList.contains("menu-open") && !siteHeader.contains(document.activeElement);
+    var lastY = Math.max(0, scrollY), ticking = false;
+    var hideHeader = function (hide, now) {
+      if (now) siteHeader.style.transition = "none";
       siteHeader.classList.toggle("is-hidden", hide);
       root.classList.toggle("header-hidden", hide);
+      if (now) { void siteHeader.offsetWidth; siteHeader.style.transition = ""; }
+    };
+    M.showHeader = function (now) { hideHeader(false, now); };
+    var updateHeader = function () {
+      var y = Math.max(0, scrollY), dy = y - lastY;
+      ticking = false;
+      siteHeader.classList.toggle("is-scrolled", y > 0);
+      if (Math.abs(dy) <= 6) return;
+      hideHeader(dy > 0 && y > siteHeader.offsetHeight * 2 && motionOK() && !root.classList.contains("menu-open") &&
+        !siteHeader.contains(document.activeElement));
       lastY = y;
     };
-    window.addEventListener("scroll", function () {
+    addEventListener("scroll", function () {
       if (!ticking) { ticking = true; requestAnimationFrame(updateHeader); }
     }, { passive: true });
-    siteHeader.addEventListener("focusin", function () { siteHeader.classList.remove("is-hidden"); root.classList.remove("header-hidden"); });
+    siteHeader.addEventListener("focusin", function () { M.showHeader(); });
     updateHeader();
   }
-  // Photos: the WebP copies first, then the JPEG, then the landscape art if the file has gone.
-  var photoFailed = function (image) {
-    var picture = image.parentNode;
-    var sources = picture && picture.nodeName === "PICTURE" ? picture.querySelectorAll("source") : [];
-    if (sources.length) {
-      sources.forEach(function (source) { picture.removeChild(source); }); // the browser retries with the JPEG
-      return;
-    }
-    var figure = image.closest(".ph");
-    if (figure) figure.classList.add("is-missing");
+
+  // Photos: WebP, then the JPEG, then .is-missing.
+  var photoFailed = function (img) {
+    var pic = img.parentNode, ph = img.closest(".ph"), sources = pic.querySelectorAll("source");
+    if (sources.length) sources.forEach(function (s) { pic.removeChild(s); });
+    else if (ph) ph.classList.add("is-missing");
   };
-  document.querySelectorAll(".ph img").forEach(function (image) {
-    image.addEventListener("load", function () { image.classList.add("is-loaded"); });
-    image.addEventListener("error", function () { photoFailed(image); });
-    if (image.complete) {
-      if (image.naturalWidth) image.classList.add("is-loaded");
-      else photoFailed(image);
-    }
+  document.querySelectorAll(".ph img").forEach(function (img) {
+    img.addEventListener("load", function () { img.classList.add("is-loaded"); });
+    img.addEventListener("error", function () { photoFailed(img); });
+    if (img.complete) { if (img.naturalWidth) img.classList.add("is-loaded"); else photoFailed(img); }
+  });
+  // Prints in the tray (M10): develops at 20% once decoded; not decoded in 2.5s, missing or done: the veil just goes.
+  document.querySelectorAll(".ph--tray").forEach(function (ph) {
+    var img = ph.querySelector("img"), armed = function () { return ph.classList.contains("is-armed"); };
+    if (img) once(ph, .2, function () {
+      M.queue("print", function () {
+        if (!armed()) return;
+        return Promise.race([img.decode().then(function () { return 1; }), wait(2500)]).then(function (ok) {
+          if (!ok || !motionOK() || !armed() || ph.classList.contains("is-missing")) return M.done(ph);
+          return new Promise(function (resolve) {
+            var end = function (e) {
+              if (e && e.target !== img) return;
+              img.removeEventListener("transitionend", end);
+              M.done(ph); resolve();
+            };
+            requestAnimationFrame(function () {
+              img.addEventListener("transitionend", end);
+              ph.classList.add("is-developing");
+              setTimeout(end, 1550);
+            });
+          });
+        }, function () { M.done(ph); });
+      }, 3900);
+    });
   });
 
+  // Index spy (spec §4.10): the topmost section in the band under the bars (to 45%) marks its data-spy link.
+  {
+    const bar = document.querySelector(".index-bar"), ix = bar && bar.querySelector(".index"), owner = new Map(), band = new Set();
+    let current = null;
+    const mark = (a) => {
+      if (a === current) return;
+      if (current) current.removeAttribute("aria-current");
+      if ((current = a)) {
+        a.setAttribute("aria-current", "true");
+        const r = a.getBoundingClientRect(), s = ix.getBoundingClientRect();
+        if (r.left < s.left || r.right > s.right - 32)   // never scrollIntoView
+          ix.scrollTo({ left: ix.scrollLeft + r.left - s.left - (s.width - r.width) / 2, behavior: motionOK() ? "smooth" : "auto" });
+      }
+    };
+    if (ix) {
+      ix.querySelectorAll("a[data-spy]").forEach((a) => a.dataset.spy.split(" ").forEach((id) => {
+        const t = document.getElementById(id);
+        if (t) owner.set(t, a);
+      }));
+      const targets = [...owner.keys()].sort((a, b) => (a.compareDocumentPosition(b) & 2 ? 1 : -1));
+      const spy = new IntersectionObserver((entries) => {
+        entries.forEach((e) => band[e.isIntersecting && e.intersectionRatio > 0 ? "add" : "delete"](e.target));
+        const top = targets.find((t) => band.has(t));
+        if (top) mark(owner.get(top));
+        else if (targets[0].getBoundingClientRect().top > bar.getBoundingClientRect().bottom) mark(null);
+      }, { rootMargin: `-${8 + Math.max(document.querySelector(".site-header").offsetHeight + bar.offsetHeight,
+        parseFloat(getComputedStyle(root).scrollPaddingTop) || 0)}px 0px -55% 0px`, threshold: [0, .001] });   // 8px under a jump's landing line
+      targets.forEach((t) => spy.observe(t));
+    }
+  }
   // Kind words: one review at a time, with arrows and swipes.
   document.querySelectorAll(".words").forEach(function (box) {
     var items = box.querySelectorAll(".words-item");
@@ -432,66 +462,58 @@
   document.querySelectorAll("[data-year]").forEach(function (node) {
     node.textContent = String(new Date().getFullYear());
   });
+  // Back to top: smooth only with motion, then focus the header (tabindex=-1). Without JS, #top is the page top.
+  document.querySelectorAll(".to-top").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var top = document.querySelector("#top, .site-header");
+      if (!top) return;
+      e.preventDefault();
+      scrollTo({ top: 0, behavior: motionOK() ? "smooth" : "auto" });
+      top.focus({ preventScroll: true });
+    });
+  });
 
-  // ---------------------------------------------------------------- golden hour in Adelaide
-  // NOAA sunset equation for Adelaide; golden hour is taken as the hour before sunset. Shown in Adelaide time.
+  // Golden hour (M03): the hour before NOAA sunset, for Adelaide's date.
   var golden = document.querySelector("[data-golden]");
-  var sunsetMinutesUTC = function (y, m, d) {
-    var rad = Math.PI / 180, lat = -34.9285, lng = 138.6007;
-    var t = (Date.UTC(y, m - 1, d) / 86400000 + 2440587.5 - 2451545) / 36525;
-    var L0 = (280.46646 + t * (36000.76983 + t * 0.0003032)) % 360;
-    var M = 357.52911 + t * (35999.05029 - 0.0001537 * t);
-    var ecc = 0.016708634 - t * (0.000042037 + 0.0000001267 * t);
-    var C = Math.sin(M * rad) * (1.914602 - t * (0.004817 + 0.000014 * t)) + Math.sin(2 * M * rad) * (0.019993 - 0.000101 * t) +
-      Math.sin(3 * M * rad) * 0.000289;
-    var omega = 125.04 - 1934.136 * t;
-    var lambda = L0 + C - 0.00569 - 0.00478 * Math.sin(omega * rad);
-    var eps = 23 + (26 + (21.448 - t * (46.815 + t * (0.00059 - t * 0.001813))) / 60) / 60 + 0.00256 * Math.cos(omega * rad);
-    var decl = Math.asin(Math.sin(eps * rad) * Math.sin(lambda * rad));
-    var yy = Math.pow(Math.tan(eps / 2 * rad), 2);
-    var eqTime = 4 / rad * (yy * Math.sin(2 * L0 * rad) - 2 * ecc * Math.sin(M * rad) + 4 * ecc * yy * Math.sin(M * rad) * Math.cos(2 * L0 * rad) -
-      0.5 * yy * yy * Math.sin(4 * L0 * rad) - 1.25 * ecc * ecc * Math.sin(2 * M * rad));
-    var ha = Math.acos(Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(decl)) - Math.tan(lat * rad) * Math.tan(decl)) / rad;
-    return 720 - 4 * lng - eqTime + 4 * ha;
+  var sunsetMinutesUTC = window.slSunset = function (y, m, d) {   // minutes UTC
+    var r = Math.PI / 180, sin = Math.sin, cos = Math.cos, tan = Math.tan, lat = -34.9285 * r;
+    var t = (Date.UTC(y, m - 1, d) / 864e5 + 2440587.5 - 2451545) / 36525;
+    var L = (280.46646 + t * (36000.76983 + t * .0003032)) % 360 * r;
+    var A = (357.52911 + t * (35999.05029 - .0001537 * t)) * r;
+    var e = .016708634 - t * (.000042037 + .0000001267 * t);
+    var C = sin(A) * (1.914602 - t * (.004817 + .000014 * t)) + sin(2 * A) * (.019993 - .000101 * t) + sin(3 * A) * .000289;
+    var o = (125.04 - 1934.136 * t) * r;
+    var eps = (23 + (26 + (21.448 - t * (46.815 + t * (.00059 - t * .001813))) / 60) / 60 + .00256 * cos(o)) * r;
+    var decl = Math.asin(sin(eps) * sin((L / r + C - .00569 - .00478 * sin(o)) * r));
+    var yy = Math.pow(tan(eps / 2), 2);
+    var eq = 4 / r * (yy * sin(2 * L) - 2 * e * sin(A) + 4 * e * yy * sin(A) * cos(2 * L) - .5 * yy * yy * sin(4 * L) - 1.25 * e * e * sin(2 * A));
+    return 720 - 4 * 138.6007 - eq + 4 * Math.acos(cos(90.833 * r) / (cos(lat) * cos(decl)) - tan(lat) * tan(decl)) / r;
   };
-  window.slSunset = sunsetMinutesUTC; // for checking against published tables
   var showGoldenHour = function () {
-    if (!golden || !window.Intl || !Intl.DateTimeFormat) return;
-    try {
-      var zone = "Australia/Adelaide";
-      var dateParts = function (when) {
-        var parts = {};
-        new Intl.DateTimeFormat("en-AU", { timeZone: zone, year: "numeric", month: "numeric", day: "numeric" })
-          .formatToParts(when).forEach(function (p) { parts[p.type] = Number(p.value); });
-        return parts;
-      };
-      var sunsetOn = function (when) {
-        var p = dateParts(when);
-        return Date.UTC(p.year, p.month - 1, p.day) + sunsetMinutesUTC(p.year, p.month, p.day) * 60000;
-      };
+    try {   // no Intl time zones: the static text stays
+      var zone = "Australia/Adelaide", day = new Intl.DateTimeFormat("en-AU", { timeZone: zone, year: "numeric", month: "numeric", day: "numeric" });
       var time = new Intl.DateTimeFormat("en-AU", { timeZone: zone, hour: "numeric", minute: "2-digit" });
-      var now = Date.now(), sunset = sunsetOn(new Date(now)), start = sunset - 3600000, text;
+      var sunsetOn = function (when) {
+        var p = {};
+        day.formatToParts(when).forEach(function (x) { p[x.type] = Number(x.value); });
+        return Date.UTC(p.year, p.month - 1, p.day) + sunsetMinutesUTC(p.year, p.month, p.day) * 6e4;
+      };
+      var now = Date.now(), sunset = sunsetOn(new Date(now)), start = sunset - 36e5, text;
       if (!isFinite(sunset)) return;
-      if (now < start) text = "Golden hour in Adelaide tonight \u00b7 from " + time.format(start);
-      else if (now < sunset) text = "Golden hour in Adelaide now \u00b7 until " + time.format(sunset);
-      else text = "Golden hour tomorrow \u00b7 from " + time.format(sunsetOn(new Date(now + 86400000)) - 3600000);
+      text = now < start ? "Golden hour in Adelaide tonight \u00b7 from " + time.format(start)
+        : now < sunset ? "Golden hour in Adelaide now \u00b7 until " + time.format(sunset)
+        : "Golden hour tomorrow \u00b7 from " + time.format(sunsetOn(new Date(now + 864e5)) - 36e5);
       golden.classList.add("is-swapping");
       setTimeout(function () { golden.textContent = text; golden.classList.remove("is-swapping"); }, motionOK() ? 300 : 0);
     } catch (e) {}
   };
-  // Only worked out as the footer comes near: the time-zone formatter is costly to create on a slow phone.
-  if (golden) {
-    var later = function () {
-      if ("requestIdleCallback" in window) requestIdleCallback(showGoldenHour, { timeout: 1500 });
+  if (golden) {   // only near the footer: formatters are costly
+    var near = new IntersectionObserver(function (entries) {
+      if (!entries.some(function (x) { return x.isIntersecting; })) return;
+      near.disconnect();
+      if (window.requestIdleCallback) requestIdleCallback(showGoldenHour, { timeout: 1500 });
       else setTimeout(showGoldenHour, 200);
-    };
-    if ("IntersectionObserver" in window) {
-      var near = new IntersectionObserver(function (entries) {
-        if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
-        near.disconnect();
-        later();
-      }, { rootMargin: "0px 0px 900px 0px" });
-      near.observe(golden);
-    } else later();
+    }, { rootMargin: "0px 0px 900px 0px" });
+    near.observe(golden);
   }
 })();

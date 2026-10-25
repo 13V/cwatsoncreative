@@ -1,3 +1,4 @@
+/* bp: legacy */
 /* contact form */
 .enquire-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr); gap: clamp(36px, 6vw, 96px); align-items: start; }
 .form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 20px; }
@@ -7,7 +8,7 @@
 .field label span { letter-spacing: .02em; text-transform: none; color: var(--bush-ink); font-weight: 400; }
 .field input, .field select, .field textarea {
   width: 100%; font: 400 1rem/1.5 var(--sans); color: var(--ink);
-  background: var(--field); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+  background: var(--mist); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
   transition: border-color .2s, box-shadow .2s;
 }
 .field select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--bark) 50%), linear-gradient(135deg, var(--bark) 50%, transparent 50%); background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 44px; }
@@ -20,8 +21,8 @@
 .form-error { grid-column: 1 / -1; background: #F4E4DD; color: #6B2E20; border-radius: 14px; padding: 16px 18px; }
 .form-error a { color: inherit; }
 .form-success {
-  display: grid; justify-items: center; gap: 14px; text-align: center; background: var(--lime);
-  border-radius: var(--arch); padding: clamp(56px, 7vw, 84px) clamp(28px, 5vw, 56px) clamp(40px, 5vw, 56px);
+  display: grid; justify-items: center; gap: 14px; text-align: center; background: var(--limestone);
+  border-radius: var(--r-arch); padding: clamp(56px, 7vw, 84px) clamp(28px, 5vw, 56px) clamp(40px, 5vw, 56px);
 }
 .form-success .eyebrow { margin: 0; justify-content: center; }
 .form-success h2:focus { outline: none; }

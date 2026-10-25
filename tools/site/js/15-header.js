@@ -1,24 +1,28 @@
 
-  // Header: sticky. It gains a hairline once the page has scrolled, slides away while you scroll down and comes back
-  // as soon as you scroll up. It never hides near the top, while the menu is open or while it holds focus, and never
-  // with reduced motion or "Hold still", where it simply stays.
+  // Header (spec §4.2): hides scrolling down, returns scrolling up; never near the top, with the menu open, focus
+  // inside or without motion. html.header-hidden moves the index bar.
   var siteHeader = document.querySelector(".site-header");
   if (siteHeader) {
-    var lastY = Math.max(0, window.scrollY || 0), ticking = false;
-    var updateHeader = function () {
-      ticking = false;
-      var y = Math.max(0, window.scrollY || 0), dy = y - lastY;
-      siteHeader.classList.toggle("is-scrolled", y > 0);
-      if (Math.abs(dy) <= 6) return;
-      var tall = siteHeader.offsetHeight * 2;
-      var hide = dy > 0 && y > tall && motionOK() && !root.classList.contains("menu-open") && !siteHeader.contains(document.activeElement);
+    var lastY = Math.max(0, scrollY), ticking = false;
+    var hideHeader = function (hide, now) {
+      if (now) siteHeader.style.transition = "none";
       siteHeader.classList.toggle("is-hidden", hide);
       root.classList.toggle("header-hidden", hide);
+      if (now) { void siteHeader.offsetWidth; siteHeader.style.transition = ""; }
+    };
+    M.showHeader = function (now) { hideHeader(false, now); };
+    var updateHeader = function () {
+      var y = Math.max(0, scrollY), dy = y - lastY;
+      ticking = false;
+      siteHeader.classList.toggle("is-scrolled", y > 0);
+      if (Math.abs(dy) <= 6) return;
+      hideHeader(dy > 0 && y > siteHeader.offsetHeight * 2 && motionOK() && !root.classList.contains("menu-open") &&
+        !siteHeader.contains(document.activeElement));
       lastY = y;
     };
-    window.addEventListener("scroll", function () {
+    addEventListener("scroll", function () {
       if (!ticking) { ticking = true; requestAnimationFrame(updateHeader); }
     }, { passive: true });
-    siteHeader.addEventListener("focusin", function () { siteHeader.classList.remove("is-hidden"); root.classList.remove("header-hidden"); });
+    siteHeader.addEventListener("focusin", function () { M.showHeader(); });
     updateHeader();
   }

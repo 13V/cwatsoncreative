@@ -1,60 +1,51 @@
-/* buttons and links. Pills fill with a rising "sunrise" (a wide disc rising from below the pill) on hover and
-   keyboard focus; a press dips the pill and lets the first of the light peek in. Arrows reach forward. */
-.btn {
-  --btn-fill: var(--bark);
-  position: relative; isolation: isolate; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 12px;
-  min-height: 52px; padding: 0 30px; border: 1px solid var(--bark); border-radius: 999px; background: transparent; color: var(--bark);
-  font: 500 .8125rem/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; text-decoration: none; cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: color 120ms linear 140ms, transform var(--t-press) var(--ease-light);
-}
-.btn::before {
-  content: ""; position: absolute; z-index: -1; left: -10%; top: 100%; width: 120%; aspect-ratio: 1; border-radius: 50%;
-  background: var(--btn-fill); transform: translateY(0); transition: transform 260ms var(--ease-exit);
-}
-.btn:focus-visible { color: var(--paper); }
-.btn:focus-visible::before { transform: translateY(-58%); transition: transform 420ms var(--ease-light); }
-.btn:active { transform: scale(var(--press-scale)); }
-.btn:active::before { transform: translateY(-14px); transition-duration: var(--t-press); }   /* the first of the light peeks in below the label */
-.btn .arw { flex: none; width: 22px; height: 8.25px; }
-.btn--primary, .btn--solid { --btn-fill: var(--ink); background: var(--bark); border-color: var(--bark); color: var(--paper); }
-.btn--sm { min-height: 40px; padding: 0 20px; font-size: .75rem; letter-spacing: .18em; }
-.btn--sm[aria-current="page"] { border-color: var(--paddock-ink); }
-.btn--sm[aria-current="page"]::after { content: ""; order: -1; width: 5px; height: 5px; border-radius: 50%; background: var(--paddock-ink); }
-.btn[disabled], .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
-.btn[disabled]::before, .btn[aria-disabled="true"]::before { display: none; }
-/* the Send button: "Send ── enquiry"; the rule is also the sending indicator */
-.btn--send { gap: 14px; }
-.btn-rule { display: block; width: 40px; height: 0; border-top: 1px solid currentColor; transform: scaleX(.6); transform-origin: 0 50%;
-  transition: transform 420ms var(--ease-light); }
-.btn--send:focus-visible .btn-rule { transform: none; }
-.btn--send[aria-busy="true"] { opacity: 1; cursor: progress; }
-.btn--send[aria-busy="true"] .btn-rule { transform: none; }
-.m .btn--send[aria-busy="true"] .btn-rule { animation: in-flight 1400ms var(--ease-shutter) infinite; }
-@keyframes in-flight {
-  0% { transform: scaleX(0); transform-origin: 0 50%; } 50% { transform: scaleX(1); transform-origin: 0 50%; }
-  50.1% { transform: scaleX(1); transform-origin: 100% 50%; } 100% { transform: scaleX(0); transform-origin: 100% 50%; }
-}
-@media (forced-colors: active) { .btn::before { display: none; } }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; margin-top: 34px; }
+/* buttons and links (§4.1, M13, D7) */
+.btn{--btn-fill:var(--bark);position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;
+  justify-content:center;gap:var(--sp-12);min-height:52px;padding:0 var(--sp-32);border:1px solid var(--bark);
+  border-radius:var(--r-pill);color:var(--bark);text-decoration:none;cursor:pointer;
+  transition:color var(--t-press) linear 165ms, transform var(--t-press) var(--ease-light)}
 
-/* text link with a long arrow: a gold underline at rest; on hover a Bark underline grows over it and the arrow reaches */
-.link-arrow {
-  position: relative; display: inline-flex; align-items: center; gap: 12px; min-height: 44px;
-  font: 500 .75rem/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; text-decoration: none; color: var(--bark);
-}
-.la-label {
-  padding-bottom: 6px;
-  background: linear-gradient(var(--bark), var(--bark)) 0 100% / 0 1px no-repeat, linear-gradient(var(--paddock), var(--paddock)) 0 100% / 100% 1px no-repeat;
-  transition: background-size var(--t-ui) var(--ease-pen);
-}
-.link-arrow .arw { flex: none; margin-bottom: 6px; overflow: visible; }
-.arw-shaft { transform-origin: 1px 6px; transition: transform var(--t-ui) var(--ease-light); }
-.arw-head { transition: transform var(--t-ui) var(--ease-light); }
-.link-arrow:focus-visible .la-label { background-size: 100% 1px, 100% 1px; }
-.link-arrow:focus-visible .arw-shaft, .btn:focus-visible .arw-shaft { transform: scaleX(1.2); }
-.link-arrow:focus-visible .arw-head, .btn:focus-visible .arw-head { transform: translateX(6px); }
-.link-arrow:active .arw-shaft { transform: scaleX(1.2); transition-duration: var(--t-press); }
-.link-arrow:active .arw-head { transform: translateX(6px); transition-duration: var(--t-press); }
-.link-arrow--light { color: var(--mist, #FBF8F2); }
-.link-arrow--light .la-label { background-image: linear-gradient(#FBF8F2, #FBF8F2), linear-gradient(rgb(251 248 242 / .6), rgb(251 248 242 / .6)); }
+/* the disc rises; the label turns as its edge crosses the midline */
+.btn::before{content:"";position:absolute;z-index:-1;left:-10%;top:100%;width:120%;aspect-ratio:1;border-radius:50%;
+  background:var(--btn-fill);transition:transform 260ms var(--ease-exit)}
+.btn:active{transform:scale(var(--press-scale))}
+.btn:active::before{transform:translateY(-16px);transition-duration:var(--t-press)}
+.btn--sm:active::before{transform:translateY(-12px)}
+.btn:focus-visible{color:var(--paper);transition:color var(--t-press) linear, transform var(--t-press) var(--ease-light)}
+.btn:focus-visible::before{transform:translateY(-58%);transition:transform 420ms var(--ease-light)}
+.btn--primary{--btn-fill:var(--ink);background:var(--bark);color:var(--paper)}
+.btn--sm{min-height:40px;padding:0 var(--sp-20)}
+.btn--sm[aria-current="page"]{border-color:var(--paddock-ink)}
+.btn--block{width:100%}
+.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
+.btn[aria-disabled="true"]::before{display:none}
+.btn .arw{flex:none;width:22px;height:8.25px}
+.btn--send[aria-disabled="true"]{opacity:1;cursor:progress}
+.btn-rule{width:40px;border-top:1px solid;transform:scaleX(.6);transform-origin:0 50%;transition:transform var(--t-ui) var(--ease-light)}
+.btn--send:focus-visible .btn-rule, .is-sending .btn-rule{transform:none}
+.m .is-sending .btn-rule{transform-origin:50% 50%;animation:in-flight 1400ms var(--ease-shutter) infinite}
+@keyframes in-flight{0%{transform:translateX(-50%) scaleX(0)}50%{transform:none}100%{transform:translateX(50%) scaleX(0)}}
+@media (forced-colors:active){.btn::before{display:none}}
+
+/* arrow links */
+.link-arrow{display:inline-flex;align-items:center;gap:var(--sp-12);min-height:44px;color:var(--bark);text-decoration:none}
+.la-label{padding-bottom:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone;
+  transition:background-size var(--t-ui) var(--ease-pen);
+  background:linear-gradient(var(--bark), var(--bark)) 0 100% / 0 1px no-repeat, linear-gradient(var(--paddock), var(--paddock)) 0 100% / 100% 1px no-repeat}
+.link-arrow .arw{flex:none;margin-bottom:6px}
+.arw{--arw-grow:1.2;--arw-reach:5.8px}
+.arw-shaft{transform-origin:1px 6px}
+.arw-shaft, .arw-head, .arw--ne{transition:transform var(--t-ui) var(--ease-light)}
+:is(.link-arrow:focus-visible, .link-arrow:active, .btn:focus-visible) :not(.arw--ne) > .arw-shaft{transform:scaleX(var(--arw-grow))}
+:is(.link-arrow:focus-visible, .link-arrow:active, .btn:focus-visible) :not(.arw--ne) > .arw-head{transform:translateX(var(--arw-reach))}
+.link-arrow:focus-visible .la-label{background-size:100% 1px, 100% 1px}
+:is(.link-arrow, .footer-instagram, .nav-instagram, .sheet-link):focus-visible .arw--ne{transform:translate(2px, -2px)}
+.link-arrow--light{color:var(--mist)}
+.link-arrow--light .la-label{background-image:linear-gradient(var(--mist), var(--mist)), linear-gradient(rgb(251 248 242 / .6), rgb(251 248 242 / .6))}
+.link-arrow--light:focus-visible{outline-color:var(--mist)}
+
+/* bare icon button (viewer; --nudge per button) */
+.btn-bare{display:inline-grid;place-items:center;width:48px;height:48px;padding:0;border:0;background:none;color:var(--mist);opacity:.8;cursor:pointer}
+.btn-bare svg{transition:translate var(--t-ui) var(--ease-light)}
+.btn-bare:focus-visible{opacity:1;outline-color:var(--mist);outline-offset:2px}
+.btn-bare:focus-visible svg{translate:var(--nudge, 0)}
+.btn-bare:active{transform:scale(.96)}

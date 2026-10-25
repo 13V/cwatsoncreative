@@ -1,74 +1,82 @@
-/* ------------------------------------------------------------------ motion
-   The base CSS above is every moment's finished, still frame. Start states live only under .m (motion welcome)
-   and .is-armed (set off-screen by main.js), so with no JS, reduced motion or "Hold still" the site is complete. */
+/* motion: start states under .m on armed elements; dash recipe D9 */
 
-/* First light (M04): on the first page of a visit the logo's frame draws and the sun rises into it */
-.first-light .site-header .mk-line { animation: mk-draw 900ms var(--ease-pen) 150ms backwards; }
-.first-light .site-header .mk-sun { transform-box: view-box; animation: mk-rise var(--t-sun) var(--ease-light) 400ms backwards; }
-.first-light .site-header .mk-wave { animation: mk-draw 400ms var(--ease-pen) 1000ms backwards; }
-@keyframes mk-draw { from { stroke-dasharray: 1 1.05; stroke-dashoffset: 1.02; } to { stroke-dasharray: 1 1.05; stroke-dashoffset: 0; } }
-@keyframes mk-rise { from { transform: translateY(44px); } }
+/* M04 First light */
+.first-light .site-header .mk-line{animation:mk-draw 900ms var(--ease-pen) 150ms backwards}
+.first-light .site-header .mk-sun{transform-box:view-box;animation:mk-rise var(--t-sun) var(--ease-light) 400ms backwards}
+.first-light .site-header .mk-wave{animation:mk-draw 400ms var(--ease-pen) 1000ms backwards}
+@keyframes mk-draw{from{stroke-dasharray:1 2;stroke-dashoffset:1.01}to{stroke-dasharray:1 2;stroke-dashoffset:0}}
+@keyframes mk-rise{from{transform:translateY(44px)}}
 
-/* Through the arch (M01): the next page opens through an arch that rises from where you tapped */
-@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }
-:root { --vt-x: 50%; --vt-w: clamp(96px, 28vw, 320px); --vt-h: calc(var(--vt-w) * 1.45); --vt-top: calc(90svh - var(--vt-h)); } /* from the top, never the bottom */
-::view-transition { background: var(--ink); }   /* the overlay absorbs taps for its 560ms: a habitual second tap never follows an unseen link */
-::view-transition-old(root), ::view-transition-new(root) { mix-blend-mode: normal; }
-::view-transition-old(root) { animation: vt-room var(--t-page) linear both; }
-::view-transition-new(root) { animation: vt-arch var(--t-page) var(--ease-light) both; }
-@keyframes vt-room { to { opacity: var(--dim-room); } }
-@keyframes vt-arch {
-  from { clip-path: inset(var(--vt-top) calc(100% - var(--vt-x) - var(--vt-w) / 2)
-                          calc(100% - var(--vt-top) - var(--vt-h)) calc(var(--vt-x) - var(--vt-w) / 2)
-                          round calc(var(--vt-w) / 2) calc(var(--vt-w) / 2) 0 0); }
-  75% { clip-path: inset(0 0 0 0 round 50vw 50vw 0 0); animation-timing-function: linear; }
-  to { clip-path: inset(0 0 0 0 round 0 0 0 0); }
+/* M01 Through the arch */
+@media (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
+:root{--vt-x:50%;--vt-w:clamp(96px, 28vw, 320px);--vt-h:calc(var(--vt-w) * 1.45);--vt-top:calc(90svh - var(--vt-h))}
+::view-transition{background:var(--ink)}
+::view-transition-old(root), ::view-transition-new(root){mix-blend-mode:normal}
+::view-transition-old(root){animation:vt-room var(--t-page) linear both}
+::view-transition-new(root){animation:vt-arch var(--t-page) var(--ease-light) both}
+@keyframes vt-room{to{opacity:var(--dim-room)}}
+@keyframes vt-arch{
+  from{clip-path:inset(var(--vt-top) calc(100% - var(--vt-x) - var(--vt-w) / 2) calc(100% - var(--vt-top) - var(--vt-h)) calc(var(--vt-x) - var(--vt-w) / 2) round calc(var(--vt-w) / 2) calc(var(--vt-w) / 2) 0 0)}
+  75%{clip-path:inset(0 round 50vw 50vw 0 0);animation-timing-function:linear}
+  to{clip-path:inset(0 round 0)}
 }
-html.vt-quiet::view-transition-old(root) { animation: none; }
-html.vt-quiet::view-transition-new(root) { animation: vt-fade 240ms var(--ease-light) both; }
-@keyframes vt-fade { from { opacity: 0; } }
-.vt-keep .site-header { view-transition-name: site-header; }
-@media (min-width: 861px) { .vt-keep .nav-sun { view-transition-name: nav-sun; } }
-::view-transition-group(site-header) { animation-duration: var(--t-page); }
-::view-transition-group(nav-sun) { animation-duration: 420ms; animation-timing-function: var(--ease-light); }
+html.vt-quiet::view-transition-old(root){animation:none}
+html.vt-quiet::view-transition-new(root){animation:vt-fade 240ms var(--ease-light) both}
+@keyframes vt-fade{from{opacity:0}}
+.vt-keep .site-header{view-transition-name:site-header}
+@media (min-width:861px){.vt-keep .site-header .nav-sun{view-transition-name:nav-sun}}
+::view-transition-group(site-header){animation-duration:var(--t-page)}
+::view-transition-group(nav-sun){animation-duration:420ms;animation-timing-function:var(--ease-light)}
 
-/* Ruled in (M12): hairlines draw themselves as their group arrives */
-.m .eyebrow.is-armed:not(.is-drawn):not(.is-done)::before, .m .eyebrow.is-armed:not(.is-drawn):not(.is-done)::after,
-.m .steps.is-armed:not(.is-drawn):not(.is-done) li::after,
-.m .faq.is-armed:not(.is-drawn):not(.is-done) summary::before,
-.m .aside.is-armed:not(.is-drawn):not(.is-done) div::before,
-.m .tiers.is-armed:not(.is-drawn):not(.is-done) .tier::before,
-.m .tiers.is-armed:not(.is-drawn):not(.is-done) .tier-price::before { transform: scaleX(0); }
-.eyebrow.is-drawn::before, .eyebrow.is-drawn::after { transition: transform 420ms var(--ease-pen); }
-.steps.is-drawn li::after, .aside.is-drawn div::before { transition: transform 700ms var(--ease-pen) calc(var(--i, 0) * var(--stagger-rule)); }
-.faq.is-drawn summary::before { transition: transform 500ms var(--ease-pen) calc(var(--i, 0) * 60ms); }
-.tiers.is-drawn .tier::before, .tiers.is-drawn .tier-price::before { transition: transform 500ms var(--ease-pen) calc(var(--i, 0) * 60ms); }
+/* M02, M12 (D18), M03 line */
+.m :is(.window-arches .frame, .orn .orn-rule, .sundown-scene :is(.dusk-line, .dusk-wave)):is(.is-armed:not(.is-drawn):not(.is-done) *){stroke-dashoffset:1.01}
+.m [data-rules].is-armed:not(.is-drawn):not(.is-done) .step::after, .m [data-rules].is-armed:not(.is-drawn):not(.is-done) :is(summary, .tier, .tier-price, .spec > div, .details > div)::before{transform:scaleX(0)}
+.orn-rule{stroke-dasharray:1 2}
+.window-arches.is-drawn .frame{transition:stroke-dashoffset var(--t-draw) var(--ease-pen) calc(var(--i, 0) * 120ms)}
+.steps.is-drawn .step::after, .details.is-drawn > div::before{transition:transform 700ms var(--ease-pen) calc(var(--i, 0) * var(--stagger-rule))}
+:is(.faq.is-drawn summary, .tiers.is-drawn :is(.tier, .tier-price), .spec.is-drawn > div)::before{transition:transform 500ms var(--ease-pen) calc(var(--i, 0) * 60ms)}
+.orn.is-drawn .orn-rule{transition:stroke-dashoffset 420ms var(--ease-pen)}
 
-/* Sundown (M03): the line draws once; the light follows the thumb where scroll timelines exist */
-.m .sundown.is-armed:not(.is-drawn):not(.is-done) .dusk-line,
-.m .sundown.is-armed:not(.is-drawn):not(.is-done) .dusk-wave { stroke-dashoffset: 1.02; }
-.sundown.is-drawn .dusk-line { transition: stroke-dashoffset 1600ms var(--ease-pen); }
-.sundown.is-drawn .dusk-line--front { transition: stroke-dashoffset 700ms var(--ease-pen) 1100ms; }
-.sundown.is-drawn .dusk-wave { transition: stroke-dashoffset 400ms var(--ease-pen) 1600ms; }
-.m .sundown.is-drawn .glint { animation: glint 700ms var(--ease-shutter) 2300ms backwards; }
-@keyframes glint { from { stroke-dashoffset: .15; } to { stroke-dashoffset: -1.2; } }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    :root:not(.still) .site-footer { view-timeline: --dusk block; }
-    :root:not(.still) .dusk-sun { animation: sun-set linear both; animation-timeline: --dusk; animation-range: entry 0% entry 90%; }
-    :root:not(.still) .sky-gold { animation: fade-in linear both; animation-timeline: --dusk; animation-range: entry 20% entry 90%; }
-    :root:not(.still) .sundown-word > span { animation: rise-word linear both; animation-timeline: --dusk; animation-range: entry 55% entry 90%; }
+/* M10 prints in the tray */
+.m .ph--tray.is-armed::after{content:"";position:absolute;inset:0 0 auto;height:150%;pointer-events:none;
+  background:linear-gradient(rgb(246 242 234 / .86) 50%, rgb(236 222 200 / .86) 66%, rgb(236 222 200 / 0))}
+.m .ph--tray.is-armed img{transform:scale(var(--settle-print));transition:none}
+.m .ph--tray.is-developing::after{transform:translateY(-100%);transition:transform var(--t-develop) var(--ease-light)}
+.m .ph--tray.is-developing img{transform:none;transition:transform 1400ms var(--ease-light)}
+
+/* M03 Sundown */
+.sundown-scene.is-drawn .dusk-line{transition:stroke-dashoffset 1600ms var(--ease-pen)}
+.sundown-scene.is-drawn .dusk-line--front{transition:stroke-dashoffset 700ms var(--ease-pen) 1100ms}
+.sundown-scene.is-drawn .dusk-wave{transition:stroke-dashoffset 400ms var(--ease-pen) 1600ms}
+.m .sundown-scene.is-drawn .glint{animation:glint 700ms var(--ease-shutter) 2300ms backwards}
+@keyframes glint{from{stroke-dashoffset:.1}to{stroke-dashoffset:-1.2}}
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    :root:not(.still):not([data-nf]){
+      .site-footer{view-timeline:--dusk block;view-timeline-inset:0px}
+      .dusk-sun{animation:sun-set linear both;animation-timeline:--dusk;animation-range:entry 0% entry 90%}
+      .sky-gold{animation:fade-in linear both;animation-timeline:--dusk;animation-range:entry 20% entry 90%}
+      .sundown-word > span{animation:rise-word linear both;animation-timeline:--dusk;animation-range:entry 55% entry 90%}
+    }
   }
 }
-@keyframes sun-set { from { transform: translateY(var(--rise)); } to { transform: translateY(var(--set)); } }
-@keyframes fade-in { from { opacity: 0; } }
-@keyframes rise-word { from { transform: translateY(var(--rise-line)); } }
-@supports not (animation-timeline: view()) {   /* no scroll timelines: the same sunset plays once */
-  .m .sundown.is-armed:not(.is-dusk):not(.is-done) .dusk-sun { transform: translateY(var(--rise)); }
-  .m .sundown.is-armed:not(.is-dusk):not(.is-done) .sky-gold { opacity: 0; }
-  .m .sundown.is-armed:not(.is-dusk):not(.is-done) .sundown-word > span { transform: translateY(var(--rise-line)); }
-  .sundown.is-dusk .dusk-sun { transition: transform 2400ms var(--ease-light); }
-  .sundown.is-dusk .sky-gold { transition: opacity 2000ms var(--ease-light) 300ms; }
-  .sundown.is-dusk .sundown-word > span { transition: transform 900ms var(--ease-light) 900ms; }
+@keyframes sun-set{from{transform:translateY(var(--rise))}to{transform:translateY(var(--set))}}
+@keyframes fade-in{from{opacity:0}}
+@keyframes rise-word{from{transform:translateY(var(--rise-line))}}
+@supports not (animation-timeline:view()){
+  .m:not([data-nf]) .sundown-scene.is-armed:not(.is-dusk):not(.is-done){
+    .dusk-sun{transform:translateY(var(--rise))}
+    .sky-gold{opacity:0}
+    & + .sundown-word > span{transform:translateY(var(--rise-line))}
+  }
+  .sundown-scene.is-dusk .dusk-sun{transition:transform 2400ms var(--ease-light)}
+  .sundown-scene.is-dusk .sky-gold{transition:opacity 2000ms var(--ease-light) 300ms}
+  .sundown-scene.is-dusk + .sundown-word > span{transition:transform 900ms var(--ease-light) 900ms}
 }
 
+/* 404 dusk (D12) */
+#nf-mark .mk-sun{transform:translateY(44px);transition:translate 500ms var(--ease-light)}
+.m[data-nf] #nf-mark:not(.is-dusk):not(.is-done){.mk-sun{transform:none}.nf-dusk{opacity:0}}
+#nf-mark.is-dusk .mk-sun{transition:transform 2400ms var(--ease-light) 400ms, translate 500ms var(--ease-light)}
+#nf-mark.is-dusk .nf-dusk{transition:opacity 2000ms var(--ease-light) 400ms}
+[data-nf]:has(.nf-home:focus-visible) #nf-mark .mk-sun{translate:0 -24px}

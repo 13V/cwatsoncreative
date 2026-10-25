@@ -1,6 +1,7 @@
+/* bp: legacy */
 /* investment: one card per session, and the kind words page: one card per review */
 .packages, .reviews { display: grid; gap: clamp(24px, 4vw, 48px); }
-.package, .review { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: var(--lime); }
+.package, .review { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: var(--limestone); }
 .review { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
 .package { scroll-margin-top: 24px; }
 .package:nth-child(even) > .ph, .review:nth-child(even) > .ph { order: 2; }

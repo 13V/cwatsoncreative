@@ -1,16 +1,63 @@
-// Every page loads, the tabs are right and nothing links to retired pages.
+// Every page loads with its data-page, one h1, a focusable main and the four tabs; nothing links to retired pages;
+// only the Kind words holding page is kept out of search; the 404 works at any depth (no <base>, root-absolute URLs).
+const { PAGES } = require('./lib');
+const KIND = { index: 'home' };
+
 module.exports = async ({ browser: b, base, ok, watch }) => {
-  {
-    const p = await b.newPage(); watch(p);
-    for (const name of ['index', 'gallery', 'investment', 'kind-words', 'contact', 'privacy', '404']) {
-      const r = await p.goto(`${base}/${name}.html`, { waitUntil: 'networkidle' });
-      ok(r.status() === 200, `${name}.html loads`);
-    }
-    await p.goto(`${base}/index.html`);
-    const nav = await p.$$eval('#site-nav a:not(.nav-instagram)', as => as.map(a => a.textContent.trim()));
-    ok(JSON.stringify(nav) === JSON.stringify(['Gallery', 'Investment', 'Kind words', 'Contact']), 'tabs are Gallery, Investment, Kind words, Contact (' + nav.join(', ') + ')');
-    const links = await p.$$eval('a[href]', as => as.map(a => a.getAttribute('href')));
-    ok(!links.some(h => /portfolio\.html|sessions\.html|about\.html|enquire\.html/.test(h)), 'no links to the retired pages');
-    await p.close();
+  const p = await b.newPage(); watch(p);
+  for (const name of PAGES) {
+    const r = await p.goto(`${base}/${name}.html`, { waitUntil: 'networkidle' });
+    const s = await p.evaluate(() => ({
+      page: document.documentElement.dataset.page,
+      h1: document.querySelectorAll('h1').length,
+      main: !!document.querySelector('main#main[tabindex="-1"]') && document.querySelectorAll('main').length === 1,
+      top: !!document.querySelector('header.site-header[tabindex="-1"]') && (document.querySelector('a.to-top') || {}).hash === '#top',
+      skip: (document.querySelector('a.skip') || {}).hash === '#main',
+      tabs: [...document.querySelectorAll('#site-nav > a')].map(a => a.textContent.trim()),
+      links: [...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href')),
+      robots: [...document.querySelectorAll('meta[name="robots"]')].map(m => m.content).join(' '),
+    }));
+    ok(r.status() === 200 && s.page === (KIND[name] || name), `${name}.html loads with data-page="${s.page}"`);
+    ok(s.h1 === 1, `${name}: one h1 (${s.h1})`);
+    ok(s.main && s.top && s.skip, `${name}: main#main[tabindex=-1], the header [tabindex=-1], Back to top (#top) and the skip link to #main`);
+    ok(JSON.stringify(s.tabs) === JSON.stringify(['Gallery', 'Investment', 'Kind words', 'Contact']),
+       `${name}: tabs are Gallery, Investment, Kind words, Contact (${s.tabs.join(', ')})`);
+    ok(!s.links.some(h => /(^|\/)(portfolio|sessions|about|enquire)\.html/.test(h)), `${name}: no links to the retired pages`);
+    ok(/noindex/.test(s.robots) === (name === 'kind-words'), `${name}: ${name === 'kind-words' ? 'kept out of search (holding page)' : 'indexable'}`);
   }
+
+  // Back to top reaches the top with and without JS (the sticky header cannot be the #top target: stuck, it is always
+  // "in view", so a jump to it goes nowhere), and with JS focus lands on the header.
+  for (const js of [true, false]) {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: js, reducedMotion: 'reduce' });
+    const q = await ctx.newPage(); watch(q);
+    await q.goto(`${base}/investment.html`, { waitUntil: 'networkidle' });
+    await q.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await q.waitForTimeout(200);
+    await q.click('.to-top'); await q.waitForTimeout(400);
+    const t = await q.evaluate(() => ({ y: Math.round(scrollY), focus: document.activeElement.classList.contains('site-header') }));
+    ok(t.y === 0 && (t.focus || !js), `Back to top ${js ? 'with' : 'without'} JS goes to the top (y ${t.y})${js ? ' and focuses the header' : ''}`);
+    await ctx.close();
+  }
+
+  // The 404 is served for missing paths at any depth: every URL on it must resolve from the site root.
+  const r = await p.goto(`${base}/404.html`, { waitUntil: 'networkidle' });
+  const urls = await p.evaluate(() => {
+    const out = [];
+    document.querySelectorAll('[href], [src], [srcset], [imagesrcset]').forEach(el => {
+      for (const a of ['href', 'src']) if (el.hasAttribute(a)) out.push(el.getAttribute(a));
+      for (const a of ['srcset', 'imagesrcset']) if (el.hasAttribute(a)) el.getAttribute(a).split(',').forEach(c => out.push(c.trim().split(/\s+/)[0]));
+    });
+    return { base: !!document.querySelector('base'), bad: out.filter(u => !/^(\/|#|https?:|mailto:)/.test(u)) };
+  });
+  ok(r.status() === 200 && !urls.base && !urls.bad.length, '404.html: no <base>, every href/src root-absolute' + (urls.bad.length ? ': ' + urls.bad.slice(0, 5).join(', ') : ''));
+  const q = await b.newPage(); watch(q, /\/no\/such\/page$/);
+  const deep = await q.goto(`${base}/no/such/page`, { waitUntil: 'networkidle' });
+  const d = await q.evaluate(() => ({
+    page: document.documentElement.dataset.page,
+    styled: document.styleSheets.length > 0 && [...document.styleSheets].every(s => { try { return s.cssRules.length > 0; } catch (e) { return false; } }),
+    skip: document.querySelector('a.skip').href === location.href.split('#')[0] + '#main',
+  }));
+  ok(deep.status() === 404 && d.page === '404' && d.styled && d.skip, 'a missing deep path shows the styled 404, and its skip link stays on the page');
+  await q.close();
+  await p.close();
 };
