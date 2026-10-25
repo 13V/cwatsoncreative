@@ -270,7 +270,7 @@
       targets.forEach((t) => spy.observe(t));
     }
   }
-  // Contact: ?session=Wedding (the "Enquire about…" links) arrives with that chip chosen.
+  // Contact: ?session=Wedding arrives with that chip chosen (§4.18).
   for (const r of document.querySelectorAll('[name="session"]')) if (r.value == new URLSearchParams(location.search).get("session")) r.checked = true;
   // Photo viewer: arrows, keys and swipes; the next photo loads while you look at this one.
   var viewer = document.querySelector(".lightbox");
@@ -350,8 +350,7 @@
     }, { passive: true });
   }
 
-  // Enquiry (§4.18, M09, D15): fields check on blur once typed in (chips on leaving them) and on send; a fixed
-  // field clears at once. #form-live, outside the form, says everything.
+  // Enquiry (§4.18, M09, D15): a field checks on blur once typed in, and on send. #form-live sits outside the form.
   enquiry: {
     const form = document.getElementById("enquiry-form");
     if (!form) break enquiry;
@@ -383,7 +382,7 @@
       if (a) { e.preventDefault(); $(a.hash.slice(1)).focus(); }
     });
 
-    // M09: a couple whole (≤ 24 characters) or a clear first name; never a title or a surname.
+    // M09: a couple whole (≤ 24 characters) or a clear first name; no titles, no surnames.
     const firstName = v => {
       v = v.trim().replace(/\s+/g, " ").replace(/[\s.,;:!?]+$/, "");
       if (/^((mr|mrs|ms|miss|mx|dr)\b|the )/i.test(v)) return "";
@@ -392,7 +391,7 @@
       return !/^\p{L}[\p{L}'’-]{0,22}\p{L}$/u.test(v) ? "" : v == v.toLowerCase() || v == v.toUpperCase() ? v[0].toUpperCase() + v.slice(1).toLowerCase() : v;
     };
     const sending = on => { form.classList.toggle("is-sending", on); attr(form, "aria-busy", on); attr(form.querySelector("button"), "aria-disabled", on); };
-    const sent = play => {   // motion: the fields fade, the card rises through its arch (CSS)
+    const sent = play => {   // motion: fields fade, the card rises through its arch (CSS)
       const n = firstName(form.elements.name.value), em = document.createElement("em"), hide = () => form.classList.add("is-sent");
       const focus = () => title.focus();
       em.textContent = n;
@@ -401,6 +400,8 @@
       live.textContent = "Enquiry sent. " + title.textContent;
       card.hidden = false;
       form.inert = true;
+      const top = card.getBoundingClientRect().top;
+      if (top < 0) scrollBy(0, top - 16);   // short phones
       if (play && !motionOK()) return M.calm(form, "out").then(a => { hide(); a && a.cancel(); }), M.calm(card, "in").then(focus);
       hide();
       if (!play) return focus();
@@ -418,7 +419,7 @@
         li.firstChild.textContent = err(li.dataset.n).lastChild.textContent;
       });
       if ((sum.hidden = !bad.length)) {
-        if (form.elements.company.value) return sent();   // honeypot: bots get the card; nothing is sent
+        if (form.elements.company.value) return sent();   // honeypot: the card, nothing sent
         const data = {};
         for (const [k, v] of new FormData(form)) if (k != "company") data[k] = v.trim();
         data.heard ??= "";
