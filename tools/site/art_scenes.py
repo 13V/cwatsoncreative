@@ -29,19 +29,23 @@ def _svg(cls, w, h, body, slice_=False):
             f'{body}</svg>')
 
 
-def _draw(d, n, stroke, sw, cls=''):
+def _draw(d, n, stroke=None, sw=None, cls=''):
+    """A self-drawing stroke. stroke and sw may be left to inherit from a parent group."""
     c = f'draw {cls}' if cls else 'draw'
-    return (f'<path class="{c}" pathLength="1" style="--d:{n}" d="{d}" fill="none" stroke="{stroke}" '
-            f'stroke-width="{sw}"/>')
+    paint = (f' fill="none" stroke="{stroke}"' if stroke else '') + (f' stroke-width="{sw}"' if sw else '')
+    return f'<path class="{c}" pathLength="1" style="--d:{n}" d="{d}"{paint}/>'
 
 
-def _sprig(x, y, n, stroke, sw=1.3, leaf=2.6, scale=1, flip=False, rot=0):
-    """A tiny saltbush sprig standing at (x, y): the stem draws, then its leaves (short round dabs) together."""
+def _sprig(x, y, n, stroke, sw=1.3, leaf=2.3, scale=1, flip=False, rot=0):
+    """A tiny saltbush sprig standing at (x, y): the stem draws, then its leaves (short round dabs) together.
+    The placing transform sits on an outer <g>, so a CSS transform on .sc-sprig (say, a grow from the base with
+    transform-box: fill-box; transform-origin: 50% 100%) does not knock it out of place."""
     t = (f'translate({x} {y})' + (f' rotate({rot})' if rot else '')
          + (f' scale({-scale if flip else scale} {scale})' if scale != 1 or flip else ''))
-    stems = ''.join(_draw(d, n, stroke, sw) for d in _SPRIG_STEMS)
-    leaves = ''.join(_draw(d, n + 1, stroke, leaf) for d in _SPRIG_LEAVES)
-    return f'<g class="sc-sprig" transform="{t}">{stems}{leaves}</g>'
+    stems = ''.join(_draw(d, n, sw=sw) for d in _SPRIG_STEMS)
+    leaves = ''.join(_draw(d, n + 1) for d in _SPRIG_LEAVES)
+    return (f'<g transform="{t}" fill="none" stroke="{stroke}" stroke-width="{leaf}">'
+            f'<g class="sc-sprig">{stems}{leaves}</g></g>')
 
 
 # A sprig drawn standing on (0, 0), about 27 units tall: one stem arching a little to the right, and the
@@ -64,9 +68,10 @@ _HZ_MID = ('M0,213C80,208.3 161.7,198.8 240,199C318.3,199.2 390,209.7 470,214C55
 _HZ_NEAR = ('M0,200C43.3,198 80,192.7 130,194C180,195.3 238.3,201.7 300,208C361.7,214.3 433.3,226.2 500,232'
             'C566.7,237.8 625,240.7 700,243C775,245.3 870,246.5 950,246C1030,245.5 1116.7,242.3 1180,240'
             'C1243.3,237.7 1286.7,232.7 1330,232C1373.3,231.3 1403.3,234.7 1440,236V260H0Z')
-# a pencil ring round the top of the sun, not quite concentric, open at both ends
-_HZ_RING = ('M768.2,165.2C777,147.9 781.6,126.5 794.6,113.4C807.7,100.3 828.1,90.2 846.6,86.4'
-            'C865.1,82.5 888,83.6 905.6,90.5C923.2,97.4 936.7,115.4 952.2,127.8')
+# a pencil ring round the sun, a little wider on the right; both ends tuck behind the far hill
+_HZ_RING = ('M766.2,198.2C768.9,179.7 766.6,158.8 774.2,142.6C781.9,126.3 796.9,110.7 812.2,100.9'
+            'C827.5,91.2 848,84 866,83.9C884,83.8 904.8,90.5 920.3,100.2C935.8,109.9 950.9,125.7 958.8,142.1'
+            'C966.7,158.5 964.8,179.7 967.7,198.5')
 _HZ_WAVES = (
     'M708,253q14.2,-6.7 28.4,0.2q13.8,6.2 27.7,-0.1q14.1,-6 28.2,0.3q13.8,6.6 27.5,-0.2q14.2,-6.5 28.3,0'
     'q14.1,6.1 28.1,0.1q14.2,-6.7 28.4,0.2q13.8,6.2 27.7,-0.1',
@@ -91,7 +96,7 @@ def horizon(cls='horizon', uid='ft'):
             f'<path class="sc-hill-mid" d="{_HZ_MID}" fill="{SALTBUSH}"/>'
             f'<path class="sc-hill-near" d="{_HZ_NEAR}" fill="{DEEP_BUSH}"/>'
             + ''.join(_draw(d, i + 1, GULF, 3, 'sc-wave') for i, d in enumerate(_HZ_WAVES))
-            + _sprig(146, 196, 3, BUSH_INK, scale=1.15, rot=-4) + _sprig(156, 196.5, 3, BUSH_INK, scale=.75, flip=True, rot=14)
+            + _sprig(146, 196, 3, BUSH_INK, scale=1.15, rot=-4) + _sprig(157, 196.5, 3, BUSH_INK, scale=.75, flip=True, rot=-12)
             + _sprig(176, 197, 3, BUSH_INK, scale=.6, rot=10) + _sprig(560, 238, 5, BUSH_INK, rot=-3))
     return _svg(cls, 1440, 260, body, slice_=True)
 
@@ -105,9 +110,10 @@ _AS_NEAR = 'M25,205C70,184.5 118,203 148,191C158,187 166,183.6 175,182V240H25Z'
 _AS_WAVE = 'M47.5,219.5q11.3,-6.4 22.6,0.1q11.2,6.1 22.4,-0.1q11.4,-6.2 22.5,0.2q11.1,6.3 22.4,-0.2q11.3,-6 22.6,0'
 
 
-def arch_scene(cls='arch-scene', uid='a'):
+def arch_scene(cls='arch-scene', uid='a', line=BARK, sprig=BUSH_INK):
     """The logo's arch window at 200 x 250: Bark outline on a ground line, a warm sky, the sun (clipped inside,
-    free to rise or set), two hills and the gulf. uid prefixes the clip and gradient ids."""
+    free to rise or set), two hills and the gulf, with a saltbush sprig at its foot. uid prefixes the clip and
+    gradient ids. line colours the arch and the ground, sprig the sprig (on a dark ground: PAPER and FAR_HILL)."""
     g = f'as-{escape(uid)}'
     body = (f'<defs><clipPath id="{g}-clip"><path d="{_AS_ARCH}Z"/></clipPath>'
             f'<linearGradient id="{g}-sky" x1="0" y1="0" x2="0" y2="1"><stop offset=".1" stop-color="{LIME}"/>'
@@ -117,7 +123,8 @@ def arch_scene(cls='arch-scene', uid='a'):
             f'<path class="sc-hill-far" d="{_AS_FAR}" fill="{FAR_HILL}"/>'
             f'<path class="sc-hill-near" d="{_AS_NEAR}" fill="{SALTBUSH}"/>'
             f'{_draw(_AS_WAVE, 2, GULF, 3.6, "sc-wave")}</g>'
-            f'{_draw(_AS_GROUND, 0, BARK, 3)}{_draw(_AS_ARCH, 1, BARK, 4, "sc-arch")}')
+            f'{_draw(_AS_GROUND, 0, line, 3)}{_draw(_AS_ARCH, 1, line, 4, "sc-arch")}'
+            f'{_sprig(180.5, 231, 3, sprig, scale=1.05, rot=3)}{_sprig(186, 231.4, 3, sprig, scale=.6, rot=16)}')
     return _svg(cls, 200, 250, body)
 
 
@@ -130,9 +137,9 @@ _MV_WAVE = 'M168,114q8,-4.2 16,0.1q8,4 16,-0.1q8.1,-4.1 16.1,0.1q7.9,4.2 15.9,-0
 def menu_vignette(cls='menu-vignette'):
     """A light sun-and-hills strip, 390 x 120, for the bottom of the phone menu. Sliced from the bottom centre."""
     body = (f'<circle class="sc-sun" cx="236" cy="96" r="30" fill="{PADDOCK}"/>'
-            f'<path class="sc-hill-far" d="{_MV_FAR}" fill="#D6D6C9"/>'
-            f'<path class="sc-hill-near" d="{_MV_NEAR}" fill="#B5BAA5"/>'
-            f'{_draw(_MV_WAVE, 0, GULF, 2.2, "sc-wave")}')
+            f'<path class="sc-hill-far" d="{_MV_FAR}" fill="#CFD0C2"/>'
+            f'<path class="sc-hill-near" d="{_MV_NEAR}" fill="#959C84"/>'
+            f'{_draw(_MV_WAVE, 0, GULF, 2.4, "sc-wave")}')
     return _svg(cls, 390, 120, body, slice_=True)
 
 
@@ -144,7 +151,7 @@ _TS_WAVE = 'M14,44.2q3,-1.7 6,0q3,1.7 6,0q3,-1.7 6,0q3,1.7 6,0'
 _TS_HEIGHT = {4: 35, 6: 29.5, 8: 24, 10: 18.5, 12: 13}
 
 
-def tier_sun(hours, cls='tier-sun', uid=None):
+def tier_sun(hours, cls='tier-sun', uid=None, line=BARK):
     """A small arch of sky, 64 x 48, with the sun as high as the package is long: 4 hours sits on the hills,
     12 hours is high in the arch. Other hour counts fall in between. uid defaults to the hours."""
     h = max(4, min(12, float(hours)))
@@ -154,20 +161,23 @@ def tier_sun(hours, cls='tier-sun', uid=None):
     g = f'ts-{escape(str(uid if uid is not None else hours))}'
     body = (f'<defs><clipPath id="{g}"><path d="{_TS_ARCH}"/></clipPath></defs>'
             f'<g clip-path="url(#{g})"><rect x="2" y="0" width="60" height="48" fill="{LIME}"/>'
-            f'<circle class="sc-sun" cx="32" cy="{cy:g}" r="6" fill="{PADDOCK}"/>'
+            f'<circle class="sc-sun" cx="32" cy="{round(cy, 1):g}" r="6" fill="{PADDOCK}"/>'
             f'<path class="sc-hill-far" d="{_TS_FAR}" fill="{FAR_HILL}"/>'
             f'<path class="sc-hill-near" d="{_TS_NEAR}" fill="{SALTBUSH}"/>'
             f'{_draw(_TS_WAVE, 1, GULF, 1.3, "sc-wave")}</g>'
-            f'{_draw(_TS_ARCH, 0, BARK, 1.5, "sc-arch")}')
+            f'{_draw(_TS_ARCH, 0, line, 1.5, "sc-arch")}')
     return _svg(f'{cls} {cls}--{hours:g}' if isinstance(hours, (int, float)) else cls, 64, 48, body)
 
 
 # --- placeholder_svg: images/placeholder.svg ------------------------------------------------------------
-_PH_ARCH = 'M86,600V330C86,267 137,216 200,216C263,216 314,267 314,330V600'
-_PH_FAR = 'M0,436C40,424 84,410 130,410C176,410 204,428 240,428C278,428 300,406 340,404C364,403 384,407 400,411V600H0Z'
-_PH_MID = 'M0,480C44,468 96,458 150,459C214,460 246,481 296,481C336,481 370,468 400,463V600H0Z'
-_PH_NEAR = 'M0,538C34,528 76,520 118,521C170,522 206,540 256,540C310,540 356,524 400,518V600H0Z'
-_PH_WAVE = 'M120,566q12,-6.5 24,0.1q12,6.3 24,-0.1q12.1,-6.4 24.1,0.2q11.9,6.4 23.9,-0.2q12,-6.2 24,0q12,6.4 24,0'
+_PH_ARCH = 'M74,600V342C74,272.4 130.4,216 200,216C269.6,216 326,272.4 326,342V600'
+_PH_FAR = ('M0,452C40,448.3 80.7,446.2 120,441C159.3,435.8 201,428.3 236,421C271,413.7 302.7,402.3 330,397'
+           'C357.3,391.7 376.7,391.7 400,389V600H0Z')
+_PH_MID = ('M0,506C36.7,499.3 73.3,487.7 110,486C146.7,484.3 185,497.3 220,496C255,494.7 290,482.3 320,478'
+           'C350,473.7 373.3,472.7 400,470V600H0Z')
+_PH_NEAR = ('M0,560C36.7,554.7 71.7,544.7 110,544C148.3,543.3 193.3,556.7 230,556C266.7,555.3 301.7,543.3 330,540'
+            'C358.3,536.7 376.7,537.3 400,536V600H0Z')
+_PH_WAVE = 'M130,576q12.2,-6.5 24.4,0.2q11.8,6 23.7,-0.1q12.1,-5.8 24.2,0.3q11.8,6.4 23.5,-0.2q12.2,-6.3 24.3,0q12.1,5.9 24.1,0.1'
 
 
 def placeholder_svg():

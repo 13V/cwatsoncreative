@@ -14,7 +14,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from content import (PHOTOS, PORTFOLIO_WEDDINGS, EXTRA_GALLERIES, SESSIONS, STEPS, FAQ, INSTAGRAM, ENDPOINT,  # noqa: E402
                      FOCUS, FORM_SESSION, FORM_OPTIONS, HERO, HERO_CAPTION, HOME_WINDOWS, INTRO, TILES, INSTAGRAM_STRIP,
-                     KIND_WORDS, KIND_WORDS_ARE_PLACEHOLDERS, INVESTMENT_HERO, INVESTMENT_INTRO,
+                     KIND_WORDS, KIND_WORDS_ARE_PLACEHOLDERS, KIND_WORDS_HOLDING_PHOTO, INVESTMENT_HERO, INVESTMENT_INTRO,
                      WEDDING_PACKAGES, WEDDING_INCLUDES, WEDDING_TERMS)
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))  # the photos are looked up here
@@ -338,7 +338,9 @@ def duo(first=('contact.html', 'Contact', 'Check my dates'), second=('investment
 
 
 def kind_words(uid='words'):
-    """The Kind words slider: a photo beside the words, one review at a time."""
+    """The Kind words slider: a photo beside the words, one review at a time. Nothing until real reviews exist."""
+    if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:
+        return ''
     n = len(KIND_WORDS)
     photos = ''.join(fig(k, SIZES['card'], 'words-photo' + (' is-current' if i == 0 else ''), alt='')
                      for i, (_, _, _, k) in enumerate(KIND_WORDS))
@@ -526,6 +528,20 @@ def investment():
 
 
 def kind_words_page():
+    if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:
+        ig_name, ig_url = INSTAGRAM
+        main = f'''<section class="page-head holding"><div class="wrap narrow">
+{fig(KIND_WORDS_HOLDING_PHOTO, "(max-width: 600px) 64vw, 380px", "arch holding-photo", priority=True)}
+<p class="eyebrow">Kind words</p><h1>From the people <em>in the photos.</em></h1>
+<p class="lead">This is where couples and families share how their sessions felt. The first few are on their way. In the meantime, the newest sessions go up on Instagram first.</p>
+<div class="actions">{link_arrow(ig_url, "Newest sessions on Instagram")}</div>
+</div></section>
+
+{instagram_strip()}'''
+        out = page('kind-words.html', 'Kind words | Sunday Light',
+                   'What couples and families say about their sessions with Sunday Light, Adelaide photographer.', main)
+        # kept out of search until there are real reviews to show
+        return out.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta name="robots" content="noindex">', 1)
     reviews = ''.join(
         f'<article class="review">{fig(k, SIZES["card"], "review-photo", priority=i == 0, alt="")}<div class="review-panel">'
         f'<blockquote><p>“{e(q)}”</p></blockquote><p class="review-name">{e(who)}</p><p class="review-session">{e(s)}</p>'
@@ -534,7 +550,7 @@ def kind_words_page():
 
 <section class="section reviews-section"><div class="wrap">
 <div class="reviews">{reviews}</div>
-<div class="center">{button("contact.html", "Book a session")}</div>
+<div class="center">{button("contact.html", "Check my dates")}</div>
 </div></section>
 
 {instagram_strip()}'''

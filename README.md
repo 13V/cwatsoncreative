@@ -93,11 +93,12 @@ at the top of the Gallery page, appears once it has at least one photo.
 
 ## Kind words
 
-The three reviews are placeholders and say so. To add real ones, edit `KIND_WORDS` in
-`tools/site/content.py`. Each review is the names, the session, the words and a photo (a key from
-`PHOTOS`, ideally from that couple's or family's session). Three to six works best. Then set
-`KIND_WORDS_ARE_PLACEHOLDERS = False` and rebuild; until then every build prints a reminder. The home,
-Gallery and Investment pages show one review at a time with arrows, and the Kind words page shows them all.
+There are no real reviews yet, so none are shown anywhere: `KIND_WORDS` in `tools/site/content.py` is empty and
+`KIND_WORDS_ARE_PLACEHOLDERS` is `True`. The Kind words page shows an honest holding state (a photo, a short line and
+a link to Instagram) and is kept out of search; the other pages show no review section. To add reviews, add entries
+to `KIND_WORDS` as `(names, session, words, photo key)`, three to six works best, and only pair a review with a photo
+of the people who wrote it. Then set `KIND_WORDS_ARE_PLACEHOLDERS = False` and rebuild; until then every build prints
+a reminder.
 
 ## Prices
 
@@ -115,6 +116,14 @@ The words, photo slots and galleries are in `tools/site/content.py`, and the pag
 `tools/site/js/`; the build joins them, in file-name order, into `styles.css` and `main.js`. After changing any of
 these, run `python3 tools/site/build.py` to rewrite the HTML, `styles.css` and `main.js`. Don't edit the joined files
 directly: the next build overwrites them.
+
+## Tests
+
+`tools/tests/` holds browser checks for every page: navigation, the enquiry form (with the webhook mocked), prices
+and packages, the photo viewer, the phone menu, the photo windows, the motion system and phone layouts at eight
+sizes. Serve the folder (for example `npx serve -c '{"cleanUrls": false}' .`) and run
+`node tools/tests/run.js http://localhost:3000`, or add a name to run one file
+(`node tools/tests/run.js http://localhost:3000 investment`). They need Playwright with Chromium.
 
 ## Enquiry form
 

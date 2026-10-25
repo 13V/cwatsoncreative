@@ -136,21 +136,13 @@ TILES = [('Weddings', 'bougainvillea-embrace', 'gallery.html#weddings'),
 INSTAGRAM_STRIP = ['gilded-mirror', 'bridesmaids-seated', 'car-window-smile', 'grass-overhead', 'winery-champagne',
                    'groomsmen-steps']
 
-# Kind words: (names, session, words, photo key). These are placeholders until real reviews arrive.
-# Replace them with reviews from real clients and set KIND_WORDS_ARE_PLACEHOLDERS to False; until then
-# every build prints a reminder.
+# Kind words. Until real reviews arrive this stays empty and KIND_WORDS_ARE_PLACEHOLDERS stays True: no review text,
+# name or attribution reaches any page, the Kind words page shows an honest holding state (and is kept out of search),
+# and the other pages show no reviews at all. Real entries are (names, session, words, photo key), and a photo may only
+# sit beside a review if it is of the people who wrote it.
 KIND_WORDS_ARE_PLACEHOLDERS = True
-KIND_WORDS = [
- ('A couple’s names', 'Wedding',
-  'Their words will go here: a few lines about the day, the photos and how it felt to be in front of the camera.',
-  'castle-laugh'),
- ('A family’s names', 'Family session',
-  'A review from a family will go here. Send three to six favourites and they’ll replace these placeholders.',
-  'olive-grove-confetti'),
- ('Another couple', 'Couples session',
-  'One more set of kind words will go here, from an engagement, a maternity or a newborn session.',
-  'silver-car-bouquet'),
-]
+KIND_WORDS = []
+KIND_WORDS_HOLDING_PHOTO = 'jaguar-kiss'
 
 # Investment page
 INVESTMENT_HERO = ('bridesmaids-steps', 'groomsmen-steps')

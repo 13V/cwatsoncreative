@@ -366,6 +366,11 @@ p { margin: 0; }
   .words-photos { aspect-ratio: 4 / 5; }
 }
 
+
+/* Kind words holding state (no reviews yet): an arch photo over the page head */
+.holding .holding-photo { width: min(64vw, 380px); aspect-ratio: 3 / 4; margin: 0 auto clamp(32px, 5vw, 48px); }
+.holding .holding-photo img { object-position: 50% 40%; }
+.holding .actions { justify-content: center; }
 /* instagram strip */
 .insta-link { position: relative; display: block; color: #FBF8F2; text-decoration: none; }
 .insta-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
