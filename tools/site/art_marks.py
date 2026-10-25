@@ -5,13 +5,20 @@ returns one inline <svg> string. The markup is the finished, fully drawn state. 
 
 Conventions for the motion layer:
 - path.draw has pathLength="1" and style="--d:n". n is the draw order (0 first). Paths that share an n draw together.
+- Hidden state, shared by art_icons, art_marks and art_scenes:
+      .draw { stroke-dasharray: 1 2; stroke-dashoffset: 1.01 }   animated to   stroke-dashoffset: 0
+  It is dot-free with round caps. A plain "1" / offset 1 leaves a round-cap dot at the start of every path.
 - Filled pieces that move as a unit have their own class (sc-sun, sc-quote). Their geometry is a tidy closed
   shape, so transform-box: fill-box with transform-origin: center (or 50% 100%) behaves.
-- Stroke weight is set once on the <svg> (stroke-width), so a stylesheet rule can override it.
+- Stroke weight is set once on the <svg> (stroke-width), so a stylesheet rule can override it. At the size each
+  mark usually renders, gesture marks (underlines, ellipse, swash) land at 1.6-2px and the finer ornaments
+  (sun_arc, divider, sprigs, arch_frame) at 1.4-1.6px.
 - No vector-effect="non-scaling-stroke" on any path.draw. In Chromium, pathLength is resolved in user space
   while a non-scaling stroke dashes in screen space. A stretched underline with stroke-dasharray:1 and
   stroke-dashoffset:0 would stop part of the way along. Only the dotted rule, which never draws, uses it.
   Stretched marks are drawn for the size they usually render at, and arch_frame(width=...) evens out its line.
+- Arch geometry: arch_frame is machine-exact (the logo's semicircle of radius 56 over straight posts), so it sits
+  concentric with arch-masked photos. The hand wobble belongs to the scene and icon arches, never to this one.
 """
 from html import escape
 
@@ -50,6 +57,8 @@ SWASH = ('M8,22C30,30 64,33 96,27C112,24 128,16 130,10C132,4 124,2.6 119,5.4C113
 # (-57.5deg puts it on the left horizon; the finished dot sits 22 degrees past noon, in the low afternoon).
 SUN_ARC = 'M22,42C44.6,25.9 71.8,17.1 100,17C128.4,16.9 155.4,25.8 178,42'
 SUN_ARC_ORIGIN = (100, 151.2)
+# Horizon strokes that start at each foot of the arc and run outward, bowing a touch below the line.
+SUN_HORIZON = ('M22,42.3C17.2,42.9 12.5,43 8,42.6', 'M178,42.3C182.8,42.8 187.4,43 192,42.5')
 
 # --- sprig data (generated) ---
 # Stem(s) first, then leaves from the bottom up, each its own path.draw so the sprig grows.
@@ -99,6 +108,9 @@ def _q(dx):
 QUOTE = (_q(1), _q(37))
 
 ARCH_FRAME = 'M4,166V60A56,56 0 0 1 116,60V166Z'
+# The same outline open at the bottom, drawn from the bottom left, up and over: for arch-masked photos,
+# where a closed base would rule a line under the picture.
+ARCH_FRAME_OPEN = 'M4,166V60A56,56 0 0 1 116,60V166'
 
 
 def underline(variant=1, cls='mark mark-underline'):
@@ -106,7 +118,16 @@ def underline(variant=1, cls='mark mark-underline'):
 
 
 def ellipse(cls='mark mark-ellipse'):
-    return _svg(cls, '0 0 220 90', 220, 90, _draw(ELLIPSE), 1.8, stretch=True)
+    """Circles one word. viewBox 0 0 220 90, stretched by CSS to about 130% of the word's box.
+
+    Drawn for a word at 36-54px, where the svg comes out about 100-200 x 50-75px. The stroke-width of 3.2
+    scales down by roughly half at that size and lands near 1.6-1.8px, the same weight as the underlines.
+    The width and height attributes give that usual size, so the mark looks right even before CSS sizes it.
+    The top and bottom of the oval carry the weight, and they scale with the svg's height. If the svg grows
+    much taller than 60px (a word in a 54px heading gives about 80px), set stroke-width to about
+    150 / (svg height in px) in CSS, for example .h1 .mark-ellipse { stroke-width: 2 }.
+    """
+    return _svg(cls, '0 0 220 90', 130, 56, _draw(ELLIPSE), 3.2, stretch=True)
 
 
 def swash(cls='mark mark-swash'):
@@ -114,9 +135,11 @@ def swash(cls='mark mark-swash'):
 
 
 def sun_arc(cls='mark mark-sun-arc'):
-    body = (_draw('M15,42.3H29', 0) + _draw(SUN_ARC, 1) + _draw('M171,42.1H185', 2) +
-            '<circle class="sc-sun" cx="150.3" cy="26.8" r="3.6" fill="currentColor" stroke="none"/>')
-    return _svg(cls, '0 0 200 46', 200, 46, body, 1.4)
+    """A section divider: the sun's low path across the sky, with a short run of horizon out from each foot.
+    The viewBox is 48 tall so the sun is not clipped while it sits on the left horizon at the start of its travel."""
+    body = (_draw(SUN_HORIZON[0], 0) + _draw(SUN_ARC, 1) + _draw(SUN_HORIZON[1], 2) +
+            '<circle class="sc-sun" cx="150.3" cy="26.8" r="4.8" fill="currentColor" stroke="none"/>')
+    return _svg(cls, '0 0 200 48', 200, 48, body, 1.4)
 
 
 def sprig(variant=1, cls='mark mark-sprig'):
@@ -130,10 +153,15 @@ def quote_mark(cls='mark mark-quote'):
             f'focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor">{body}</svg>')
 
 
-def arch_frame(cls='mark mark-arch', width=120):
-    """The logo arch outline. Pass the width it usually renders at so the line stays about 1.6px."""
-    sw = f'{1.6 * 120 / width:.2f}'.rstrip('0').rstrip('.')
-    return _svg(cls, '0 0 120 170', width, round(width * 170 / 120), _draw(ARCH_FRAME), sw)
+def arch_frame(cls='mark mark-arch', width=120, open=False):
+    """The logo arch outline, machine-exact so it sits concentric with an arch-masked photo.
+
+    Pass the width it usually renders at so the line stays about 1.6px. open=True leaves the base off, for
+    framing photos; the default closed arch suits success states and empty frames.
+    """
+    sw = f'{round(1.6 * 120 / width, 1):g}'
+    d = ARCH_FRAME_OPEN if open else ARCH_FRAME
+    return _svg(cls, '0 0 120 170', width, round(width * 170 / 120), _draw(d), sw)
 
 
 def dotted_rule(cls='mark mark-dots'):
@@ -147,7 +175,7 @@ def divider(cls='mark mark-divider'):
     body = (_draw('M107.5,15.2H132.5', 0) +
             '<g stroke-width="1">' + _draw('M99,15.1C72,15.3 40,14.8 10,15.1', 1) +
             _draw('M141,15.1C168,14.9 200,15.3 230,15', 1) + '</g>' +
-            _draw('M110.5,20.4q4.8,-2.4 9.6,0t9.6,0', 2, ' stroke-width="1.2"') +
+            _draw('M110.1,20.6q3.3,-2.6 6.6,0t6.6,0t6.6,0', 2, ' stroke-width="1.4"') +
             '<path class="sc-sun" d="M113,15.2a7,7 0 0 1 14,0Z" fill="currentColor" stroke="none"/>')
     return _svg(cls, '0 0 240 24', 240, 24, body, 1.6)
 
@@ -163,6 +191,7 @@ MARKS = {
     'sprig-2': lambda cls='mark mark-sprig': sprig(2, cls),
     'quote_mark': quote_mark,
     'arch_frame': arch_frame,
+    'arch_frame-open': lambda cls='mark mark-arch', width=120: arch_frame(cls, width, open=True),
     'dotted_rule': dotted_rule,
     'divider': divider,
 }

@@ -16,7 +16,7 @@
   color: var(--bark); padding-block: 14px; transition: color .3s ease;
 }
 .site-nav .nav-contact { display: none; }   /* the Enquire pill stands in for it */
-.site-nav .nl { display: block; overflow: hidden; overflow: clip; }
+.site-nav .nl { display: block; overflow: hidden; overflow: clip; padding-block: .12em .2em; margin-block: -.12em -.2em; } /* room for ascenders and descenders */
 .site-nav .nl > span { display: block; }
 .nav-sun { position: absolute; left: 50%; bottom: 3px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--paddock-ink); }
 .site-nav a:not([aria-current])::after {   /* hover: the logo's little wave draws in under the word */

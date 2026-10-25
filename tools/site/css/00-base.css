@@ -36,7 +36,7 @@
   --t-press: 100ms; --t-calm: 150ms; --t-quick: 160ms; --t-ui: 320ms; --t-move: 480ms; --t-page: 560ms;
   --t-draw: 900ms; --t-develop: 1100ms; --t-sun: 900ms;
   --stagger-line: 50ms; --stagger-rule: 90ms; --stagger-print: 100ms;
-  --rise-line: 105%; --settle-print: 1.04; --settle-arch: 1.06; --press-scale: .98; --dim-room: .85;
+  --rise-line: calc(100% + .35em); --settle-print: 1.04; --settle-arch: 1.06; --press-scale: .98; --dim-room: .85;
   --darkroom: rgb(43 36 29 / .96);
 }
 

@@ -37,7 +37,7 @@
   --t-press: 100ms; --t-calm: 150ms; --t-quick: 160ms; --t-ui: 320ms; --t-move: 480ms; --t-page: 560ms;
   --t-draw: 900ms; --t-develop: 1100ms; --t-sun: 900ms;
   --stagger-line: 50ms; --stagger-rule: 90ms; --stagger-print: 100ms;
-  --rise-line: 105%; --settle-print: 1.04; --settle-arch: 1.06; --press-scale: .98; --dim-room: .85;
+  --rise-line: calc(100% + .35em); --settle-print: 1.04; --settle-arch: 1.06; --press-scale: .98; --dim-room: .85;
   --darkroom: rgb(43 36 29 / .96);
 }
 
@@ -109,7 +109,7 @@ p { margin: 0; }
 .btn:focus-visible { color: var(--paper); }
 .btn:focus-visible::before { transform: translateY(-58%); transition: transform 420ms var(--ease-light); }
 .btn:active { transform: scale(var(--press-scale)); }
-.btn:active::before { transform: translateY(-22%); transition-duration: var(--t-press); }
+.btn:active::before { transform: translateY(-14px); transition-duration: var(--t-press); }   /* the first of the light peeks in below the label */
 .btn .arw { flex: none; width: 22px; height: 8.25px; }
 .btn--primary, .btn--solid { --btn-fill: var(--ink); background: var(--bark); border-color: var(--bark); color: var(--paper); }
 .btn--sm { min-height: 40px; padding: 0 20px; font-size: .75rem; letter-spacing: .18em; }
@@ -170,7 +170,7 @@ p { margin: 0; }
   color: var(--bark); padding-block: 14px; transition: color .3s ease;
 }
 .site-nav .nav-contact { display: none; }   /* the Enquire pill stands in for it */
-.site-nav .nl { display: block; overflow: hidden; overflow: clip; }
+.site-nav .nl { display: block; overflow: hidden; overflow: clip; padding-block: .12em .2em; margin-block: -.12em -.2em; } /* room for ascenders and descenders */
 .site-nav .nl > span { display: block; }
 .nav-sun { position: absolute; left: 50%; bottom: 3px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--paddock-ink); }
 .site-nav a:not([aria-current])::after {   /* hover: the logo's little wave draws in under the word */
@@ -572,6 +572,7 @@ p { margin: 0; }
 .sundown-scene { display: block; max-width: 1600px; margin-inline: auto; }
 .dusk { --rise: -56px; --set: 16px; display: block; width: 100%; height: auto; overflow: visible; }
 .dusk--w { display: none; }
+.dusk--m { max-width: 480px; margin-inline: auto; }   /* capped, so a large phone or a small tablet never gets a giant scene */
 @media (min-width: 701px) { .dusk--m { display: none; } .dusk--w { display: block; } }
 .dusk-line { fill: none; stroke: var(--paddock); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1.05; }
 .dusk-wave { fill: none; stroke: var(--gulf); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 1 1.05; }
@@ -646,15 +647,15 @@ p { margin: 0; }
 
 /* Through the arch (M01): the next page opens through an arch that rises from where you tapped */
 @media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }
-:root { --vt-x: 50%; --vt-w: clamp(96px, 28vw, 320px); --vt-h: calc(var(--vt-w) * 1.45); --vt-sill: 10vh; }
-::view-transition { background: var(--ink); pointer-events: none; }
+:root { --vt-x: 50%; --vt-w: clamp(96px, 28vw, 320px); --vt-h: calc(var(--vt-w) * 1.45); --vt-top: calc(90svh - var(--vt-h)); } /* from the top, never the bottom */
+::view-transition { background: var(--ink); }   /* the overlay absorbs taps for its 560ms: a habitual second tap never follows an unseen link */
 ::view-transition-old(root), ::view-transition-new(root) { mix-blend-mode: normal; }
 ::view-transition-old(root) { animation: vt-room var(--t-page) linear both; }
 ::view-transition-new(root) { animation: vt-arch var(--t-page) var(--ease-light) both; }
 @keyframes vt-room { to { opacity: var(--dim-room); } }
 @keyframes vt-arch {
-  from { clip-path: inset(calc(100% - var(--vt-sill) - var(--vt-h)) calc(100% - var(--vt-x) - var(--vt-w) / 2)
-                          var(--vt-sill) calc(var(--vt-x) - var(--vt-w) / 2)
+  from { clip-path: inset(var(--vt-top) calc(100% - var(--vt-x) - var(--vt-w) / 2)
+                          calc(100% - var(--vt-top) - var(--vt-h)) calc(var(--vt-x) - var(--vt-w) / 2)
                           round calc(var(--vt-w) / 2) calc(var(--vt-w) / 2) 0 0); }
   75% { clip-path: inset(0 0 0 0 round 50vw 50vw 0 0); animation-timing-function: linear; }
   to { clip-path: inset(0 0 0 0 round 0 0 0 0); }
@@ -680,12 +681,12 @@ html.vt-quiet::view-transition-new(root) { animation: vt-fade 240ms var(--ease-l
 .tiers.is-drawn .tier::before, .tiers.is-drawn .tier-price::before { transition: transform 500ms var(--ease-pen) calc(var(--i, 0) * 60ms); }
 
 /* Sundown (M03): the line draws once; the light follows the thumb where scroll timelines exist */
-.m .site-footer.is-armed:not(.is-drawn):not(.is-done) .dusk-line,
-.m .site-footer.is-armed:not(.is-drawn):not(.is-done) .dusk-wave { stroke-dashoffset: 1.02; }
-.site-footer.is-drawn .dusk-line { transition: stroke-dashoffset 1600ms var(--ease-pen); }
-.site-footer.is-drawn .dusk-line--front { transition: stroke-dashoffset 700ms var(--ease-pen) 1100ms; }
-.site-footer.is-drawn .dusk-wave { transition: stroke-dashoffset 400ms var(--ease-pen) 1600ms; }
-.m .site-footer.is-drawn .glint { animation: glint 700ms var(--ease-shutter) 2300ms backwards; }
+.m .sundown.is-armed:not(.is-drawn):not(.is-done) .dusk-line,
+.m .sundown.is-armed:not(.is-drawn):not(.is-done) .dusk-wave { stroke-dashoffset: 1.02; }
+.sundown.is-drawn .dusk-line { transition: stroke-dashoffset 1600ms var(--ease-pen); }
+.sundown.is-drawn .dusk-line--front { transition: stroke-dashoffset 700ms var(--ease-pen) 1100ms; }
+.sundown.is-drawn .dusk-wave { transition: stroke-dashoffset 400ms var(--ease-pen) 1600ms; }
+.m .sundown.is-drawn .glint { animation: glint 700ms var(--ease-shutter) 2300ms backwards; }
 @keyframes glint { from { stroke-dashoffset: .15; } to { stroke-dashoffset: -1.2; } }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -699,12 +700,12 @@ html.vt-quiet::view-transition-new(root) { animation: vt-fade 240ms var(--ease-l
 @keyframes fade-in { from { opacity: 0; } }
 @keyframes rise-word { from { transform: translateY(var(--rise-line)); } }
 @supports not (animation-timeline: view()) {   /* no scroll timelines: the same sunset plays once */
-  .m .site-footer.is-armed:not(.is-dusk):not(.is-done) .dusk-sun { transform: translateY(var(--rise)); }
-  .m .site-footer.is-armed:not(.is-dusk):not(.is-done) .sky-gold { opacity: 0; }
-  .m .site-footer.is-armed:not(.is-dusk):not(.is-done) .sundown-word > span { transform: translateY(var(--rise-line)); }
-  .site-footer.is-dusk .dusk-sun { transition: transform 2400ms var(--ease-light); }
-  .site-footer.is-dusk .sky-gold { transition: opacity 2000ms var(--ease-light) 300ms; }
-  .site-footer.is-dusk .sundown-word > span { transition: transform 900ms var(--ease-light) 900ms; }
+  .m .sundown.is-armed:not(.is-dusk):not(.is-done) .dusk-sun { transform: translateY(var(--rise)); }
+  .m .sundown.is-armed:not(.is-dusk):not(.is-done) .sky-gold { opacity: 0; }
+  .m .sundown.is-armed:not(.is-dusk):not(.is-done) .sundown-word > span { transform: translateY(var(--rise-line)); }
+  .sundown.is-dusk .dusk-sun { transition: transform 2400ms var(--ease-light); }
+  .sundown.is-dusk .sky-gold { transition: opacity 2000ms var(--ease-light) 300ms; }
+  .sundown.is-dusk .sundown-word > span { transition: transform 900ms var(--ease-light) 900ms; }
 }
 
 /* Reduced motion and "Hold still": every scene shows its finished frame; state changes become a quick crossfade */

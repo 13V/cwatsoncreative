@@ -15,7 +15,7 @@
 .btn:focus-visible { color: var(--paper); }
 .btn:focus-visible::before { transform: translateY(-58%); transition: transform 420ms var(--ease-light); }
 .btn:active { transform: scale(var(--press-scale)); }
-.btn:active::before { transform: translateY(-22%); transition-duration: var(--t-press); }
+.btn:active::before { transform: translateY(-14px); transition-duration: var(--t-press); }   /* the first of the light peeks in below the label */
 .btn .arw { flex: none; width: 22px; height: 8.25px; }
 .btn--primary, .btn--solid { --btn-fill: var(--ink); background: var(--bark); border-color: var(--bark); color: var(--paper); }
 .btn--sm { min-height: 40px; padding: 0 20px; font-size: .75rem; letter-spacing: .18em; }
