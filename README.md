@@ -119,7 +119,7 @@ directly: the next build overwrites them.
 
 ## Tests
 
-`tools/tests/` holds browser checks for every page: navigation, the enquiry form (with the webhook mocked), prices
+`tools/tests/` holds browser checks for every page: navigation, the enquiry form (with FormSubmit mocked), prices
 and packages, the photo viewer, the phone menu, the photo windows, the motion system and phone layouts at eight
 sizes. Serve the folder (for example `npx serve -c '{"cleanUrls": false}' .`) and run
 `node tools/tests/run.js http://localhost:3000`, or add a name to run one file
@@ -127,17 +127,20 @@ sizes. Serve the folder (for example `npx serve -c '{"cleanUrls": false}' .`) an
 
 ## Enquiry form
 
-The form posts JSON to the webhook in the `data-endpoint` attribute in `contact.html` (set by `ENDPOINT`
-in `tools/site/content.py`):
+Enquiries are emailed to Charne at cengelbrecht02@gmail.com by [FormSubmit](https://formsubmit.co), a free
+form-to-email relay (set by `FORM_TO` in `tools/site/content.py`). With JavaScript, `60-form.js` posts JSON to
+`https://formsubmit.co/ajax/<address>`. FormSubmit sends it as a table, with the subject
+"New enquiry: {session} from {name}", rows labelled Name, Email, Phone, Session, Date or season, Where, Message and
+How they found me (empty answers are left out), and Reply set to the person who wrote. Without JavaScript the form
+is a plain post to `https://formsubmit.co/<address>`, and FormSubmit shows its own thank-you page. The hidden `_honey`
+field is FormSubmit's bot trap; the script also skips sending when it's filled. If sending fails, the form keeps
+what was typed and points people to Instagram.
 
-```
-https://lumenadl.app.n8n.cloud/webhook/sunday-light-enquiry
-```
-
-Create that webhook in n8n before launch (a copy of the Lumen contact workflow works). The payload has
-`name`, `email`, `phone`, `session`, `date`, `location`, `message`, `heard`, `submitted` and
-`source`. A hidden `company` field catches bots and is never sent. If the request fails, the form
-keeps what was typed and points people to Instagram.
+**Activating it (once).** The first enquiry doesn't arrive: FormSubmit sends an "Activate Form" email to the address
+instead, and the form shows its error until the link in that email is clicked. Send one test enquiry from the live
+site, click Activate in that email (check spam), then send another test to see a real one arrive. FormSubmit's
+emails then offer a random string that can replace the address in `FORM_TO`, so the address isn't in the page
+source; swap it in and rebuild.
 
 ## Deploying
 
@@ -152,7 +155,7 @@ engines only index the site once it's on its real domain.
 - [ ] Replace the Kind words placeholders with real reviews (see Kind words).
 - [x] Add session prices.
 - [x] Add the wedding packages.
-- [ ] Create the n8n webhook and send a test enquiry.
+- [ ] Activate the enquiry form: send a test enquiry, click Activate in FormSubmit's email, send another.
 - [ ] Once the domain is set, add `<link rel="canonical">`, make `og:image` an absolute URL on every
       page, and add a `sitemap.xml` (and a `Sitemap:` line in `robots.txt`).
 - [ ] Instagram links point to @cwatson.creative. Update them if the handle changes.

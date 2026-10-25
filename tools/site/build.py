@@ -18,7 +18,7 @@ import art  # noqa: E402
 from art import icon, mark  # noqa: E402
 # Everything the pages read from content.py (plan §4.3), imported once here so page packages never edit this line.
 from content import (  # noqa: E402,F401
-    PHOTOS, WEDDING_KEYS, FOCUS, PLACES, EXTRA_GALLERIES, INSTAGRAM, ENDPOINT, FORM_SESSION, FORM_OPTIONS,
+    PHOTOS, WEDDING_KEYS, FOCUS, PLACES, EXTRA_GALLERIES, INSTAGRAM, ENDPOINT, FORM_ACTION, FORM_SESSION, FORM_OPTIONS,
     HERO, HERO_TITLE, HOME_WINDOWS, HOME_STATEMENT_PHOTO, HOME_TILE_PHOTO, STATEMENT_LINE, INTRO, INSTAGRAM_STRIP,
     CLOSING, CLOSING_LEAD, GALLERY_CHAPTERS, rhythm, rhythm_groups, landscape,
     SESSIONS, SESSION, SPEC_LABELS, LOCATION, GALLERY, INVESTMENT_HERO, INVESTMENT_INTRO, WEDDING_PACKAGES,
@@ -754,7 +754,9 @@ def kw_story(n, r):
 
 def contact():
     """Contact (spec §5.6, §4.18): the head and the enquiry in one column, her photo and the details beside them. The
-    field names, option strings, honeypot and endpoint are the webhook's, so they never change."""
+    form posts to FormSubmit, which emails each enquiry to Charne (content.py, FORM_TO). Without JavaScript it is a plain
+    post to FORM_ACTION; with it, 60-form.js sends labelled JSON to ENDPOINT. The hidden _subject and _template fields
+    shape the no-JS email, and _honey is FormSubmit's own bot trap."""
     ig_name, ig_url = INSTAGRAM
     # the summary's links, one per required field, shown by 60-form.js for the fields that need a look (spec §4.18)
     summary = ''.join(f'<li data-n="{n}" hidden><a href="#{t}"></a></li>' for n, t in
@@ -765,7 +767,8 @@ def contact():
 <h1 id="contact-title">{lines('Let’s plan//*something lovely.*')}</h1>
 <p class="lead">Tell me a little about what you’re planning. I’ll get back to you with availability and pricing.</p>
 <div class="enquire-slot">
-<form id="enquiry-form" class="form" method="post" action="{ENDPOINT}" data-endpoint="{ENDPOINT}">
+<form id="enquiry-form" class="form" method="post" action="{FORM_ACTION}" data-endpoint="{ENDPOINT}">
+<input type="hidden" name="_subject" value="New enquiry from the Sunday Light website"><input type="hidden" name="_template" value="table">
 <div id="form-summary" class="form-summary" role="group" aria-labelledby="form-summary-title" tabindex="-1" data-n="One thing,Two things,Three things,Four things" hidden><h2 id="form-summary-title" class="t-question">Things to check</h2><ul>{summary}</ul></div>
 <fieldset class="fs"><legend class="t-question">About you</legend>
 {form_field("name", "Your name", 'autocomplete="name" autocapitalize="words" required maxlength="200"', err="Add your name so I know who I’m writing to.")}
@@ -787,7 +790,7 @@ def contact():
 <fieldset class="fs"><legend class="t-question">How did you find me? (optional)</legend>
 <div class="chips">{form_chips("heard", ["Instagram", "A friend", "Google", "A wedding vendor", "Somewhere else"])}</div>
 </fieldset>
-<div class="hp sr-only" aria-hidden="true"><label for="company">Leave this empty</label><input id="company" name="company" tabindex="-1" autocomplete="off"></div>
+<div class="hp sr-only" aria-hidden="true"><label for="company">Leave this empty</label><input id="company" name="_honey" tabindex="-1" autocomplete="off"></div>
 <div class="form-foot"><button class="btn btn--primary btn--send" type="submit"><span>Send</span> <i class="btn-rule" aria-hidden="true"></i> <span>enquiry</span></button>
 <div class="form-report"><p id="form-status" class="form-status t-caption" aria-hidden="true">Sending…</p>
 <div id="form-error" class="form-error" role="group" aria-labelledby="form-error-text" tabindex="-1" hidden><p id="form-error-text" class="t-small">Your enquiry didn’t send. Your details are still here, so please try again, or message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</p></div></div>
@@ -843,7 +846,7 @@ def privacy():
     main = f'''{page_head("Your details", "Privacy")}
 <section class="text-page sec--standard"><div class="wrap"><div class="text">
 <p>This page explains what happens to the details you share through this website.</p>
-<h2 class="h2--sm">What I collect</h2><p>When you send an enquiry, I receive the details you type into the form: your name, email, and anything else you choose to include, such as a phone number, date or message.</p>
+<h2 class="h2--sm">What I collect</h2><p>When you send an enquiry, I receive the details you type into the form: your name, email, and anything else you choose to include, such as a phone number, date or message. The form is delivered to my email by FormSubmit (formsubmit.co), a service that turns website forms into emails.</p>
 <h2 class="h2--sm">How I use it</h2><p>Only to reply to your enquiry and, if you book, to plan your session. I don’t sell or share your details for marketing.</p>
 <h2 class="h2--sm">Photos</h2><p>Some session photos appear on this website and on Instagram. If you’d like a photo of you removed, just ask and I’ll take it down.</p>
 <h2 class="h2--sm">Questions or changes</h2><p>To see, correct or delete the details you’ve sent, message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</p>
@@ -879,8 +882,8 @@ PART_BUDGET = {
     'css': {'WP0': (WP0_CSS, 37.6875 * KB), 'WP1': (['40-home'], 5 * KB), 'WP2': (['60-gallery-viewer'], 7.25 * KB),
             'WP3': (['70-investment'], 7.5 * KB), 'WP4 contact': (['80-contact'], 5.0625 * KB),
             'WP4 kind words': (['45-kind-words'], 1.5 * KB)},
-    'js': {'WP0': (WP0_JS, 18.5 * KB), 'WP1': (['32-home'], .75 * KB), 'WP2': (['50-viewer'], 7.25 * KB),
-           'WP3': (['36-investment'], .5 * KB), 'WP4': (['60-form', '40-session-prefill'], 5 * KB)},
+    'js': {'WP0': (WP0_JS, 18.5 * KB), 'WP1': (['32-home'], .5 * KB), 'WP2': (['50-viewer'], 7.25 * KB),
+           'WP3': (['36-investment'], .375 * KB), 'WP4': (['60-form', '40-session-prefill'], 5.375 * KB)},
 }
 assert all(sum(limit for _, limit in PART_BUDGET[k].values()) <= {'css': 64, 'js': 32}[k] * KB for k in PART_BUDGET)
 TOTAL_BUDGET = {'css': 64 * KB, 'js': 32 * KB}

@@ -107,7 +107,13 @@ FAQ = [
 ]
 
 INSTAGRAM = ('@cwatson.creative', 'https://www.instagram.com/cwatson.creative/')
-ENDPOINT = 'https://lumenadl.app.n8n.cloud/webhook/sunday-light-enquiry'
+# Enquiries are emailed to Charne by FormSubmit (formsubmit.co), a free form-to-email relay: the form posts to it and
+# it sends the enquiry on as an email. The very first enquiry instead sends an "Activate Form" email to this address;
+# once that link is clicked, every enquiry arrives. FormSubmit's activation email also offers a random string that can
+# stand in for the address below, which keeps the address out of the page source.
+FORM_TO = 'cengelbrecht02@gmail.com'
+FORM_ACTION = f'https://formsubmit.co/{FORM_TO}'        # the plain post, for visitors without JavaScript
+ENDPOINT = f'https://formsubmit.co/ajax/{FORM_TO}'      # the JSON post 60-form.js sends
 
 # The enquiry form's "Type of session" option for each session, so "Enquire" links can pre-select it.
 FORM_SESSION = {'weddings': 'Wedding', 'couples': 'Couples, engagement or proposal', 'family': 'Family',

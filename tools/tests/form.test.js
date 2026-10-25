@@ -1,20 +1,23 @@
 // Enquiry form (spec §4.18, M09, D15): the chip a session link chooses, the summary and inline errors, when fields
-// check themselves, the payload the webhook expects, sending, success (with the name rules), failure and the
-// honeypot, and no layout shift through any of it. The webhook is always mocked: nothing is ever sent.
+// check themselves, the email FormSubmit is asked to send, sending, success (with the name rules), failure (including
+// a form FormSubmit hasn't activated yet) and the honeypot, and no layout shift through any of it. FormSubmit is always
+// mocked: nothing is ever sent.
 const { PHONE, DESKTOP } = require('./lib');
-const HOOK = '**/webhook/sunday-light-enquiry';
-const KEYS = ['name', 'email', 'phone', 'session', 'date', 'location', 'message', 'heard', 'submitted', 'source'];
+const HOOK = '**/formsubmit.co/ajax/**';
+const KEYS = ['_subject', '_template', '_replyto', 'Name', 'Email', 'Session', 'Message'];   // empty answers are left out
+const DONE = JSON.stringify({ success: 'true', message: 'The form was submitted successfully.' });
+const INACTIVE = JSON.stringify({ success: 'false', message: 'This form needs Activation. We\'ve sent you an email containing an "Activate Form" link.' });
 
 // Every layout shift, recent input or not: the reserved slots mean there should be none at all.
 const shifts = () => { window.__ls = []; new PerformanceObserver(l => l.getEntries().forEach(e => window.__ls.push({ v: e.value, input: e.hadRecentInput }))).observe({ type: 'layout-shift', buffered: true }); };
 const total = p => p.evaluate(() => window.__ls.reduce((s, e) => s + e.v, 0));
 
-async function open(b, watch, vp, { query = '', status = 200, delay = 0, reduce = false } = {}) {
+async function open(b, watch, vp, { query = '', status = 200, body = DONE, delay = 0, reduce = false } = {}) {
   const ctx = await b.newContext({ ...vp, reducedMotion: reduce ? 'reduce' : 'no-preference' });
   await ctx.addInitScript(shifts);
-  const p = await ctx.newPage(); watch(p, /sunday-light-enquiry/);
+  const p = await ctx.newPage(); watch(p, /formsubmit\.co/);
   const posted = [];
-  await p.route(HOOK, r => { posted.push(r.request().postData()); setTimeout(() => r.fulfill({ status, body: '{}' }), delay); });
+  await p.route(HOOK, r => { posted.push(r.request().postData()); setTimeout(() => r.fulfill({ status, contentType: 'application/json', body }), delay); });
   await p.goto(`${base0}/contact.html${query}`, { waitUntil: 'networkidle' });
   await p.waitForTimeout(200);
   await p.evaluate(() => { window.__ls.length = 0; });   // from here on: only what the form does
@@ -109,8 +112,9 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       await p.waitForTimeout(2200);
       ok(posted.length === 1, `form ${w}: a second send while one is in flight is ignored (${posted.length} sent)`);
       const data = JSON.parse(posted[0] || '{}');
-      ok(Object.keys(data).join() === KEYS.join() && data.heard === '' && !('company' in data) && data.session === 'Wedding' && data.name === 'Test Person',
-         `form ${w}: the payload keeps its keys (${Object.keys(data).join(', ')}), heard "" when unchosen, no company`);
+      ok(Object.keys(data).join() === KEYS.join() && data.Session === 'Wedding' && data.Name === 'Test Person' && data._template === 'table' &&
+         data._replyto === 'test@example.com' && data._subject === 'New enquiry: Wedding from Test Person' && !Object.keys(data).some(k => /honey|company/.test(k)),
+         `form ${w}: FormSubmit gets a labelled table (${Object.keys(data).join(', ')}), its subject, Reply to the sender, no empty rows, no honeypot`);
       const s = await p.evaluate(() => {
         const f = document.getElementById('enquiry-form'), card = document.getElementById('form-success'), h = document.getElementById('success-title');
         const live = document.getElementById('form-live'), cs = getComputedStyle(card), hs = getComputedStyle(h);
@@ -138,6 +142,15 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       ok(f.inReport && f.shown && f.focused && f.kept && f.restored && f.fits, `form ${w}: failure shows the error in the reserved report, focused, values kept, button restored`);
       ok(/didn’t send/.test(f.live), `form ${w}: the failure is announced ("${f.live}")`);
       ok(await total(p) < .001, `form ${w}: no layout shift on failure (${(await total(p)).toFixed(4)})`);
+      await ctx.close();
+    }
+    {   // a form FormSubmit hasn't activated yet answers 200 with success "false": that is a failure, not a thank-you
+      const { p, ctx } = await open(b, watch, vp, { body: INACTIVE, delay: 300 });
+      await fill(p, 'Test Person');
+      await send(p); await p.waitForTimeout(900);
+      const f = await p.evaluate(() => ({ error: !document.getElementById('form-error').hidden, card: !document.getElementById('form-success').hidden,
+        kept: document.getElementById('message').value === 'An autumn wedding in the hills' }));
+      ok(f.error && !f.card && f.kept, `form ${w}: a not-yet-activated form shows the error, never the thank-you, and keeps the values`);
       await ctx.close();
     }
     {   // the honeypot: the finished card at once, nothing sent
@@ -179,10 +192,12 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     const p = await ctx.newPage(); watch(p);
     await p.goto(`${base}/contact.html`, { waitUntil: 'networkidle' });
     const f = await p.$eval('#enquiry-form', f => ({ method: f.getAttribute('method'), action: f.getAttribute('action'), novalidate: f.noValidate,
+      extras: [...f.querySelectorAll('[name^="_"]')].map(e => e.name).join(),
       required: [...f.querySelectorAll('[required]')].map(e => e.name).filter((v, i, a) => a.indexOf(v) === i).join(),
       chipsUsable: getComputedStyle(f.querySelector('.chip-input')).pointerEvents !== 'none', hidden: !!f.closest('[hidden]') }));
-    ok(f.method === 'post' && /webhook\/sunday-light-enquiry$/.test(f.action) && !f.novalidate && f.required === 'name,email,session,message' && f.chipsUsable && !f.hidden,
-       'form (no JS): posts to the webhook, the browser checks the required fields, chips usable');
+    ok(f.method === 'post' && /^https:\/\/formsubmit\.co\/[^/]+$/.test(f.action) && f.extras === '_subject,_template,_honey' && !f.novalidate &&
+       f.required === 'name,email,session,message' && f.chipsUsable && !f.hidden,
+       `form (no JS): posts to FormSubmit (${f.action}) with its subject, template and honeypot fields, the browser checks the required fields, chips usable`);
     await p.$eval('#session-3', r => r.click());
     ok(await p.$eval('#session-3', r => r.checked && getComputedStyle(r.nextElementSibling).backgroundColor !== 'rgba(0, 0, 0, 0)'), 'form (no JS): a chip checks and shows it');
     await ctx.close();

@@ -67,16 +67,15 @@
         li.firstChild.textContent = err(li.dataset.n).lastChild.textContent;
       });
       if ((sum.hidden = !bad.length)) {
-        if (form.elements.company.value) return sent();   // honeypot: the card, nothing sent
-        const data = {};
-        for (const [k, v] of new FormData(form)) if (k != "company") data[k] = v.trim();
-        data.heard ??= "";
-        data.submitted = new Date().toISOString();
-        data.source = location.host + location.pathname;
+        if (form.elements._honey.value) return sent();   // honeypot: the card, nothing sent
+        // FormSubmit emails it as a labelled table; Reply goes to the sender
+        const v = n => form.elements[n].value.trim(), data = { _subject: `New enquiry: ${v("session")} from ${v("name")}`, _template: "table", _replyto: v("email") };
+        for (const [k, n] of [["Name", "name"], ["Email", "email"], ["Phone", "phone"], ["Session", "session"], ["Date or season", "date"], ["Where", "location"], ["Message", "message"], ["How they found me", "heard"]]) if (v(n)) data[k] = v(n);
         sending(true);
         live.textContent = "Sending…";
-        return fetch(form.dataset.endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), signal: AbortSignal.timeout(20000) })
-          .then(r => { if (!r.ok) throw r; sending(false); sent(1); })
+        return fetch(form.dataset.endpoint, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(data), signal: AbortSignal.timeout(20000) })
+          .then(r => r.ok ? r.json() : Promise.reject(r))
+          .then(j => { if (j.success + "" != "true") throw j; sending(false); sent(1); })   // "false" until activated
           .catch(() => {   // in its kept space; values stay
             sending(false);
             failure.hidden = false;
