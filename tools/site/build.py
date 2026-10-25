@@ -7,11 +7,12 @@
 # root and are edited there directly. A photo only appears once its file exists, so run this again after
 # adding photos (tools/prepare_photos.py does that for you).
 import html, json, os, sys
+from urllib.parse import quote_plus
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from content import (PHOTOS, PORTFOLIO_WEDDINGS, EXTRA_GALLERIES, SESSIONS, STEPS, FAQ, INSTAGRAM, ENDPOINT,  # noqa: E402
-                     FOCUS, FORM_SESSION, HERO, HERO_CAPTION, HOME_WINDOWS, INTRO, TILES, INSTAGRAM_STRIP,
+                     FOCUS, FORM_SESSION, FORM_OPTIONS, HERO, HERO_CAPTION, HOME_WINDOWS, INTRO, TILES, INSTAGRAM_STRIP,
                      KIND_WORDS, KIND_WORDS_ARE_PLACEHOLDERS, INVESTMENT_HERO, INVESTMENT_INTRO)
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))  # the photos are looked up here
@@ -169,11 +170,11 @@ JSONLD = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "name": "Sunday Light",
-    "description": "Natural, light-filled wedding, couples and family photography in Adelaide, South Australia.",
+    "description": "Natural, light-filled wedding, couples, engagement, family, maternity and newborn photography in Adelaide, South Australia.",
     "areaServed": {"@type": "City", "name": "Adelaide"},
     "address": {"@type": "PostalAddress", "addressLocality": "Adelaide", "addressRegion": "SA", "addressCountry": "AU"},
-    "knowsAbout": ["Wedding photography", "Couples photography", "Maternity photography",
-                   "Newborn photography", "Family photography"],
+    "knowsAbout": ["Wedding photography", "Engagement photography", "Couples photography",
+                   "Family photography", "Maternity photography", "Newborn photography"],
     "sameAs": [INSTAGRAM[1]],
 }
 
@@ -279,7 +280,7 @@ def index():
 
 <section class="quote"><div class="wrap narrow">
 <h1>Photographs that feel like a <em>Sunday afternoon.</em></h1>
-<p class="quote-line">Weddings, couples and families across Adelaide, from the coast to the hills</p>
+<p class="quote-line">Weddings, couples, families, maternity and newborns, from the coast to the hills</p>
 </div></section>
 
 <section class="section intro" aria-labelledby="intro-title"><div class="wrap intro-grid">
@@ -304,7 +305,7 @@ def index():
 
 {instagram_strip()}'''
     return page('index.html', 'Sunday Light | Adelaide wedding & family photographer',
-                'Natural, light-filled photography for weddings, couples and families across Adelaide. Relaxed sessions on the coast, in the hills and at home.',
+                'Natural, light-filled photography for weddings, couples, families, maternity and newborns across Adelaide. Relaxed sessions on the coast, in the hills and at home.',
                 main, jsonld=True)
 
 
@@ -336,7 +337,7 @@ def gallery():
     if len(galleries) > 1:
         chips = ('<nav class="chips" aria-label="Galleries">'
                  + ''.join(f'<a href="#{gid}">{e(name)}</a>' for gid, name, _ in galleries) + '</nav>')
-    lead = (f'Weddings, couples and families from around Adelaide. The newest sessions go up on '
+    lead = (f'Weddings, couples, families, maternity and newborns from around Adelaide. The newest sessions go up on '
             f'<a href="{INSTAGRAM[1]}">Instagram</a> first.')
     main = f'''{page_head("Gallery", "A few <em>favourite days.</em>", lead, chips)}
 {sections}
@@ -353,7 +354,7 @@ def gallery():
                 '<p class="lb-count" aria-hidden="true"></p><p class="sr-only lb-live" aria-live="polite"></p>'
                 '</div></dialog>\n')
     return page('gallery.html', 'Gallery | Sunday Light',
-                'Wedding, couples and family photography from around Adelaide by Sunday Light.', main,
+                'Wedding, couples, family, maternity and newborn photography from around Adelaide by Sunday Light.', main,
                 body_extra=lightbox)
 
 
@@ -361,12 +362,17 @@ def investment():
     intro = ''.join(f'<p>{e(p)}</p>' for p in INVESTMENT_INTRO)
     def package(s, with_photo):
         body = ''.join(f'<p>{e(p)}</p>' for p in s['body'])
-        enquire = f'contact.html?session={FORM_SESSION[s["id"]].replace(" ", "+")}'
+        enquire = f'contact.html?session={quote_plus(FORM_SESSION[s["id"]])}'
         photo = fig(s['photo'], SIZES['card'], 'package-photo') if with_photo else ''
+        includes = ''.join(f'<li>{e(i)}</li>' for i in s.get('includes', []))
+        includes = f'<ul class="package-includes">{includes}</ul>' if includes else ''
+        price = (f'<p class="package-price">{e(s["price"])}</p>' if s.get('price')
+                 else '<p class="package-price package-price--ask">Pricing on enquiry</p>')
         return (f'<article class="package{"" if with_photo else " package--text"}" id="{s["id"]}" aria-labelledby="{s["id"]}-title">'
                 f'{photo}<div class="package-panel"><h3 class="package-name" id="{s["id"]}-title">{e(s["name"])}</h3>'
-                f'<div class="prose">{body}</div><p class="package-price">{e(s.get("price", "Pricing on enquiry"))}</p>'
-                f'{link_arrow(enquire, "Enquire about " + s["name"].lower())}</div></article>')
+                f'<div class="prose">{body}</div>'
+                f'<div class="package-meta">{price}{includes}</div>'
+                f'{link_arrow(enquire, "Enquire about " + s.get("short", s["name"]).lower())}</div></article>')
 
     # Sessions with a photo get a photo card; the rest sit two to a row as text until their photo arrives.
     pictured = [s for s in SESSIONS if exists(PHOTOS[s['photo']][0])]
@@ -397,7 +403,7 @@ def investment():
 
 {instagram_strip()}'''
     return page('investment.html', 'Investment | Sunday Light',
-                'Wedding, couples, maternity, newborn, family and milestone photography sessions in Adelaide, and what they include.',
+                'Wedding, couples and engagement, family, maternity and newborn photography sessions in Adelaide: prices and what each includes.',
                 main)
 
 
@@ -420,8 +426,7 @@ def kind_words_page():
 
 def contact():
     ig_name, ig_url = INSTAGRAM
-    opts = ''.join(f'<option>{o}</option>' for o in ['Wedding', 'Couples or engagement', 'Proposal', 'Bump',
-                                                       'Newborn', 'Family', 'Milestone', 'Something else'])
+    opts = ''.join(f'<option>{e(o)}</option>' for o in FORM_OPTIONS)
     heard = ''.join(f'<option>{o}</option>' for o in ['Instagram', 'A friend', 'Google', 'A wedding vendor', 'Somewhere else'])
     main = f'''{page_head("Contact", "Let’s plan <em>something lovely.</em>", "Tell me a little about what you’re planning. I’ll get back to you with availability and pricing.")}
 
@@ -451,7 +456,7 @@ def contact():
 
 {instagram_strip()}'''
     return page('contact.html', 'Contact | Sunday Light',
-                'Check dates and pricing for wedding, couples and family photography in Adelaide.', main)
+                'Check dates for wedding, couples, family, maternity and newborn photography in Adelaide.', main)
 
 
 def privacy():

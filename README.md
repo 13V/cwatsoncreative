@@ -12,8 +12,8 @@ people in them first.
 | Page | What's on it |
 | --- | --- |
 | `index.html` | Full-screen photo, a short intro, photo bands, Weddings / Couples / Families tiles, kind words, Instagram |
-| `gallery.html` | Wedding gallery with a photo viewer. Couples, family and bump & newborn galleries appear once they have photos. |
-| `investment.html` | Each session with an enquire link, how it works, questions |
+| `gallery.html` | Wedding gallery with a photo viewer. Couples, family, maternity and newborn galleries appear once they have photos. |
+| `investment.html` | Each session with its price, what it includes and an enquire link; how it works; questions |
 | `kind-words.html` | Reviews |
 | `contact.html` | Enquiry form. Links from the Investment page arrive with the session already chosen. |
 | `privacy.html`, `404.html` | Privacy notes and the not-found page |
@@ -78,18 +78,17 @@ camera or GPS data, so the JPGs are committed as sent.
 
 | File | Size | Photo |
 | --- | --- | --- |
-| `images/sessions/bump.jpg` | 1333×2000 | A bump photo, portrait. Investment page. |
-| `images/sessions/newborn.jpg` | 1333×2000 | A newborn photo, portrait. Investment page. |
+| `images/sessions/maternity.jpg` | 1333×2000 | A maternity photo, portrait. Investment page. |
 | `images/sessions/family.jpg` | 1333×2000 | A family photo, portrait. Investment page and the Families tile on the home page. |
-| `images/sessions/milestones.jpg` | 1333×2000 | A graduation or 18th photo, portrait. Investment page. |
+| `images/sessions/newborn.jpg` | 1333×2000 | A newborn photo, portrait. Investment page. |
 
 Until they arrive, those sessions show as text cards on the Investment page, and the Families tile shows
 the landscape illustration.
 
 ### Optional galleries
 
-`images/portfolio/couples-01.jpg` to `couples-06.jpg`, `family-01.jpg` to `family-08.jpg` and
-`bump-newborn-01.jpg` to `bump-newborn-06.jpg`. Any orientation works. Each gallery, and its button
+`images/portfolio/couples-01.jpg` to `couples-06.jpg` (couples and engagements), `family-01.jpg` to
+`family-08.jpg`, `maternity-01.jpg` to `maternity-06.jpg` and `newborn-01.jpg` to `newborn-06.jpg`. Any orientation works. Each gallery, and its button
 at the top of the Gallery page, appears once it has at least one photo.
 
 ## Kind words
@@ -102,8 +101,10 @@ Gallery and Investment pages show one review at a time with arrows, and the Kind
 
 ## Prices
 
-Each session shows "Pricing on enquiry". To show a price, add one to that session in `SESSIONS` in
-`tools/site/content.py`, for example `price='From $450'`, and rebuild.
+Prices and what each session includes are in `SESSIONS` in `tools/site/content.py` (`price` and `includes`).
+As of October 2026: couples, engagements and proposals $350; family $400 (up to five people, then $25 each);
+maternity $350; newborn $350. Weddings show "Pricing on enquiry" until the wedding packages are added. Mini
+sessions ($220) are limited-time specials, so they are left off. Change a price there and rebuild.
 
 ## Editing the pages
 
@@ -136,7 +137,8 @@ engines only index the site once it's on its real domain.
 - [x] Add the 23 wedding photos.
 - [ ] Add the session photos under "Still needed", then run `tools/prepare_photos.py`.
 - [ ] Replace the Kind words placeholders with real reviews (see Kind words).
-- [ ] Add prices if she wants them public (see Prices).
+- [x] Add session prices.
+- [ ] Add the wedding packages (see Prices).
 - [ ] Create the n8n webhook and send a test enquiry.
 - [ ] Once the domain is set, add `<link rel="canonical">`, make `og:image` an absolute URL on every
       page, and add a `sitemap.xml` (and a `Sitemap:` line in `robots.txt`).

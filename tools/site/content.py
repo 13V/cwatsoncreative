@@ -29,19 +29,19 @@ PHOTOS = {
  'groomsmen-steps': (W + 'groomsmen-steps.jpg', 1333, 2000, 'Groom and groomsmen in linen suits on the castle steps', 'Groom and groomsmen on the castle steps.'),
  'castle-dip': (W + 'castle-dip.jpg', 1333, 2000, 'Groom dipping the bride in front of the castle towers', 'Dip in front of the castle towers.'),
  # Still to come: one portrait photo for each of these
- 'session-bump': ('images/sessions/bump.jpg', 1333, 2000, 'Maternity session', 'A bump photo, portrait. Investment page.'),
+ 'session-maternity': ('images/sessions/maternity.jpg', 1333, 2000, 'Maternity session', 'A maternity photo, portrait. Investment page.'),
  'session-newborn': ('images/sessions/newborn.jpg', 1333, 2000, 'Newborn session at home', 'A newborn photo, portrait. Investment page.'),
  'session-family': ('images/sessions/family.jpg', 1333, 2000, 'Family session', 'A family photo, portrait. Investment page and the Families tile on the home page.'),
- 'session-milestones': ('images/sessions/milestones.jpg', 1333, 2000, 'Graduation portrait', 'A graduation or 18th photo, portrait. Investment page.'),
 }
 WEDDING_KEYS = [k for k, v in PHOTOS.items() if v[0].startswith(W)]
 assert len(WEDDING_KEYS) == 23
 
 # Extra portfolio galleries. Each one appears once its photos exist.
 EXTRA_GALLERIES = [
- ('couples', 'Couples', 'images/portfolio/couples-{:02d}.jpg', 6, 'Couples session'),
+ ('couples', 'Couples & engagements', 'images/portfolio/couples-{:02d}.jpg', 6, 'Couples or engagement session'),
  ('family', 'Family', 'images/portfolio/family-{:02d}.jpg', 8, 'Family session'),
- ('bump-newborn', 'Bump & newborn', 'images/portfolio/bump-newborn-{:02d}.jpg', 6, 'Bump or newborn session'),
+ ('maternity', 'Maternity', 'images/portfolio/maternity-{:02d}.jpg', 6, 'Maternity session'),
+ ('newborn', 'Newborn', 'images/portfolio/newborn-{:02d}.jpg', 6, 'Newborn session'),
 ]
 
 # Portfolio order: getting ready, the party, portraits, golden hour
@@ -52,28 +52,32 @@ PORTFOLIO_WEDDINGS = ['arch-mirror', 'gilded-mirror', 'bridesmaids-seated', 'bri
                       'jaguar-kiss', 'field-dusk', 'grass-overhead', 'vineyard-sunset']
 assert sorted(PORTFOLIO_WEDDINGS) == sorted(WEDDING_KEYS)
 
-# Sessions on the Investment page. Each shows "Pricing on enquiry" unless it has a price, for example
-# dict(id='couples', ..., price='From $450'). A session's photo card appears once its photo exists.
+# Sessions on the Investment page, with her prices (October 2026). A session without a price shows
+# "Pricing on enquiry". `includes` is the short list under the price. A session's photo card appears once its
+# photo exists. Mini sessions ($220) are left off on purpose: they run as limited-time specials.
+LOCATION = 'Your choice of location around Adelaide (travel further out can be quoted)'
+GALLERY = 'Every edited image in a professional online gallery'
 SESSIONS = [
  dict(id='weddings', name='Weddings', photo='bougainvillea-embrace',
       body=['I photograph weddings the way they feel: getting ready, the nerves, the vows, the champagne and the dance floor.',
             'I keep things calm and quiet, step in when you need direction and stay out of the way when you don’t. '
             'I’ll also help you plan the timeline, so your portraits land in the best light of the day.']),
- dict(id='couples', name='Couples', photo='field-dusk',
-      body=['Engagements, anniversaries or no reason at all. We’ll walk, talk and wander somewhere beautiful as the sun goes down.',
-            'Planning a proposal? I can stay out of sight nearby and catch the moment you ask.']),
- dict(id='bump', name='Bump', photo='session-bump',
-      body=['Somewhere between 28 and 36 weeks is usually the sweet spot, while you’re still comfortable and the bump is beautifully round.',
-            'On the beach, in a paddock or at home. Partners and big brothers and sisters are very welcome.']),
- dict(id='newborn', name='Newborn', photo='session-newborn',
-      body=['Relaxed lifestyle sessions at home in the first few weeks, while they’re still tiny and sleepy.',
-            'No complicated props. Just your baby, your family and the soft light from your own windows.']),
- dict(id='family', name='Family', photo='session-family',
+ dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='field-dusk', price='$350',
+      includes=['About 45 minutes', GALLERY, LOCATION],
+      body=['Just engaged, about to ask, or simply in love. We’ll walk, talk and wander somewhere beautiful as the sun goes down.',
+            'Planning a proposal? I’ll stay out of sight nearby and catch the moment you ask.']),
+ dict(id='family', name='Family', photo='session-family', price='$400',
+      includes=['45 to 60 minutes', GALLERY, 'Up to five people, then $25 for each extra person', LOCATION],
       body=['Beach walks, golden paddocks and gum trees, or a slow afternoon at home.',
             'Kids get to be kids. I’ll do the work of catching the moments in between.']),
- dict(id='milestones', name='Milestones', photo='session-milestones',
-      body=['Graduations, 18ths, birthdays and the days worth marking.',
-            'Short, easy sessions that make the most of a big day.']),
+ dict(id='maternity', name='Maternity', photo='session-maternity', price='$350',
+      includes=['About 45 minutes', GALLERY, LOCATION, 'Maternity and newborn packages available'],
+      body=['A calm, unhurried session while you’re still comfortable and the bump is beautifully round.',
+            'On the beach, in a paddock or somewhere that matters to you. Partners and big brothers and sisters are very welcome.']),
+ dict(id='newborn', name='Newborn', photo='session-newborn', price='$350',
+      includes=[GALLERY, 'At your home or an outdoor location', 'Maternity and newborn packages available'],
+      body=['Relaxed lifestyle sessions in the first few weeks, while they’re still tiny and sleepy.',
+            'No complicated props. Just your baby, your family and the soft light from your own windows.']),
 ]
 
 STEPS = [
@@ -87,7 +91,7 @@ FAQ = [
  ('When is the best time for a session?',
   'For outdoor sessions, the hour before sunset. In summer that’s often from about 7.30pm, and in winter from about 4pm. I’ll suggest a start time when we book.'),
  ('Where do sessions happen?',
-  'Anywhere that means something to you: the beach, the hills, a favourite park or your own home. If you’re not sure, I’m happy to suggest a few spots.'),
+  'Anywhere that means something to you around Adelaide: the beach, the hills, a favourite park or your own home. Further out is fine too, with travel quoted up front. If you’re not sure, I’m happy to suggest a few spots.'),
  ('What if the weather turns?',
   'We’ll keep an eye on the forecast together and move to a new date if we need to.'),
  ('How do we get our photos?',
@@ -100,8 +104,10 @@ INSTAGRAM = ('@cwatson.creative', 'https://www.instagram.com/cwatson.creative/')
 ENDPOINT = 'https://lumenadl.app.n8n.cloud/webhook/sunday-light-enquiry'
 
 # The enquiry form's "Type of session" option for each session, so "Enquire" links can pre-select it.
-FORM_SESSION = {'weddings': 'Wedding', 'couples': 'Couples or engagement', 'bump': 'Bump', 'newborn': 'Newborn',
-                'family': 'Family', 'milestones': 'Milestone'}
+FORM_SESSION = {'weddings': 'Wedding', 'couples': 'Couples, engagement or proposal', 'family': 'Family',
+                'maternity': 'Maternity', 'newborn': 'Newborn'}
+FORM_OPTIONS = ['Wedding', 'Couples, engagement or proposal', 'Family', 'Maternity', 'Newborn',
+                'Maternity and newborn package', 'Something else']
 
 # Home page. The hero and the photo windows show their photos side by side on large screens and
 # just the first one on phones. Portrait photos keep them sharp on wide screens.
@@ -130,7 +136,7 @@ KIND_WORDS = [
   'A review from a family will go here. Send three to six favourites and they’ll replace these placeholders.',
   'olive-grove-confetti'),
  ('Another couple', 'Couples session',
-  'One more set of kind words will go here, from an engagement, an anniversary or a proposal.',
+  'One more set of kind words will go here, from an engagement, a maternity or a newborn session.',
   'silver-car-bouquet'),
 ]
 

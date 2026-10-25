@@ -353,7 +353,12 @@ p { margin: 0; }
 .package--text { grid-template-columns: minmax(0, 1fr); }
 .package--text .package-panel { align-content: start; padding: clamp(32px, 4.5vw, 64px); }
 @media (max-width: 760px) { .packages-text { grid-template-columns: minmax(0, 1fr); } }
-.package-price { font: 500 .74rem/1.5 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--bush-ink); }
+.package-meta { display: grid; gap: 14px; width: 100%; padding-top: 22px; border-top: 1px solid var(--line); }
+.package-price { font: 500 clamp(2rem, 3vw, 2.5rem)/1 var(--serif); color: var(--paddock-ink); }
+.package-price--ask { font: 500 .74rem/1.5 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--bush-ink); }
+.package-includes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: .98rem; line-height: 1.55; }
+.package-includes li { position: relative; padding-left: 26px; }
+.package-includes li::before { content: ""; position: absolute; left: 0; top: .78em; width: 14px; height: 1px; background: var(--paddock); }
 .review blockquote p { font: 500 clamp(1.3rem, 2vw, 1.7rem)/1.45 var(--serif); color: var(--ink); }
 .review-panel { gap: 10px; }
 .review-panel blockquote { margin-bottom: 14px; }
