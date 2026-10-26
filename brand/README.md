@@ -31,8 +31,14 @@ If she would rather the name point to her, C. Watson Photography is the fallback
 ## The arch
 
 - Mark: an arch outline in Bark, a Paddock sun behind two Saltbush hills, a Gulf wave at the base.
-- Name: Marcellus caps, tracked 0.14em. Connectors (`&`) in Cormorant Garamond italic, Paddock.
-- Small labels: Jost 400 caps, tracked ("PHOTOGRAPHY · ADELAIDE").
+- Name: Marcellus caps, tracked 0.14em. On the website it is outlined (`tools/site/art.py` draws the
+  `wordmark-….svg` file), so it looks the same everywhere and loads no font. Connectors (`&`) in Brygada 1918 roman,
+  in the text colour: gold is for rules, underlines and art only.
+- Small labels: Proza Libre 500 caps, tracked 0.07em ("PHOTOGRAPHY · ADELAIDE").
+- Type: Brygada 1918 for headlines, leads and prices (roman, 400–480; italic only for quotes and a few soft
+  lines, in the text colour, never gold), Proza Libre 400 for text, buttons and links, in sentence case. Both SIL OFL, self-hosted in `fonts/`.
+  They replaced Cormorant Garamond and Jost in October 2026; the exploration files in `logos/` and `src/` still
+  show the earlier type.
 
 ## Palette
 

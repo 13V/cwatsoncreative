@@ -17,7 +17,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       });
       await p.waitForFunction(() => [...document.images].every(i => i.complete), null, { timeout: 30000 });
       const r = await p.evaluate(() => {
-        const vw = window.innerWidth;
+        const vw = document.documentElement.clientWidth;   // not innerWidth: a phone's layout viewport widens to fit an overflow
         const out = { overflow: document.documentElement.scrollWidth - vw, poking: [], broken: [] };
         // content inside a box that clips or scrolls sideways (the index bar on phones) cannot widen the page
         const clipped = el => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {

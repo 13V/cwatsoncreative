@@ -4,7 +4,7 @@ Website for Sunday Light, Charne Watson's photography business in Adelaide (prev
 
 Plain HTML, CSS and a little JavaScript. The pages are generated from `tools/site/` (see Editing the
 pages) and the generated HTML is committed, so any static host (Vercel, Netlify, Cloudflare Pages,
-cPanel) can serve the folder as it is. Fonts are self-hosted in `fonts/`.
+cPanel) can serve the folder as it is. Fonts are self-hosted in `fonts/`, each with its licence (SIL OFL).
 
 The site keeps to four tabs, Gallery, Investment, Kind words and Contact, and puts the photos and the
 people in them first.
@@ -114,14 +114,15 @@ are left off. Change a price there and rebuild.
 The words, photo slots and galleries are in `tools/site/content.py`, and the page layouts are in
 `tools/site/build.py`. Styles and behaviour are written as small numbered parts in `tools/site/css/` and
 `tools/site/js/`; the build joins them, in file-name order, into `styles.css` and `main.js`. After changing any of
-these, run `python3 tools/site/build.py` to rewrite the HTML, `styles.css` and `main.js`. Don't edit the joined files
-directly: the next build overwrites them.
+these, run `python3 tools/site/build.py` to rewrite the HTML, `styles.css`, `main.js`, `favicon.svg` and the wordmark
+(`wordmark-<hash>.svg`, named by its content so `vercel.json` can cache it for good).
+Don't edit the joined files directly: the next build overwrites them.
 
 ## Tests
 
 `tools/tests/` holds browser checks for every page: navigation, the enquiry form (with FormSubmit mocked), prices
-and packages, the photo viewer, the phone menu, the photo windows, the motion system and phone layouts at eight
-sizes. Serve the folder (for example `npx serve -c '{"cleanUrls": false}' .`) and run
+and packages, the photo viewer, the phone menu, the photo windows, the motion system, phone layouts at eight
+sizes, and the font fallbacks (headings wrap the same before the fonts arrive, and a late font moves nothing). Serve the folder (for example `npx serve -c '{"cleanUrls": false}' .`) and run
 `node tools/tests/run.js http://localhost:3000`, or add a name to run one file
 (`node tools/tests/run.js http://localhost:3000 investment`). They need Playwright with Chromium.
 
@@ -177,4 +178,7 @@ This repository is public, so photos committed here are public too.
 | Ink | `#3F352B` | body text |
 | Gulf | `#A7BBC3` | the wave in the logo |
 
-Type: Cormorant Garamond for headings, Jost for text and labels, Marcellus for the name.
+Type: Brygada 1918 for headings, leads and prices; Proza Libre for text, buttons, links and the small caps labels
+(the only text in caps). The name is Marcellus caps tracked 0.14em, outlined to `wordmark-<hash>.svg` by
+`tools/site/art.py`, so no font loads for it. Each font has a metric-matched fallback in
+`tools/site/css/00-base.css`, so the page doesn't move when the font arrives.

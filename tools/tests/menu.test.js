@@ -30,9 +30,9 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(await p.evaluate(() => document.activeElement === document.querySelector('#site-nav a[href]')) && s.label === 'Close' && s.expanded === 'true',
        'opening moves focus to the first link; the toggle reads "Close"');
     ok(s.behind.every(Boolean) && s.menuOpen, 'main, the footer and the skip link are inert while it is open');
-    ok(await p.$eval('#site-nav > a[aria-current="page"]', a => a.textContent.trim() === 'Investment' && getComputedStyle(a).fontStyle === 'italic' &&
+    ok(await p.$eval('#site-nav > a[aria-current="page"]', a => a.textContent.trim() === 'Investment' && getComputedStyle(a).fontStyle === 'normal' &&
        !!a.querySelector('.nav-sun') && a.querySelector('.nav-sun').getBoundingClientRect().width > 0).catch(() => false),
-       'the current tab is italic with the sun dot');
+       'the current tab is marked by the sun dot alone (roman, like the others)');
     await p.keyboard.press('Escape'); await p.waitForTimeout(500);
     s = await state(p);
     ok(!s.open && s.inert && !s.visible && !s.behind.some(Boolean) && !s.menuOpen &&

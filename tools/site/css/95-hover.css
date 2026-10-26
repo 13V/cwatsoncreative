@@ -1,19 +1,19 @@
 /* hover (focus twins live with each component) */
 @media (hover:hover) and (pointer:fine){
-  .btn:not([aria-disabled="true"]):hover{color:var(--paper);transition:color var(--t-press) linear, transform var(--t-press) var(--ease-light)}
-  .btn--sm:not([aria-disabled="true"]):hover{transition:color 40ms linear 23ms, transform var(--t-press) var(--ease-light)}
+  .btn:not([aria-disabled="true"]):hover{color:var(--paper);transition:color var(--t-press) linear,transform var(--t-press) var(--ease-light)}
+  .btn--sm:not([aria-disabled="true"]):hover{transition:color 40ms linear 23ms,transform var(--t-press) var(--ease-light)}
   .btn:hover::before{transform:translateY(-58%);transition:transform 420ms var(--ease-light)}
-  :is(.btn, .link-arrow):hover :not(.arw--ne) > .arw-shaft{transform:scaleX(var(--arw-grow))}
-  :is(.btn, .link-arrow):hover :not(.arw--ne) > .arw-head{transform:translateX(var(--arw-reach))}
-  :is(.link-arrow, .footer-instagram, .nav-instagram, .sheet-link):hover .arw--ne{transform:translate(2px, -2px)}
-  .btn--send:hover .btn-rule{transform:none}
-  .link-arrow:hover .la-label{background-size:100% 1px, 100% 1px}
+  :is(.btn,.link-arrow):hover :not(.arw--ne) > .arw-shaft{transform:scaleX(var(--arw-grow))}
+  :is(.btn,.link-arrow):hover :not(.arw--ne) > .arw-head{transform:translateX(var(--arw-reach))}
+  :is(.link-arrow,.footer-instagram,.nav-instagram,.sheet-link):hover .arw--ne{transform:translate(2px,-2px)}
+  .btn--send:hover .btn-rule{transform:scaleX(1.25)}
+  .link-arrow:hover .la-label{background-size:100% 1px,100% 1px}
   a:not([class]):hover{color:var(--bark);text-decoration-color:var(--bark)}
-  :is(.site-nav, .footer-nav) a:hover::after, .sheet-link:hover .sheet-handle::after{transform:none}
-  .footer-instagram:hover, .index a:hover{color:var(--bark)}
+  :is(.site-nav,.footer-nav) a:hover::after,.sheet-link:hover .sheet-handle::after{transform:none}
+  .footer-instagram:hover,.index a:hover{color:var(--bark)}
   .sheet-link:hover .ph img{transform:scale(1.03)}
   .to-top:hover .top-sun{transform:translateY(-2px)}
   .btn-bare:hover{opacity:1}
-  .btn-bare:hover svg{translate:var(--nudge, 0)}
+  .btn-bare:hover svg{translate:var(--nudge,0)}
   [data-nf]:has(.nf-home:hover) #nf-mark .mk-sun{translate:0 -24px}
 }

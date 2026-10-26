@@ -1,6 +1,6 @@
 /* gallery: chapters and the rhythm grid (§4.11) */
-.chapter-cover{display:block;width:min(82vw, 30rem);margin-inline:auto;border-radius:var(--r-arch)}
-.chapter-text{width:min(82vw, 30rem);margin:var(--sp-32) auto 0}
+.chapter-cover{display:block;width:min(82vw,30rem);margin-inline:auto;border-radius:var(--r-arch)}
+.chapter-text{width:min(82vw,30rem);margin:var(--sp-32) auto 0}
 .chapter-text .lead-i{margin-top:var(--sp-16)}
 .rg{margin-top:var(--row-gap)}
 #weddings > .chapter:first-child{padding-top:var(--sp-64)}
@@ -19,15 +19,15 @@
 @media (max-width:599px){
   .rg > *{margin-top:var(--sp-12)}
   .rg > :first-child{margin-top:0}
-  :is(.rg--wide, .rg--land-pair) > *{margin-inline:calc(var(--gutter) * -1)}
-  .rg--pair-l > :last-child, .rg--pair-r > :first-child{width:max(64%, 220px)}
-  :is(.rg--solo-l, .rg--solo-r) > *{width:max(78%, 220px)}
-  :is(.rg--pair-l, .rg--solo-r) > :last-child{margin-left:auto}
+  :is(.rg--wide,.rg--land-pair) > *{margin-inline:calc(var(--gutter) * -1)}
+  .rg--pair-l > :last-child,.rg--pair-r > :first-child{width:max(64%,220px)}
+  :is(.rg--solo-l,.rg--solo-r) > *{width:max(78%,220px)}
+  :is(.rg--pair-l,.rg--solo-r) > :last-child{margin-left:auto}
 }
 @media (min-width:600px) and (max-width:860px){
-  :is(.rg--land-pair, .rg--pair-l, .rg--pair-r){display:grid;grid-template-columns:1fr 1fr;column-gap:var(--col-gap);align-items:start}
-  .rg--pair-l > :last-child, .rg--pair-r > :first-child{margin-top:var(--sp-32)}
-  :is(.rg--solo-l, .rg--solo-r) > *{width:64%}
+  :is(.rg--land-pair,.rg--pair-l,.rg--pair-r){display:grid;grid-template-columns:1fr 1fr;column-gap:var(--col-gap);align-items:start}
+  .rg--pair-l > :last-child,.rg--pair-r > :first-child{margin-top:var(--sp-32)}
+  :is(.rg--solo-l,.rg--solo-r) > *{width:64%}
   .rg--solo-r > *{margin-left:auto}
 }
 @media (min-width:861px){
@@ -37,9 +37,9 @@
   .chapter-text{width:auto;margin:0;grid-column:1 / span 5}
   .chapter--alt .chapter-cover{grid-column:2 / span 5}
   .chapter--alt .chapter-text{grid-column:8 / span 5}
-  .rg{display:grid;grid-template-columns:repeat(12, minmax(0, 1fr));column-gap:var(--col-gap);align-items:start}
+  .rg{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--col-gap);align-items:start}
   .rg--wide > *{grid-column:2 / span 10}
-  :is(.rg--land-pair, .rg--pair-l) > :first-child{grid-column:1 / span 6}
+  :is(.rg--land-pair,.rg--pair-l) > :first-child{grid-column:1 / span 6}
   .rg--land-pair > :last-child{grid-column:7 / span 6}
   .rg--pair-l > :last-child{grid-column:8 / span 4;margin-top:var(--drop)}
   .rg--pair-r > :first-child{grid-column:2 / span 4;margin-top:var(--drop)}
@@ -47,8 +47,8 @@
   .rg--solo-l > *{grid-column:2 / span 5}
   .rg--solo-r > *{grid-column:7 / span 5}
   /* portraits whole on screen */
-  .rg:not(.rg--wide, .rg--land-pair) > *{width:100%;max-width:max(320px, (100svh - var(--header-h) - 112px) * 2 / 3)}
-  :is(.rg--pair-l, .rg--pair-r) > :last-child, .rg--solo-r > *{justify-self:end}
+  .rg:not(.rg--wide,.rg--land-pair) > *{width:100%;max-width:max(320px,(100svh - var(--header-h) - 112px) * 2 / 3)}
+  :is(.rg--pair-l,.rg--pair-r) > :last-child,.rg--solo-r > *{justify-self:end}
   .gallery-head .wrap > *{grid-column:1 / -1}
 }
 @media (min-width:1100px){   /* split head; lead out of flow */
@@ -64,10 +64,10 @@
 html.viewer-open{background:#1E1914}   /* and the kept gutter */
 .m.viewer-open{transition:background 360ms var(--ease-light)}
 .m.viewer-open:has(.is-closing){background:var(--paper);transition:background 320ms var(--ease-exit) 80ms}
-.m .viewer, .m .viewer::backdrop{background:transparent}
-.viewer-dark{position:fixed;inset:0;background:radial-gradient(70% 45% at 50% 112%, rgb(195 150 79 / .12), transparent), #1E1914}
+.m .viewer,.m .viewer::backdrop{background:transparent}
+.viewer-dark{position:fixed;inset:0;background:radial-gradient(70% 45% at 50% 112%,rgb(195 150 79 / .12),transparent),#1E1914}
 .viewer-top{position:absolute;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;
-  gap:var(--sp-16);padding:max(var(--sp-4), env(safe-area-inset-top)) max(var(--sp-4), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left))}
+  gap:var(--sp-16);padding:max(var(--sp-4),env(safe-area-inset-top)) max(var(--sp-4),env(safe-area-inset-right)) 0 max(var(--gutter),env(safe-area-inset-left))}
 .viewer-caption{color:var(--night-text)}
 .viewer-close{width:auto;display:inline-flex;gap:var(--sp-8);padding:0 var(--sp-12);color:var(--mist)}
 .viewer-stage{position:absolute;inset:calc(56px + env(safe-area-inset-top)) 0 calc(104px + env(safe-area-inset-bottom));
@@ -75,15 +75,15 @@ html.viewer-open{background:#1E1914}   /* and the kept gutter */
 .viewer-img{grid-area:1 / 1;max-width:none;transform-origin:0 0}
 .viewer-img.is-back{opacity:0;pointer-events:none}
 .viewer-img[src=""]{visibility:hidden}
-.viewer-prev, .viewer-next{position:absolute;z-index:1;bottom:calc(var(--sp-12) + env(safe-area-inset-bottom))}
-.viewer-prev{left:max(var(--sp-8), env(safe-area-inset-left));--nudge:-3px 0}
-.viewer-next{right:max(var(--sp-8), env(safe-area-inset-right));--nudge:3px 0}
-.viewer-foot{position:absolute;inset:auto 0 0;padding:var(--sp-20) max(var(--gutter), env(safe-area-inset-right))
-  calc(var(--sp-12) + env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left))}
+.viewer-prev,.viewer-next{position:absolute;z-index:1;bottom:calc(var(--sp-12) + env(safe-area-inset-bottom))}
+.viewer-prev{left:max(var(--sp-8),env(safe-area-inset-left));--nudge:-3px 0}
+.viewer-next{right:max(var(--sp-8),env(safe-area-inset-right));--nudge:3px 0}
+.viewer-foot{position:absolute;inset:auto 0 0;padding:var(--sp-20) max(var(--gutter),env(safe-area-inset-right))
+  calc(var(--sp-12) + env(safe-area-inset-bottom)) max(var(--gutter),env(safe-area-inset-left))}
 .viewer-progress{position:relative;display:block;height:1px;background:rgb(246 242 234 / .18)}
-.viewer-progress::after{content:"";position:absolute;inset:0;background:var(--sun-on-dark);transform:scaleX(var(--p, 0));
+.viewer-progress::after{content:"";position:absolute;inset:0;background:var(--sun-on-dark);transform:scaleX(var(--p,0));
   transform-origin:0 50%;transition:transform var(--t-ui) var(--ease-light)}
-.viewer-count{position:relative;margin-top:var(--sp-20);padding-block:var(--sp-16);line-height:1.25;color:var(--night-text);text-align:center}
+.viewer-count{position:relative;margin-top:var(--sp-20);padding-block:var(--sp-16);font:1rem/1.25 var(--serif);font-variant-numeric:tabular-nums;color:var(--night-text);text-align:center}
 .wheel{display:inline-block;height:1.25em;overflow:hidden;vertical-align:top}
 .wheel > span{display:block}
 /* in flight (D16) */
@@ -92,24 +92,24 @@ html.viewer-open{background:#1E1914}   /* and the kept gutter */
 .m .viewer.is-loading .viewer-count::after{animation:in-flight 1400ms var(--ease-shutter) infinite}
 @media (min-width:861px){
   .viewer-stage{inset:calc(48px + env(safe-area-inset-top)) 96px calc(92px + env(safe-area-inset-bottom))}
-  .viewer-prev, .viewer-next{bottom:auto;top:calc(50% - 24px)}
-  .viewer-prev{left:max(var(--sp-24), env(safe-area-inset-left))}
-  .viewer-next{right:max(var(--sp-24), env(safe-area-inset-right))}
+  .viewer-prev,.viewer-next{bottom:auto;top:calc(50% - 24px)}
+  .viewer-prev{left:max(var(--sp-24),env(safe-area-inset-left))}
+  .viewer-next{right:max(var(--sp-24),env(safe-area-inset-right))}
   .viewer-foot{padding-top:var(--sp-24);padding-bottom:calc(var(--sp-4) + env(safe-area-inset-bottom))}
   .viewer-count{margin-top:var(--sp-12)}
 }
 @media (max-width:860px) and (max-height:500px){
   .viewer-stage{inset:44px 64px calc(48px + env(safe-area-inset-bottom))}
-  .viewer-prev, .viewer-next{bottom:auto;top:calc(50% - 24px)}
+  .viewer-prev,.viewer-next{bottom:auto;top:calc(50% - 24px)}
   .viewer-foot{padding-top:0}
   .viewer-count{margin:0;padding-block:var(--sp-8)}
 }
 
 /* M06 fades; the photo itself moves by WAAPI */
 .m .viewer[open] .viewer-dark{animation:fade-in 360ms var(--ease-light)}
-.m .viewer[open] > :not(:first-child, .viewer-stage){animation:fade-in 220ms linear 220ms backwards}
+.m .viewer[open] > :not(:first-child,.viewer-stage){animation:fade-in 220ms linear 220ms backwards}
 .m .viewer.is-closing .viewer-dark{animation:viewer-out 320ms var(--ease-exit) 80ms forwards}
-.m .viewer.is-closing > :not(:first-child, .viewer-stage){animation:viewer-out 120ms var(--ease-exit) forwards}
+.m .viewer.is-closing > :not(:first-child,.viewer-stage){animation:viewer-out 120ms var(--ease-exit) forwards}
 @keyframes viewer-out{to{opacity:0}}
 
 /* hover twin (D7) */

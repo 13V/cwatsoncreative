@@ -136,9 +136,10 @@ INTRO = ['Sunday light is low, warm and in no hurry. It’s the light I chase, a
 INSTAGRAM_STRIP = ['gilded-mirror', 'bougainvillea-bride', 'car-window-smile', 'grass-overhead',
                    'bridesmaids-steps', 'groomsmen-steps']
 
-# Line plans: '|' breaks below 861px only, '/' from 861px only, '//' at every width, '*…*' is the italic phrase.
-HERO_TITLE = 'Photographs that feel//like a *Sunday afternoon.*'
-STATEMENT_LINE = 'Sunday light|is low,/warm and|*in no hurry.*'      # her first sentence (asserted below)
+# Line plans: '|' breaks below 861px only, '/' from 861px only, '//' at every width, '*…*' is the emphasised phrase
+# (set roman, in the heading's own colour). Each line fits its width-fit size in the real face and in the fallback.
+HERO_TITLE = 'Photographs that//feel like a//*Sunday\u00a0afternoon.*'   # no-break space: the last line never splits
+STATEMENT_LINE = 'Sunday light|is low,/warm|and in no hurry.'      # her first sentence (asserted below)
 CLOSING = {
     'index': 'You bring|your people.//*I’ll look after|the light.*',  # the end of INTRO[1] (asserted below)
     'gallery': 'Your day,//*in this light.*',                        # NEW, for the owner's sign-off
@@ -177,7 +178,7 @@ INVESTMENT_HERO = 'jaguar-veil'
 # (graduations, 18ths, birthdays) was dropped in ed55ac9, so it has no section and lands at the top of the page.
 OLD_ANCHORS = {'bump': 'maternity'}
 INVESTMENT_INTRO = ['These are the photos you’ll frame, share and come back to for years, so every session is planned around '
-                    'the best light of the day and the people in it.',
+                    'the best light of the day and the\u00a0people\u00a0in\u00a0it.',   # no-break spaces: no two-word last line
                     'Every session includes help choosing the spot and the time, ideas for what to wear, and your edited '
                     'photos in a private online gallery, ready to download and share.']
 # Spec-sheet row labels for each session include (every include becomes a row, in order).

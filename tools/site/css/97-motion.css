@@ -9,9 +9,9 @@
 
 /* M01 Through the arch */
 @media (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
-:root{--vt-x:50%;--vt-w:clamp(96px, 28vw, 320px);--vt-h:calc(var(--vt-w) * 1.45);--vt-top:calc(90svh - var(--vt-h))}
+:root{--vt-x:50%;--vt-w:clamp(96px,28vw,320px);--vt-h:calc(var(--vt-w) * 1.45);--vt-top:calc(90svh - var(--vt-h))}
 ::view-transition{background:var(--ink)}
-::view-transition-old(root), ::view-transition-new(root){mix-blend-mode:normal}
+::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal}
 ::view-transition-old(root){animation:vt-room var(--t-page) linear both}
 ::view-transition-new(root){animation:vt-arch var(--t-page) var(--ease-light) both}
 @keyframes vt-room{to{opacity:var(--dim-room)}}
@@ -29,17 +29,17 @@ html.vt-quiet::view-transition-new(root){animation:vt-fade 240ms var(--ease-ligh
 ::view-transition-group(nav-sun){animation-duration:420ms;animation-timing-function:var(--ease-light)}
 
 /* M02, M12 (D18), M03 line */
-.m :is(.window-arches .frame, .orn .orn-rule, .sundown-scene :is(.dusk-line, .dusk-wave)):is(.is-armed:not(.is-drawn):not(.is-done) *){stroke-dashoffset:1.01}
-.m [data-rules].is-armed:not(.is-drawn):not(.is-done) .step::after, .m [data-rules].is-armed:not(.is-drawn):not(.is-done) :is(summary, .tier, .tier-price, .spec > div, .details > div)::before{transform:scaleX(0)}
+.m :is(.window-arches .frame,.orn .orn-rule,.sundown-scene :is(.dusk-line,.dusk-wave)):is(.is-armed:not(.is-drawn):not(.is-done) *){stroke-dashoffset:1.01}
+.m [data-rules].is-armed:not(.is-drawn):not(.is-done) .step::after,.m [data-rules].is-armed:not(.is-drawn):not(.is-done) :is(summary,.tier,.tier-price,.spec > div,.details > div)::before{transform:scaleX(0)}
 .orn-rule{stroke-dasharray:1 2}
-.window-arches.is-drawn .frame{transition:stroke-dashoffset var(--t-draw) var(--ease-pen) calc(var(--i, 0) * 120ms)}
-.steps.is-drawn .step::after, .details.is-drawn > div::before{transition:transform 700ms var(--ease-pen) calc(var(--i, 0) * var(--stagger-rule))}
-:is(.faq.is-drawn summary, .tiers.is-drawn :is(.tier, .tier-price), .spec.is-drawn > div)::before{transition:transform 500ms var(--ease-pen) calc(var(--i, 0) * 60ms)}
+.window-arches.is-drawn .frame{transition:stroke-dashoffset var(--t-draw) var(--ease-pen) calc(var(--i,0) * 120ms)}
+.steps.is-drawn .step::after,.details.is-drawn > div::before{transition:transform 700ms var(--ease-pen) calc(var(--i,0) * var(--stagger-rule))}
+:is(.faq.is-drawn summary,.tiers.is-drawn :is(.tier,.tier-price),.spec.is-drawn > div)::before{transition:transform 500ms var(--ease-pen) calc(var(--i,0) * 60ms)}
 .orn.is-drawn .orn-rule{transition:stroke-dashoffset 420ms var(--ease-pen)}
 
 /* M10 prints in the tray */
 .m .ph--tray.is-armed::after{content:"";position:absolute;inset:0 0 auto;height:150%;pointer-events:none;
-  background:linear-gradient(rgb(246 242 234 / .86) 50%, rgb(236 222 200 / .86) 66%, rgb(236 222 200 / 0))}
+  background:linear-gradient(rgb(246 242 234 / .86) 50%,rgb(236 222 200 / .86) 66%,rgb(236 222 200 / 0))}
 .m .ph--tray.is-armed img{transform:scale(var(--settle-print));transition:none}
 .m .ph--tray.is-developing::after{transform:translateY(-100%);transition:transform var(--t-develop) var(--ease-light)}
 .m .ph--tray.is-developing img{transform:none;transition:transform 1400ms var(--ease-light)}
@@ -77,6 +77,6 @@ html.vt-quiet::view-transition-new(root){animation:vt-fade 240ms var(--ease-ligh
 /* 404 dusk (D12) */
 #nf-mark .mk-sun{transform:translateY(44px);transition:translate 500ms var(--ease-light)}
 .m[data-nf] #nf-mark:not(.is-dusk):not(.is-done){.mk-sun{transform:none}.nf-dusk{opacity:0}}
-#nf-mark.is-dusk .mk-sun{transition:transform 2400ms var(--ease-light) 400ms, translate 500ms var(--ease-light)}
+#nf-mark.is-dusk .mk-sun{transition:transform 2400ms var(--ease-light) 400ms,translate 500ms var(--ease-light)}
 #nf-mark.is-dusk .nf-dusk{transition:opacity 2000ms var(--ease-light) 400ms}
 [data-nf]:has(.nf-home:focus-visible) #nf-mark .mk-sun{translate:0 -24px}

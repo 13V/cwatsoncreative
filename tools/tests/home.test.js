@@ -89,7 +89,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(s.panel[1] && s.panel[3] && s.panel[5], 'every section after a window is a .panel');
     const h = s.h1[0] || {};
     ok(s.h1.length === 1 && h.inHero && h.id === 'hero-title' && /\bt-display\b/.test(h.cls) && s.labelled === 'hero-title', 'one h1, on the hero (h1#hero-title.t-display labels the hero)');
-    ok(/^Photographs that feel<br> like a <em>Sunday afternoon\.<\/em>$/.test(h.html), `the h1 follows its line plan (${h.html})`);
+    ok(/^Photographs that<br> feel like a<br> <em>Sunday&nbsp;afternoon\.<\/em>$/.test(h.html), `the h1 follows its three-line plan, 'Sunday afternoon' unbroken (${h.html})`);
     ok(s.cue && s.cue.href === '#statement' && s.cue.label === 'Scroll to read more' && s.link && s.link.href === 'contact.html' && s.link.text === 'Check my dates' && s.link.light,
        'hero: "Check my dates" (light) and the scroll cue to #statement');
     ok(s.ld.includes('ProfessionalService'), 'JSON-LD on Home');
@@ -148,7 +148,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     }
   }
 
-  // Line plans and clipping: the statement is 3 lines below 861px and 2 from 861px; the h1 2 lines; the closing 4 and 2.
+  // Line plans and clipping: the statement is 3 lines below 861px and 2 from 861px; the h1 3 lines; the closing 4 and 2.
   {
     const problems = [];
     for (const [w, h] of [[320, 640], [375, 667], [390, 844], [430, 932], [861, 900], [1280, 720], [1440, 900]]) {
@@ -156,7 +156,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       const p = await ctx.newPage(); watch(p);
       await p.goto(`${base}/index.html`, { waitUntil: 'networkidle' });
       const n = { h1: await lineCount(p, '.hero-title'), st: await lineCount(p, '.statement-line'), cl: await lineCount(p, '#closing-title') };
-      const want = { h1: 2, st: w < 861 ? 3 : 2, cl: w < 861 ? 4 : 2 };
+      const want = { h1: 3, st: w < 861 ? 3 : 2, cl: w < 861 ? 4 : 2 };
       for (const k of Object.keys(want)) if (n[k] !== want[k]) problems.push(`${w}: ${k} ${n[k]} lines (want ${want[k]})`);
       const clipped = await p.evaluate(() => [...document.querySelectorAll('main :is(h1, h2, .t-display-xl, .tile-name, .tile-words)')].filter(el => {
         const r = el.getBoundingClientRect();
@@ -167,7 +167,28 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       if (!hero) problems.push(`${w}: hero copy outside the hero`);
       await ctx.close();
     }
-    ok(!problems.length, 'line plans hold at 320–1440 (h1 2 lines, statement 3/2, closing 4/2), nothing clipped' + (problems.length ? ': ' + problems.join(' | ') : ''));
+    ok(!problems.length, 'line plans hold at 320–1440 (h1 3 lines, statement 3/2, closing 4/2), nothing clipped' + (problems.length ? ': ' + problems.join(' | ') : ''));
+  }
+
+  // 'Sunday afternoon.' cannot break, so the hero h1 is sized to the width alone: its text stays inside its box on a
+  // 280px fold screen and with a larger default text size (20px and 24px instead of 16px).
+  {
+    const problems = [];
+    for (const [w, h, root] of [[280, 653, 16], [320, 640, 20], [390, 844, 24], [861, 700, 20], [1024, 768, 24]]) {
+      const ctx = await context(b, 'reduced', vp(w, h));
+      const p = await ctx.newPage(); watch(p);
+      await p.goto(`${base}/index.html`, { waitUntil: 'networkidle' });
+      await p.addStyleTag({ content: `html{font-size:${root}px}` });
+      const r = await p.evaluate(() => {
+        const el = document.querySelector('.hero-title'), range = document.createRange(); range.selectNodeContents(el);
+        const box = el.closest('.hero-copy').getBoundingClientRect(), text = [...range.getClientRects()].filter(b => b.width > 1);
+        return { right: Math.max(...text.map(b => b.right)), left: Math.min(...text.map(b => b.left)), box: [box.left, box.right], vw: document.documentElement.clientWidth };
+      });
+      const n = await lineCount(p, '.hero-title');
+      if (n !== 3 || r.left < r.box[0] - 1 || r.right > r.box[1] + 1 || r.right > r.vw) problems.push(`${w}px, ${root}px text: ${n} lines, text ${Math.round(r.left)}–${Math.round(r.right)} in ${Math.round(r.box[0])}–${Math.round(r.box[1])}`);
+      await ctx.close();
+    }
+    ok(!problems.length, 'the hero h1 keeps its three lines inside the hero copy at 280px and with 20–24px default text' + (problems.length ? ': ' + problems.join(' | ') : ''));
   }
 
   // Tiles: one photo tile per session with a photo (a doorway that develops), the rest named in one text tile.

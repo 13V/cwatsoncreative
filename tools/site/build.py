@@ -8,7 +8,7 @@
 # numbered parts in tools/site/css/ and tools/site/js/ (in file-name order), so edit the parts, not the joined files.
 # Every SVG comes from art.py; this file holds none. A photo only appears once its file exists, so run this again
 # after adding photos (tools/prepare_photos.py does that for you).
-import glob, gzip, html, json, os, re, sys
+import glob, gzip, hashlib, html, json, os, re, sys
 from html.parser import HTMLParser
 from urllib.parse import quote_plus
 
@@ -296,7 +296,7 @@ def header(active):
     return (f'<a class="skip" href="#main">Skip to content</a>\n'
             f'<header class="site-header" id="top" tabindex="-1"><div class="header-inner wrap">'
             f'<nav id="site-nav" class="site-nav xfade" aria-label="Main"><span class="nav-sheet" aria-hidden="true"></span>{links}'
-            f'<div class="menu-foot"><a class="nav-instagram t-label" href="{ig_url}" rel="me">{icon("instagram")}'
+            f'<div class="menu-foot"><a class="nav-instagram" href="{ig_url}" rel="me">{icon("instagram")}'
             f'<span><span class="sr-only">Instagram </span>{e(ig_name)}</span>{icon("arrow-ne")}</a>'
             f'<span class="menu-place t-micro">Adelaide, South Australia</span></div></nav>'
             f'<a class="brand" href="index.html" aria-label="Sunday Light, home">{mark("h", "sm")}'
@@ -364,6 +364,13 @@ def font_preload(name):
     return f'<link rel="preload" href="fonts/{name}.woff2" as="font" type="font/woff2" crossorigin>\n'
 
 
+# The name in the header and the footer is wordmark.svg (art.py A2b) painted through a CSS mask, and a mask paints
+# nothing until its image arrives. So the file is named by its content (the build writes styles.css with that name),
+# vercel.json caches it for good, and every page preloads it (crossorigin: mask images are fetched in CORS mode).
+WORDMARK = f'wordmark-{hashlib.sha256(art.wordmark_svg().encode()).hexdigest()[:10]}.svg'
+WORDMARK_PRELOAD = f'<link rel="preload" href="{WORDMARK}" as="image" type="image/svg+xml" crossorigin>\n'
+
+
 def lcp_preload(lcp):
     """The LCP photo's preload, from the same srcset builder and SIZES entry as its <source>."""
     key, sizes = lcp
@@ -375,12 +382,15 @@ def lcp_preload(lcp):
             f'imagesizes="{SIZES.get(sizes, sizes)}" fetchpriority="high">\n')
 
 
-def head(title, desc, *, jsonld=False, italic=False, lcp=None, fonts=()):
-    # The LCP photo first, then Cormorant 300 (and any faces a page names in fonts, then the italic where the h1 has
-    # one); every other face swaps onto its metric-matched fallback without moving anything.
-    preload = (lcp_preload(lcp) if lcp else '') + ''.join(map(font_preload, ('cormorant-garamond-300', *fonts)))
-    if italic:
-        preload += font_preload('cormorant-garamond-300-italic')
+FONT_PRELOADS = 2   # at most: Brygada roman, and Proza 400 where a page names it
+
+
+def head(title, desc, *, jsonld=False, lcp=None, fonts=()):
+    # The LCP photo first, then Brygada roman (every page's headings) and any face a page names in fonts (Proza 400,
+    # where body text is in the first view), then the wordmark; every other face swaps onto its metric-matched
+    # fallback without moving anything (00-base.css).
+    preload = ((lcp_preload(lcp) if lcp else '') + ''.join(map(font_preload, ('brygada-1918-400-700', *fonts)))
+               + WORDMARK_PRELOAD)
     ld = f'<script type="application/ld+json">{json.dumps(JSONLD, ensure_ascii=False)}</script>\n' if jsonld else ''
     return (f'{preload}<title>{e(title)}</title>\n<meta name="description" content="{e(desc)}">\n'
             f'<meta property="og:title" content="{e(title)}">\n<meta property="og:description" content="{e(desc)}">\n'
@@ -395,14 +405,14 @@ def head(title, desc, *, jsonld=False, italic=False, lcp=None, fonts=()):
 
 def page(page_key, active, title, desc, main, *, lcp=None, jsonld=False, robots=None, body_extra='', fonts=()):
     """A whole page. page_key: home | gallery | investment | kind-words | contact | privacy | 404 (data-page). lcp: the
-    LCP photo as (key, SIZES key) on pages that preload it (Home, Investment). fonts: extra faces to preload, only where
-    a centred first view would otherwise shift when they swap in (plan D22's exception: Kind words' holding page)."""
-    italic = '<em>' in main.split('</h1>', 1)[0]
+    LCP photo as (key, SIZES key) on pages that preload it (Home, Investment). fonts: a face to preload beside Brygada
+    roman: Proza 400 where body text is in the first view and no LCP photo needs the bandwidth (Contact, Privacy).
+    Late or not, every face lands on a metric-matched fallback without moving anything (pages.test.js)."""
     attrs = f' data-page="{page_key}"' + (' data-nf' if page_key == '404' else '')
     out = (f'<!doctype html>\n<html lang="en-AU"{attrs}>\n<head>\n<meta charset="utf-8">\n'
            '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
            + (f'<meta name="robots" content="{robots}">\n' if robots else '')
-           + head(title, desc, jsonld=jsonld, italic=italic, lcp=lcp, fonts=fonts) + '</head>\n<body>\n' + header(active)
+           + head(title, desc, jsonld=jsonld, lcp=lcp, fonts=fonts) + '</head>\n<body>\n' + header(active)
            + f'<main id="main" tabindex="-1">\n{main}\n</main>\n' + footer(active) + body_extra + '</body>\n</html>\n')
     return root_absolute(out) if page_key == '404' else out
 
@@ -469,7 +479,7 @@ def home_statement():
 
 # Where each session's Home tile leads, and what its small label says (§4.9, §6.3).
 HOME_TILE_LINK = {'weddings': ('gallery.html', 'See the gallery'),
-                  'couples': ('investment.html#couples', 'Engagements & proposals too')}
+                  'couples': ('investment.html#couples', 'Engagements &\u00a0proposals too')}   # never ends a line on '&'
 
 
 def home_sessions():
@@ -485,13 +495,13 @@ def home_sessions():
             continue
         items.append(f'<li style="--i:{len(items)}"><a class="tile" href="{href}" data-door>{photo}'
                      f'<span class="tile-name">{e(name)}</span><span class="sr-only">, </span>'
-                     f'<span class="tile-sub t-label">{e(sub)}</span></a></li>')
+                     f'<span class="tile-sub">{e(sub)}</span></a></li>')
     if words:
         names = '<br> '.join(e(s.get('short', s['name'])) for s in words)
         items.append(f'<li class="tiles-words" style="--i:{len(items)}"><a class="tile tile--words" '
                      f'href="investment.html#{words[0]["id"]}"><span class="tile-words">{names}</span>'
                      f'<span class="tile-rule" aria-hidden="true"></span><span class="sr-only">, </span>'
-                     f'<span class="tile-sub t-label">Sessions &amp; pricing</span></a></li>')
+                     f'<span class="tile-sub">Sessions &amp; pricing</span></a></li>')
     return (f'<section class="sessions sec--band panel" aria-labelledby="sessions-title"><div class="wrap">'
             f'<div class="sessions-head"><p class="eyebrow">Sessions</p>'
             f'<h2 id="sessions-title">From the coast <em>to the hills.</em></h2>'
@@ -532,7 +542,7 @@ def gallery():
         sections.append(gallery_section(c, cid, title, line, keys, groups[c], index, numbered=c < len(chapters)))
         index += len(keys)
     weddings = ''.join(sections[:len(chapters)])
-    main = f'''{page_head("Gallery", "A few <em>favourite days.</em>", lead, layout="left", cls="gallery-head", grid=True)}
+    main = f'''{page_head("Gallery", lines("A few//*favourite days.*"), lead, layout="left", cls="gallery-head", grid=True)}
 {bar}
 {f'<div id="weddings">{weddings}</div>' if weddings else ''}
 {''.join(sections[len(chapters):])}
@@ -576,7 +586,7 @@ def viewer(total):
     return (f'<dialog class="viewer" aria-label="Photo viewer" data-sizes="{SIZES["viewer"]}">'
             '<div class="viewer-dark xfade" aria-hidden="true"></div>'
             '<div class="viewer-top"><p class="viewer-caption t-label"></p>'
-            f'<button class="viewer-close btn-bare t-label" type="button" autofocus><span>Close</span> {icon("close")}</button></div>'
+            f'<button class="viewer-close btn-bare" type="button" autofocus><span>Close</span> {icon("close")}</button></div>'
             '<div class="viewer-stage"><img class="viewer-img is-front" alt="" width="2" height="3">'
             '<img class="viewer-img is-back" alt="" aria-hidden="true" width="2" height="3"></div>'
             f'<button class="viewer-prev btn-bare" type="button" aria-label="Previous photo">{icon("chev-l")}</button>'
@@ -614,7 +624,7 @@ def inv_hero():
     return (f'<section class="inv-hero sec--flush" aria-labelledby="investment-title">'
             f'{fig(INVESTMENT_HERO, "inv-hero", cls="inv-hero-photo", fill=True, priority=True)}'
             f'<div class="inv-hero-text wrap"><p class="eyebrow">Investment</p>'
-            f'<h1 id="investment-title">{lines("Photos you’ll keep|*for good.*")}</h1>'   # one plan for both faces
+            f'<h1 id="investment-title">{lines("Photos you’ll/keep|*for good.*")}</h1>'
             f'<p class="lead">{e(lead)}</p>{"".join(f"<p>{e(p)}</p>" for p in rest)}</div></section>')
 
 
@@ -713,23 +723,20 @@ def kind_words_page():
     photo, the page's promise in plain words and the newest sessions on Instagram. Kept out of search meanwhile."""
     ig_name, ig_url = INSTAGRAM
     title, desc = 'Kind words | Sunday Light', 'What couples and families say about their sessions with Sunday Light, Adelaide photographer.'
-    h1 = 'From the people <em>in the photos.</em>'
+    h1 = lines('From the people//*in the photos.*')
     if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:   # the link preview promises no reviews either
         desc = 'Where couples and families share how their sessions felt with Sunday Light, Adelaide photographer.'
         main = f'''<section class="page-head kw-holding sec--compact head--center"><div class="wrap">
 {arch_frame(KIND_WORDS_HOLDING_PHOTO, "kw-holding", "3x4", priority=True)}
 <p class="eyebrow">Kind words</p><h1>{h1}</h1>
-<p class="lead">This is where couples and families share how their sessions felt. The newest sessions go up on Instagram first.</p>
+<p class="lead">This is where couples and families share how their sessions felt.<br class="br-md"> The newest sessions go up on Instagram first.</p>
 <div class="actions">{link_arrow(ig_url, "See the newest sessions on Instagram", external=True)}</div>
 </div></section>
 
 {instagram_sheet("limestone")}
 
 {closing("kind-words")}'''
-        # The holding head is centred and fills the first phone screen, so its Cormorant 500 lead and Jost labels
-        # swapping in after the first paint would move centred lines sideways (a layout shift): preload them.
-        return page('kind-words', 'kind-words.html', title, desc, main, robots='noindex',
-                    fonts=('cormorant-garamond-500', 'jost-300-600'))
+        return page('kind-words', 'kind-words.html', title, desc, main, robots='noindex')
     stories = ''.join(kw_story(n, r) for n, r in enumerate(KIND_WORDS, 1))
     main = f'''{page_head("Kind words", h1, "A few words from the couples and families I’ve photographed.", layout="left")}
 
@@ -787,11 +794,11 @@ def contact():
 <textarea id="message" name="message" required maxlength="4000" placeholder="Who’s involved, what you’re picturing, anything I should know" aria-describedby="err-message"></textarea>
 {form_error("message", "Add a line or two about what you’re planning.")}
 </div>
-<fieldset class="fs"><legend class="t-question">How did you find me? (optional)</legend>
+<fieldset class="fs"><legend class="t-question">How did you find me? <span class="t-caption">(optional)</span></legend>
 <div class="chips">{form_chips("heard", ["Instagram", "A friend", "Google", "A wedding vendor", "Somewhere else"])}</div>
 </fieldset>
 <div class="hp sr-only" aria-hidden="true"><label for="company">Leave this empty</label><input id="company" name="_honey" tabindex="-1" autocomplete="off"></div>
-<div class="form-foot"><button class="btn btn--primary btn--send" type="submit"><span>Send</span> <i class="btn-rule" aria-hidden="true"></i> <span>enquiry</span></button>
+<div class="form-foot"><button class="btn btn--primary btn--send" type="submit"><span>Send enquiry</span> <i class="btn-rule" aria-hidden="true"></i></button>
 <div class="form-report"><p id="form-status" class="form-status t-caption" aria-hidden="true">Sending…</p>
 <div id="form-error" class="form-error" role="group" aria-labelledby="form-error-text" tabindex="-1" hidden><p id="form-error-text" class="t-small">Your enquiry didn’t send. Your details are still here, so please try again, or message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</p></div></div>
 </div>
@@ -813,8 +820,9 @@ def contact():
 </dl>
 </div>
 </div></section>'''
-    return page('contact', 'contact.html', 'Contact | Sunday Light',
-                'Check dates for wedding, couples, family, maternity and newborn photography in Adelaide.', main)
+    return page('contact', 'contact.html', 'Contact | Sunday Light',   # the details beside the form are body text
+                'Check dates for wedding, couples, family, maternity and newborn photography in Adelaide.', main,
+                fonts=('proza-libre-400',))
 
 
 def form_error(name, message, bad=''):
@@ -851,7 +859,8 @@ def privacy():
 <h2 class="h2--sm">Photos</h2><p>Some session photos appear on this website and on Instagram. If you’d like a photo of you removed, just ask and I’ll take it down.</p>
 <h2 class="h2--sm">Questions or changes</h2><p>To see, correct or delete the details you’ve sent, message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</p>
 </div></div></section>'''
-    return page('privacy', '', 'Privacy | Sunday Light', 'How Sunday Light handles the details you share.', main)
+    return page('privacy', '', 'Privacy | Sunday Light', 'How Sunday Light handles the details you share.', main,
+                fonts=('proza-libre-400',))   # the first view is body text
 
 
 def not_found():
@@ -877,11 +886,15 @@ WP0_CSS = ['00-base', '10-buttons', '20-header-menu', '30-photos-windows', '50-i
 WP0_JS = ['00-kernel', '05-moments', '10-menu', '15-header', '20-photos', '25-index', '70-year-golden-hour', '99-end']
 # Bytes, unminified, comments included; each package is held to its own slice (plan §8). The slices served the parallel
 # build; fix round 2 rebalanced them within the unchanged totals (CSS: WP0 38 → 37.6875KB, WP2 6.5 → 7.25KB, WP4
-# contact 5 → 5.0625KB, WP4 kind words 2 → 1.5KB; JS: WP0 18 → 18.5KB, WP2 7 → 7.25KB, WP1 1 → .75KB, WP3 1 → .5KB).
+# contact 5 → 5.0625KB, WP4 kind words 2 → 1.5KB; JS: WP0 18 → 18.5KB, WP2 7 → 7.25KB, WP1 1 → .75KB, WP3 1 → .5KB),
+# and the type change moved 128 bytes of CSS to WP3 (tabular prices on phones, the hero h1 cap): 64 from WP4 contact,
+# 32 each from WP1 and WP4 kind words (WP3 7.625KB, WP4 contact 5KB, WP1 4.96875KB, WP4 kind words 1.46875KB); its
+# review fixes moved 96 more from WP0, freed by tighter commas there: 64 to WP3 (narrow-phone tier rows, the spec-term
+# measure), 32 to WP4 contact (the legend's '(optional)'), so WP0 37.59375KB, WP3 7.6875KB, WP4 contact 5.03125KB.
 PART_BUDGET = {
-    'css': {'WP0': (WP0_CSS, 37.6875 * KB), 'WP1': (['40-home'], 5 * KB), 'WP2': (['60-gallery-viewer'], 7.25 * KB),
-            'WP3': (['70-investment'], 7.5 * KB), 'WP4 contact': (['80-contact'], 5.0625 * KB),
-            'WP4 kind words': (['45-kind-words'], 1.5 * KB)},
+    'css': {'WP0': (WP0_CSS, 37.59375 * KB), 'WP1': (['40-home'], 4.96875 * KB), 'WP2': (['60-gallery-viewer'], 7.25 * KB),
+            'WP3': (['70-investment'], 7.6875 * KB), 'WP4 contact': (['80-contact'], 5.03125 * KB),
+            'WP4 kind words': (['45-kind-words'], 1.46875 * KB)},
     'js': {'WP0': (WP0_JS, 18.5 * KB), 'WP1': (['32-home'], .5 * KB), 'WP2': (['50-viewer'], 7.25 * KB),
            'WP3': (['36-investment'], .375 * KB), 'WP4': (['60-form', '40-session-prefill'], 5.375 * KB)},
 }
@@ -1091,10 +1104,42 @@ def check_page(fail, name, page_html):
             fail(f'investment.html: the tier hours read {hours}; her package sheet says "Up to N hours"')
 
 
+def check_fonts(fail, pages, out):
+    """Self-hosted OFL faces only: every @font-face file exists and every font file is used, each family ships its
+    licence (fonts/OFL-<Family>.txt) and no licence outlives its family, every other url() in the built CSS exists
+    (the wordmark mask), each page preloads Brygada roman first and at most FONT_PRELOADS faces, all of them in use, and
+    each page preloads the wordmark the CSS masks with."""
+    css = re.sub(r'/\*.*?\*/', '', ''.join(open(p, encoding='utf-8').read() for p in parts('css')), flags=re.S)
+    faces = re.findall(r'@font-face\{font-family:"([^"]+)";[^}]*?src:url\("fonts/([^"]+)"\)', css)
+    used, have = {f for _, f in faces}, set(os.listdir(os.path.join(ROOT, 'fonts')))
+    for f in sorted(used - have):
+        fail(f'styles.css: fonts/{f} does not exist')
+    for f in sorted(x for x in have if x.endswith('.woff2') and x not in used):
+        fail(f'fonts/{f} is not used by any @font-face: remove it')
+    families, licences = {fam.replace(' ', '') for fam, _ in faces}, {x[4:-4] for x in have if x.startswith('OFL-')}
+    for fam in sorted(families - licences):
+        fail(f'fonts/OFL-{fam}.txt is missing: every self-hosted family ships its licence')
+    for fam in sorted(licences - families):
+        fail(f'fonts/OFL-{fam}.txt belongs to a family nothing uses: remove it')
+    built = re.sub(r'/\*.*?\*/', '', open(os.path.join(out, 'styles.css'), encoding='utf-8').read(), flags=re.S)
+    for url in re.findall(r'url\("?([^")]+)"?\)', built):
+        if not url.startswith(('data:', 'fonts/')) and not os.path.isfile(os.path.join(out, url)):
+            fail(f'styles.css: url({url}) does not exist')
+    if f'url({WORDMARK})' not in built:
+        fail(f'styles.css: the name is not masked with {WORDMARK}')
+    for name, page_html in pages.items():
+        pre = re.findall(r'<link rel="preload" href="/?fonts/([^"]+)" as="font"', page_html)
+        if not pre or pre[0] != 'brygada-1918-400-700.woff2' or len(pre) > FONT_PRELOADS or set(pre) - used:
+            fail(f'{name}: font preloads {pre}: Brygada roman first, at most {FONT_PRELOADS}, each one in use')
+        if WORDMARK_PRELOAD.replace('href="', 'href="/' if name == '404.html' else 'href="') not in page_html:
+            fail(f'{name}: no preload for {WORDMARK} (the name paints nothing until it arrives)')
+
+
 def verify(pages, out):
     errors = []
     fail = errors.append
     css_sizes = check_css(fail)
+    check_fonts(fail, pages, out)
     check_js(fail)
     check_budgets(fail, css_sizes)
     if len(HEAD_SCRIPT.encode()) > HEAD_SCRIPT_BUDGET:
@@ -1136,7 +1181,8 @@ def assemble(out):
     for ext, name, note in (('css', 'styles.css', '/* Sunday Light. Built from tools/site/css/ by tools/site/build.py: edit the parts there. */\n'),
                             ('js', 'main.js', '// Sunday Light. Built from tools/site/js/ by tools/site/build.py: edit the parts there.\n')):
         with open(os.path.join(out, name), 'w', encoding='utf-8') as f:
-            f.write(note + ''.join(open(part, encoding='utf-8').read() for part in parts(ext)))
+            joined = ''.join(open(part, encoding='utf-8').read() for part in parts(ext))
+            f.write(note + (joined.replace('url(wordmark.svg)', f'url({WORDMARK})') if ext == 'css' else joined))
 
 
 def main(out=ROOT):
@@ -1149,8 +1195,12 @@ def main(out=ROOT):
     for name in RETIRED:
         if os.path.exists(os.path.join(out, name)):
             os.remove(os.path.join(out, name))
-    with open(os.path.join(out, 'favicon.svg'), 'w', encoding='utf-8') as f:
-        f.write(art.FAVICON)
+    for name in glob.glob(os.path.join(out, 'wordmark*.svg')):   # an earlier wordmark
+        if os.path.basename(name) != WORDMARK:
+            os.remove(name)
+    for name, svg in (('favicon.svg', art.FAVICON), (WORDMARK, art.wordmark_svg())):
+        with open(os.path.join(out, name), 'w', encoding='utf-8') as f:
+            f.write(svg)
     print('built', ', '.join(PAGES), '->', out)
     errors = verify(pages, out)
     if KIND_WORDS_ARE_PLACEHOLDERS:

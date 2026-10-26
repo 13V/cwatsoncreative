@@ -15,14 +15,13 @@
 .btn--primary{--btn-fill:var(--ink);background:var(--bark);color:var(--paper)}
 .btn--sm{min-height:44px;padding:0 var(--sp-20);transition:color 40ms linear 183ms, transform var(--t-press) var(--ease-light)}
 .btn--sm:focus-visible{transition:color 40ms linear 23ms, transform var(--t-press) var(--ease-light)}
-.btn--sm[aria-current="page"]{border-color:var(--paddock-ink)}
-.btn--block{width:100%}
+.header-cta[aria-current]{background:var(--limestone)}
 .btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
 .btn[aria-disabled="true"]::before{display:none}
 .btn .arw{flex:none;width:22px;height:8.25px}
 .btn--send[aria-disabled="true"]{opacity:1;cursor:progress}
-.btn-rule{width:40px;border-top:1px solid;transform:scaleX(.6);transform-origin:0 50%;transition:transform var(--t-ui) var(--ease-light)}
-.btn--send:focus-visible .btn-rule, .is-sending .btn-rule{transform:none}
+.btn-rule{width:22px;border-top:1px solid;transform-origin:0 50%;transition:transform var(--t-ui) var(--ease-light)}
+.btn--send:focus-visible .btn-rule, .is-sending .btn-rule{transform:scaleX(1.25)}
 .m .is-sending .btn-rule{transform-origin:50% 50%;animation:in-flight 1400ms var(--ease-shutter) infinite}
 @keyframes in-flight{0%{transform:translateX(-50%) scaleX(0)}50%{transform:none}100%{transform:translateX(50%) scaleX(0)}}
 @media (forced-colors:active){.btn::before{display:none}}
@@ -40,7 +39,7 @@
 :is(.link-arrow:focus-visible, .link-arrow:active, .btn:focus-visible) :not(.arw--ne) > .arw-head{transform:translateX(var(--arw-reach))}
 .link-arrow:focus-visible .la-label{background-size:100% 1px, 100% 1px}
 :is(.link-arrow, .footer-instagram, .nav-instagram, .sheet-link):focus-visible .arw--ne{transform:translate(2px, -2px)}
-.link-arrow--light{color:var(--mist)}
+.link-arrow--light{color:var(--mist);font-weight:500}
 .link-arrow--light .la-label{background-image:linear-gradient(var(--mist), var(--mist)), linear-gradient(rgb(251 248 242 / .6), rgb(251 248 242 / .6))}
 .link-arrow--light:focus-visible{outline-color:var(--mist)}
 

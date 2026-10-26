@@ -59,6 +59,145 @@ FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 39 172 172">'
            f'<path d="{ARCH}" fill="none" stroke="#5C4D3F" stroke-width="10" stroke-linejoin="round"/></svg>\n')
 
 
+# ------------------------------------------------------------------ A2b the wordmark (the name, outlined)
+# "SUNDAY LIGHT" as brand/README.md sets it: Marcellus caps, tracked .14em, with the font's own kerning, outlined to
+# paths so no wordmark font loads. Font units (2048 per em), y down, baseline at 0; the box runs from the first
+# glyph's origin to the last glyph's advance (no trailing tracking) and from the tallest overshoot to the lowest one.
+# Made by outline_wordmark() below from Marcellus 400 (fonts/marcellus-400.woff2 up to commit ca9c16a; OFL 1.1).
+# To redraw it: python3 tools/site/art.py <marcellus.woff2 or .ttf>, then paste what it prints here.
+WORDMARK_BOX = (17302, 1464, 31)   # width, height above the baseline, depth below it
+WORDMARK_D = ('m741-1206h-22q-8-23-25-52-18-29-46-54-29-26-70-43-40-17-95-17-49 0-87 15-38 15-64 42-25 27-38 64-13 37-13 82 0 7'
+              '2 41 137 40 66 101 130 61 64 132 128 71 64 132 133 61 69 101 145 41 75 41 162 0 65-23 130-22 66-69 118-47 52-121'
+              ' 84-74 33-176 33-57 0-108-11-52-10-96-26-43-15-78-33-34-18-56-33l23-221h25q11 47 36 89 25 43 62 76 36 32 83 52 4'
+              '7 19 103 19 51 0 92-15 40-16 69-44 29-27 45-65 15-38 15-83 0-63-23-116-23-54-60-102-38-48-86-93-47-45-97-91-50-4'
+              '5-97-93-48-48-86-103-37-54-60-116-23-63-23-138 0-79 31-142 30-64 80-109 51-45 115-69 64-24 132-24 50 0 92 8 42 8'
+              ' 75 19 34 11 59 22 25 11 41 18zm1647 164q0-85-2-148-2-64-6-110-4-47-9-78-5-31-11-52v-4h178v4q-6 21-12 52-5 31-9 '
+              '78-3 46-6 110-2 63-2 148v540q0 143-41 244-41 101-114 166-73 64-175 94-102 29-223 29-121 0-226-28-104-28-182-91-7'
+              '7-62-121-162-44-99-44-242v-550q0-85-2-148-2-64-6-110-4-47-10-78-5-31-11-52v-4h240v4q-6 21-12 52-5 31-9 78-4 46-6'
+              ' 110-2 63-2 148v561q0 119 35 197 36 77 94 122 58 46 132 64 74 18 151 18 77 0 151-18 74-18 131-64 58-45 93-122 36'
+              '-78 36-197zm770-392l1030 1096v-704q0-85-2-148-2-64-6-110-4-47-9-78-6-31-12-52v-4h178v4q-6 21-11 52-5 31-9 78-4 4'
+              '6-6 110-2 63-2 148v1062h-35l-1030-1095v684q0 85 2 149 2 63 6 109 4 46 9 77 5 31 11 52v4h-178v-4q6-21 12-52 5-31 '
+              '9-77 4-46 6-109 2-64 2-149v-651q0-85-2-148-2-64-6-110-4-47-9-78-6-31-12-52v-4zm1963 86q-2 112-4 217-1 45-1 92-1 '
+              '47-1 93-1 45-1 86-1 42-1 74 0 67 1 162 1 95 3 195 1 100 4 192 3 92 7 153 14 2 38 4 23 3 49 4 26 2 51 3 25 1 42 1'
+              ' 70 0 144-10 73-9 142-35 68-26 129-71 60-46 106-118 45-72 71-174 26-101 26-239 0-153-37-273-37-119-108-201-72-82'
+              '-177-125-106-42-243-42-27 0-61 2-34 1-67 2-34 2-63 4-30 3-49 4zm-219-90q23 1 43 2 17 1 35 2 18 0 29 0 19 0 64-2 '
+              '44-2 101-4 57-2 119-4 61-2 115-2 145 0 276 36 131 36 230 118 99 82 157 215 58 133 58 327 0 139-30 250-31 111-86 '
+              '196-55 85-131 146-77 60-169 99-93 39-198 57-105 18-217 18-40 0-96-2-57-3-114-6-57-3-107-6-51-2-79-2v-4q6-21 12-5'
+              '2 5-31 9-77 4-46 6-109 2-64 2-149v-651q0-85-2-150-2-64-6-110-4-47-9-79-6-32-12-53zm2659 1438v-4q2-5 3-15 1-10 1-'
+              '18 0-31-9-69-8-37-32-93l-121-272q-56-2-149-2-93 0-201 0-79 0-153 0-73 0-132 2l-115 264q-15 37-32 81-17 44-17 89 '
+              '0 13 2 21 2 9 4 12v4h-204v-4q18-19 45-68 27-48 59-121l573-1271h80l543 1222q19 43 39 84 21 40 39 72 18 32 32 54 1'
+              '4 22 19 28v4zm-648-559q58 0 119-1 61 0 119 0 59-1 113-2 54 0 98-1l-281-635-276 639zm1793-129v297q0 85 2 149 2 63'
+              ' 6 109 4 46 9 77 6 31 12 52v4h-240v-4q6-21 11-52 6-31 9-77 4-46 6-109 3-64 3-149v-277l-447-608q-23-31-46-57-22-2'
+              '6-42-45-20-20-36-33-16-13-25-19v-4h303q0 23 19 76 20 52 71 123l328 449 321-469q17-25 34-51 17-26 31-50 14-24 22-'
+              '44 9-20 9-34h195v4q-22 19-59 56-37 38-80 100zm2086 600q118 0 217-10 99-10 173-23 86-14 157-33l-29 162q-12-1-36-2'
+              '-24-1-53-2-30-1-62-2-33 0-62 0-29-1-51-2-23 0-33 0h-432v-4q6-21 12-52 5-31 9-77 4-46 6-109 2-64 2-149v-651q0-85-'
+              '2-148-2-64-6-110-4-47-9-78-6-31-12-52v-4h240v4q-6 21-11 52-6 31-9 78-4 46-6 110-3 63-3 148zm1027 84q6-21 11-52 5'
+              '-31 9-77 4-46 6-109 2-64 2-149v-651q0-85-2-148-2-64-6-110-4-47-9-78-5-31-11-52v-4h239v4q-6 21-12 52-5 31-9 78-3 '
+              '46-6 110-2 63-2 148v651q0 85 2 149 3 63 6 109 4 46 9 77 6 31 12 52v4h-239zm2082-164q0 11-2 23-3 12-12 20-45 34-9'
+              '7 63-53 28-114 49-61 21-131 33-71 11-152 11-182 0-332-53-150-54-257-152-108-98-167-236-59-137-59-305 0-95 25-187'
+              ' 24-92 71-175 47-83 116-153 69-69 158-120 88-51 195-80 106-28 230-28 48 0 98 4 50 5 99 14 49 8 95 20 45 12 86 27'
+              'l68 185-8 4q-39-35-90-65-51-30-109-52-58-22-121-35-64-12-129-12-126 0-231 40-105 39-180 114-76 75-118 184-42 109'
+              '-42 248 0 153 40 284 40 131 119 227 79 96 198 151 118 54 276 54 70 0 125-11 55-11 93-27 38-17 58-36 19-20 19-36v'
+              '-39q0-70-2-121-2-51-6-88-4-38-9-65-5-27-12-50v-4h240v4q-6 21-11 49-6 29-10 68-4 39-6 92-2 52-2 121zm1537-518q-40'
+              '-1-100-2-60 0-130-1-71-1-147-1-77-1-150-2-73 0-139 1-66 1-115 3v297q0 85 3 149 2 63 6 109 3 46 9 77 5 31 11 52v4'
+              'h-240v-4q6-21 12-52 5-31 9-77 4-46 6-109 2-64 2-149v-651q0-85-2-148-2-64-6-110-4-47-9-78-6-31-12-52v-4h240v4q-6 '
+              '21-11 52-6 31-9 78-4 46-6 110-3 63-3 148v256q52 2 118 2 66 1 138 0 72 0 147-1 74-1 144-3 69-1 130-3 60-2 104-4v-'
+              '247q0-85-2-148-3-64-6-110-4-47-9-78-6-31-12-52v-4h240v4q-6 21-11 52-6 31-10 78-4 46-6 110-2 63-2 148v651q0 85 2 '
+              '149 2 63 6 109 4 46 10 77 5 31 11 52v4h-240v-4q6-21 12-52 5-31 9-77 3-46 6-109 2-64 2-149zm1161-660q-118 0-213 1'
+              '0-95 11-164 23-80 15-143 33l29-162q12 1 36 2 24 1 53 2 30 1 62 2 33 0 62 0 29 1 51 2 23 0 33 0h571q10 0 32 0 23-'
+              '1 52-2 29 0 61 0 33-1 62-2 30-1 54-2 24-1 36-2l29 162q-64-18-144-33-69-12-164-23-95-10-213-10v955q0 85 2 149 3 6'
+              '3 6 109 4 46 9 77 6 31 12 52v4h-239v-4q6-21 11-52 5-31 9-77 4-46 6-109 2-64 2-149z')
+
+
+def wordmark_svg():
+    """wordmark.svg, painted through a CSS mask on the header's .brand-name and the footer's Sundown word (so it takes
+    the text colour, and CanvasText in forced colours). Bark fill for anyone who opens the file itself."""
+    w, up, down = WORDMARK_BOX
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -{up} {w} {up + down}">'
+            f'<path fill="{BARK}" d="{WORDMARK_D}"/></svg>\n')
+
+
+def outline_wordmark(font_path, text='SUNDAY LIGHT', track=.14):
+    """(box, d): the text outlined in integer font units with relative commands, a repeated command letter left out.
+    Needs fontTools (pip install fonttools brotli); the build itself does not."""
+    from fontTools.ttLib import TTFont
+    from fontTools.pens.basePen import BasePen
+    from fontTools.pens.boundsPen import BoundsPen
+    from fontTools.pens.transformPen import TransformPen
+    f = TTFont(font_path)
+    upm, gs, hm = f['head'].unitsPerEm, f.getGlyphSet(), f['hmtx']
+    names = [f.getBestCmap()[ord(c)] for c in text]
+    kern, g = {}, f['GPOS'].table   # pair kerning from the 'kern' feature (PairPos formats 1 and 2)
+    for li in sorted({i for r in g.FeatureList.FeatureRecord if r.FeatureTag == 'kern' for i in r.Feature.LookupListIndex}):
+        lk = g.LookupList.Lookup[li]
+        for st in lk.SubTable:
+            st = st.ExtSubTable if lk.LookupType == 9 else st
+            if not hasattr(st, 'Coverage'):
+                continue
+            for a in names:
+                if a not in st.Coverage.glyphs:
+                    continue
+                for b in names:
+                    if st.Format == 1:
+                        rec = next((r for r in st.PairSet[st.Coverage.glyphs.index(a)].PairValueRecord if r.SecondGlyph == b), None)
+                        v = rec and rec.Value1 and getattr(rec.Value1, 'XAdvance', 0)
+                    else:
+                        r = st.Class1Record[st.ClassDef1.classDefs.get(a, 0)].Class2Record[st.ClassDef2.classDefs.get(b, 0)]
+                        v = r.Value1 and getattr(r.Value1, 'XAdvance', 0)
+                    if v:
+                        kern.setdefault((a, b), v)
+
+    class Pen(BasePen):
+        def __init__(self):
+            super().__init__(gs)
+            self.x, self.out, self.cur, self.start, self.last = 0, [], (0, 0), (0, 0), ''
+
+        def emit(self, cmd, *pts):
+            nums, q = [], self.cur
+            for px, py in pts:   # round on the absolute grid, relative to the segment's start: no drift
+                q = (round(px + self.x), round(-py))
+                nums += [q[0] - self.cur[0], q[1] - self.cur[1]]
+            self.cur = q
+            if cmd == 'v':
+                nums = nums[1:]
+            elif cmd == 'h':
+                nums = nums[:1]
+            text = ''
+            for n in nums:
+                text += (' ' if text and n >= 0 else '') + str(n)
+            same = cmd == self.last and cmd not in 'mz'
+            self.out.append(('' if not same else ' ' if text[0] != '-' else '') + ('' if same else cmd) + text)
+            self.last = cmd
+
+        def _moveTo(self, p):
+            self.emit('m', p)
+            self.start = self.cur
+
+        def _lineTo(self, p):
+            q = (round(p[0] + self.x), round(-p[1]))
+            self.emit('v' if q[0] == self.cur[0] else 'h' if q[1] == self.cur[1] else 'l', p)
+
+        def _qCurveToOne(self, p1, p2):
+            self.emit('q', p1, p2)
+
+        def _curveToOne(self, p1, p2, p3):
+            self.emit('c', p1, p2, p3)
+
+        def _closePath(self):
+            self.out.append('z')
+            self.cur, self.last = self.start, 'z'
+
+    pen, bounds, x = Pen(), BoundsPen(gs), 0
+    for i, n in enumerate(names):
+        x += kern.get((names[i - 1], n), 0) if i else 0
+        pen.x = x
+        gs[n].draw(pen)
+        gs[n].draw(TransformPen(bounds, (1, 0, 0, 1, x, 0)))
+        x += hm[n][0] + (track * upm if i < len(names) - 1 else 0)
+    _, y0, _, y1 = bounds.bounds
+    return (round(x), round(y1), round(-y0)), ''.join(pen.out)
+
+
 # ------------------------------------------------------------------ A3 the gold arch keyline
 # Drawn 8px outside an arch-masked photo (Home statement 2:3, Contact 3:4), open at the bottom. The box is within 2%
 # of the photo's ratio, so the stretch is invisible and the arch stays concentric. Stroke width per band in CSS.
@@ -245,3 +384,10 @@ def step_sun(n, total=len(WARMTH)):
     return (f'<svg class="step-sun-art" viewBox="0 0 24 24" width="24" height="24" {HIDDEN}>'
             f'<circle class="step-sun" cx="12" cy="12" r="5" fill="{PADDOCK}"{f' fill-opacity="{num(a)}"' if a < 1 else ''} stroke="{PADDOCK}" '
             f'stroke-width="1"/>{glow}</svg>')
+
+
+if __name__ == '__main__':   # redraw the wordmark from the font (see A2b)
+    import sys
+    box, d = outline_wordmark(sys.argv[1])
+    print(f'WORDMARK_BOX = {box}   # width, height above the baseline, depth below it')
+    print(f"WORDMARK_D = ({chr(10).join(repr(d[i:i + 112]) for i in range(0, len(d), 112))})".replace(chr(10), chr(10) + ' ' * 14))

@@ -1,63 +1,65 @@
 /* header (§4.2), phone menu (§4.3, M07); transform none at rest */
 .site-header{position:sticky;top:0;z-index:var(--z-header);background:var(--paper);border-bottom:1px solid transparent;
-  transition:transform var(--t-ui) var(--ease-light), border-color var(--t-ui) linear}
+  transition:transform var(--t-ui) var(--ease-light),border-color var(--t-ui) linear}
 .site-header:focus{outline:none}
 .site-header.is-scrolled{border-bottom-color:rgb(92 77 63 / .14)}
-.site-header.is-hidden{transform:translateY(-101%);transition-timing-function:var(--ease-exit), linear}
+.site-header.is-hidden{transform:translateY(-101%);transition-timing-function:var(--ease-exit),linear}
 html.menu-open .site-header{transform:none;transition:none}
 html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jump must reach it */
-.header-inner{display:grid;grid-template-columns:minmax(max-content, 1fr) auto minmax(0, 1fr);column-gap:var(--sp-24);align-items:center;min-height:calc(var(--header-h) - 1px)}
+.header-inner{display:grid;grid-template-columns:minmax(max-content,1fr) auto minmax(0,1fr);column-gap:var(--sp-24);align-items:center;min-height:calc(var(--header-h) - 1px)}
 .brand{grid-column:2;display:inline-flex;align-items:center;gap:var(--sp-12);min-height:44px;color:var(--bark);text-decoration:none}
 .brand .mark{flex:none;width:auto;height:38px}
-.brand-name{font:400 1rem/1 var(--wordmark);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
-.site-nav{grid-column:1;grid-row:1;justify-self:start;display:flex;align-items:center;gap:clamp(20px, 2.6vw, 40px)}
+/* the name: outlined Marcellus (art.py, wordmark.svg) through a mask; its text is transparent */
+.brand-name,.sundown-word > span{display:block;width:8.448em;height:.73em;overflow:hidden;color:transparent;background:var(--bark);
+  -webkit-mask:url(wordmark.svg) 0/100%;mask:url(wordmark.svg) 0/100%}
+@media (forced-colors:active){.brand-name,.sundown-word > span{forced-color-adjust:none;background:CanvasText}}
+.site-nav{grid-column:1;grid-row:1;justify-self:start;display:flex;align-items:center;gap:clamp(20px,2.6vw,40px)}
 .site-nav a{position:relative;display:block;padding-block:var(--sp-16);color:var(--bark);text-decoration:none;white-space:nowrap}
-.nl, .nl > span{display:block}
+.nl,.nl > span{display:block}
 
 /* growing underline: nav, footer nav, sheet handle */
-:is(.site-nav, .footer-nav) a:not([aria-current])::after, .sheet-handle::after{content:"";position:absolute;left:0;
+:is(.site-nav,.footer-nav) a:not([aria-current])::after,.sheet-handle::after{content:"";position:absolute;left:0;
   right:.2em;bottom:var(--sp-8);border-top:1px solid;transform:scaleX(0);transform-origin:0 50%;
   transition:transform var(--t-ui) var(--ease-pen)}
-:is(.site-nav, .footer-nav) a:focus-visible::after, .sheet-link:focus-visible .sheet-handle::after{transform:none}
+:is(.site-nav,.footer-nav) a:focus-visible::after,.sheet-link:focus-visible .sheet-handle::after{transform:none}
 .site-nav a::after{color:var(--paddock)}
 .nav-sun{position:absolute;left:calc(50% - .1em);bottom:6px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--paddock-ink)}
-.header-cta{grid-column:3;justify-self:end}
-.site-nav .nav-contact, .nav-sheet, .menu-foot, .nav-toggle{display:none}
+.header-cta{grid-column:3;justify-self:end;font-family:var(--nav)}
+.site-nav .nav-contact,.nav-sheet,.menu-foot,.nav-toggle{display:none}
 @media (forced-colors:active){.nav-sun{forced-color-adjust:none;background:CanvasText}}
 @media (max-width:860px){
   .header-inner{display:flex;flex-wrap:wrap;justify-content:space-between;column-gap:var(--sp-20)}
   .brand{position:relative;z-index:2}
   .brand .mark{height:32px}
-  .brand-name{font-size:.875rem;letter-spacing:.14em}
+  .brand-name{font-size:.875rem}
   .header-cta{display:none}
   .site-nav{order:1;flex:0 0 100%;flex-wrap:wrap;gap:0 var(--sp-20)}
   .site-nav .nav-contact{display:block}
   html:not(.js) .site-nav{flex-wrap:nowrap;justify-content:space-between;gap:0 8px}   /* no JS: one row */
-  html:not(.js) .site-nav a{font-size:clamp(.625rem, 3.2vw, .75rem);letter-spacing:.1em}
-  html:not(.js) .window--hero{--h:max(490px, 100svh - 93px)}
+  html:not(.js) .site-nav a{font-size:clamp(.8125rem,3.6vw,.9375rem);letter-spacing:0}
+  html:not(.js) .window--hero{--h:max(490px,100svh - 93px)}
   .js .nav-toggle{position:relative;z-index:2;display:inline-flex;align-items:center;gap:var(--sp-12);min-height:48px;
     padding:0 var(--sp-4);margin-right:calc(var(--sp-4) * -1);border:0;background:none;color:var(--bark);cursor:pointer}
   .bars{position:relative;width:26px;height:7px}
-  .bars::before, .bars::after{content:"";position:absolute;right:0;top:0;width:26px;border-top:1px solid;transition:var(--t-ui) var(--ease-shutter)}
+  .bars::before,.bars::after{content:"";position:absolute;right:0;top:0;width:26px;border-top:1px solid;transition:var(--t-ui) var(--ease-shutter)}
   .bars::after{top:6px;width:18px}
-  [aria-expanded="true"] .bars::before, [aria-expanded="true"] .bars::after{top:3px;width:22px;transform:rotate(45deg)}
+  [aria-expanded="true"] .bars::before,[aria-expanded="true"] .bars::after{top:3px;width:22px;transform:rotate(45deg)}
   [aria-expanded="true"] .bars::after{transform:rotate(-45deg)}
   .js .site-nav{position:fixed;inset:0;z-index:1;justify-self:stretch;align-self:stretch;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;
     justify-content:center;
     padding:calc(var(--header-h) + var(--sp-24)) var(--gutter) calc(96px + env(safe-area-inset-bottom));overflow-y:auto;
     overscroll-behavior:contain;background:var(--paper);visibility:hidden;opacity:0}
   .js .site-nav.is-open{visibility:visible;opacity:1}
-  .js .site-nav > a{display:flex;align-items:center;min-height:48px;padding-block:var(--sp-4);text-transform:none;
-    font:300 clamp(2.5rem, 10vw, 3.25rem)/1.12 var(--serif);letter-spacing:-.01em}
+  .js .site-nav > a{display:flex;align-items:center;min-height:48px;padding-block:var(--sp-4);
+    font:clamp(2.5rem,10vw,3.25rem)/1.12 var(--serif);letter-spacing:-.01em}
   .js .site-nav a::after{display:none}
-  .js .site-nav [aria-current]{font-style:italic;color:var(--paddock-ink)}
   .js .site-nav .nav-sun{position:static;flex:none;margin-left:var(--sp-12)}
   .js .nav-sheet{display:block;position:fixed;inset:0;z-index:-1;overflow:clip;pointer-events:none}
   .js .nav-sheet::after{content:"";position:absolute;left:-10vw;right:-10vw;bottom:-28vw;height:60vw;border-radius:50%;
-    transform:translateY(6%);background:radial-gradient(closest-side, rgb(195 150 79 / .18), rgb(195 150 79 / 0))}
+    transform:translateY(6%);background:radial-gradient(closest-side,rgb(195 150 79 / .18),rgb(195 150 79 / 0))}
   .js .menu-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--sp-16);
     position:absolute;left:var(--gutter);right:var(--gutter);bottom:0;
-    padding:var(--sp-16) 0 max(var(--sp-16), env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+    padding:var(--sp-16) 0 max(var(--sp-16),env(safe-area-inset-bottom));border-top:1px solid var(--line)}
   .js .nav-instagram{display:inline-flex;align-items:center;gap:var(--sp-8)}
   .menu-place{color:var(--bush-ink)}
   /* motion */
@@ -65,17 +67,16 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
   .m .site-nav.is-open{transition:none}
   .m .nav-sheet::before{content:"";position:absolute;left:50%;bottom:0;width:160vw;height:calc(100lvh + 60vw);
     margin-left:-80vw;border-radius:80vw 80vw 0 0;background:var(--paper);transform-origin:50% 100%;
-    transform:scale(.12);opacity:0;transition:transform 280ms var(--ease-exit), opacity 80ms linear 200ms}
+    transform:scale(.12);opacity:0;transition:transform 280ms var(--ease-exit),opacity 80ms linear 200ms}
   /* opaque at once; the arch is seen rising */
   .m .is-open > .nav-sheet::before{transform:none;opacity:1;transition:transform var(--t-move) var(--ease-pen)}
   .m .nav-sheet::after{transform:none;opacity:0;transition:opacity 140ms linear}
-  .m .is-open > .nav-sheet::after{transform:translateY(6%);opacity:1;transition:opacity 300ms linear 200ms, transform 900ms var(--ease-light) 200ms}
+  .m .is-open > .nav-sheet::after{transform:translateY(6%);opacity:1;transition:opacity 300ms linear 200ms,transform 900ms var(--ease-light) 200ms}
   .m .site-nav .nl{overflow:clip;padding-block:.1em .28em;margin-block:-.1em -.28em}
-  .m .site-nav .nl > span{opacity:0;transform:translateY(var(--rise-line));transition:opacity 140ms var(--ease-exit), transform 0s 280ms}
-  .m .is-open .nl > span{--d:calc(220ms + var(--i, 0) * var(--stagger-line));opacity:1;transform:none;   /* once the arch covers it */
-    transition:transform 520ms var(--ease-light) var(--d), opacity 200ms linear var(--d)}
-  .m .site-nav :is(.nav-sun, .menu-foot){opacity:0;transition:opacity 140ms linear}
+  .m .site-nav .nl > span{opacity:0;transform:translateY(var(--rise-line));transition:opacity 140ms var(--ease-exit),transform 0s 280ms}
+  .m .is-open .nl > span{--d:calc(220ms + var(--i,0) * var(--stagger-line));opacity:1;transform:none;   /* once the arch covers it */
+    transition:transform 520ms var(--ease-light) var(--d),opacity 200ms linear var(--d)}
+  .m .site-nav :is(.nav-sun,.menu-foot){opacity:0;transition:opacity 140ms linear}
   .m .is-open .nav-sun{opacity:1;transition:opacity 300ms linear 440ms}
   .m .is-open .menu-foot{opacity:1;transition:opacity 300ms linear 480ms}
 }
-@media (max-width:399px){.brand-name{letter-spacing:.12em}}
