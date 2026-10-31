@@ -246,7 +246,7 @@ KIND_WORDS = [   # her clients' own messages to her on Instagram, emoji removed 
                'We absolutely adore both our maternity and newborn galleries Charne shared with us! So impressive! We felt '
                'as though she captured the essence of our little family perfectly! We honestly can’t thank her enough for '
                'photographing such a beautiful time in our lives!',
-         pull='she captured the essence of our little family perfectly', photo=None, photo_is_theirs=False,
+         pull='she captured the essence of our little family perfectly', photo='maternity-06', photo_is_theirs=True,
          place=None, season=None, feature=True),
     dict(names='Jasreen & Karan', session='Engagement',
          words='Thank you so much for capturing our fairytale moment. I’m so speechless the photos turned out great.',

@@ -226,7 +226,9 @@
     var img = ph.querySelector("img"), armed = function () { return ph.classList.contains("is-armed"); };
     if (img) once(ph, .2, function () {
       M.queue("print", function () {
+        var r = ph.getBoundingClientRect();
         if (!armed()) return;
+        if (r.bottom < 0 || r.top > innerHeight) return M.done(ph);   // passed by a jump: finish, don't hold the queue
         return Promise.race([img.decode().then(function () { return 1; }), wait(2500)]).then(function (ok) {
           if (!ok || !motionOK() || !armed() || ph.classList.contains("is-missing")) return M.done(ph);
           return new Promise(function (resolve) {

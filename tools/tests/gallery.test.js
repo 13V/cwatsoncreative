@@ -152,7 +152,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       order: window.__dev.map(f => [...document.querySelectorAll('.rg .ph')].indexOf(f)),
     }));
     ok(armed.every(Boolean), 'grid prints below the fold wait armed (those on screen at load are done)');
-    ok(end.done && end.developed >= end.all - 3, `every grid print developed and ended .is-done (${end.developed} of ${end.all} developed)`);
+    ok(end.done && end.developed >= 12, `every grid print ended .is-done; those reached in time developed (${end.developed} of ${end.all}), the rest passed by finished at once`);
     ok(same(end.order, [...end.order].sort((x, y) => x - y)), 'prints develop in reading order');
     await ctx.close();
   }
@@ -170,6 +170,19 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       }));
     }
     ok(same(seen, DATA.chapters.map(c => '#' + (DATA.extras.length ? 'weddings' : c[0]))), `${vp.viewport.width}: the spy marks each chapter in turn, one brush (${seen.join(', ')})`);
+    await ctx.close();
+  }
+  {   // a jump from the index bar to the last gallery: prints scrolled past finish at once, so the ones you land on
+      // develop instead of waiting behind them (they stayed veiled before)
+    const ctx = await context(b, 'motion', PHONE);
+    const p = await ctx.newPage(); watch(p);
+    await p.goto(url, { waitUntil: 'networkidle' });
+    const last = await p.$$eval('.index-bar a', l => l.at(-1).getAttribute('href'));
+    await p.click(`.index-bar a[href="${last}"]`); await p.waitForTimeout(1500);
+    for (let i = 0; i < 6; i++) { await p.mouse.wheel(0, 300); await p.waitForTimeout(300); }
+    await p.waitForTimeout(7000);
+    const veiled = await p.evaluate(() => [...document.querySelectorAll('.ph--tray.is-armed')].filter(e => { const r = e.getBoundingClientRect(); return r.top < innerHeight - 200 && r.bottom > 0; }).length);
+    ok(veiled === 0, `after a jump to ${last}, no print in view stays veiled (${veiled})`);
     await ctx.close();
   }
   {   // a photo whose file fails leaves the grid and the viewer
