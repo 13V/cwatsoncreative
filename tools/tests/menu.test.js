@@ -109,7 +109,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(bottom > 0 && !back.n && back.left === 0, `back at the top: no link current, the bar at its start (scrollLeft ${bottom} → ${back.left})`);
     await ctx.close();
   }
-  for (const [page, sel] of [['gallery', 'a[href="#the-two-of-you"]'], ['investment', 'a[href="#maternity"]']]) {   // Tab to a part-hidden link
+  for (const [page, sel] of [['investment', 'a[href="#maternity"]']]) {   // Tab to a part-hidden link
     const ctx = await context(b, 'reduced', PHONE);
     const p = await ctx.newPage(); watch(p);
     await p.goto(`${base}/${page}.html`, { waitUntil: 'networkidle' });

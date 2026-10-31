@@ -45,7 +45,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     await settle(p);
     let s = await state(p);
     const y0 = s.y;   // the page never moves while the viewer is open, or as it closes
-    ok(s.open && s.lock && s.count === `01 / ${total}` && total === 23, `${w}: opens from a cover with "${s.count}", html.viewer-open locks the page`);
+    ok(s.open && s.lock && s.count === `01 / ${total}` && total >= 23, `${w}: opens from a cover with "${s.count}", html.viewer-open locks the page`);
     ok(mid.includes(240) && mid.includes(480), `${w}: from a cover the photo flies 480ms while the arch radius settles in 240ms (${mid.join(', ')})`);
     ok(s.alts.length === 1 && !s.hiddenAlt && s.alts[0] === await alt(p, 0), `${w}: exactly one .viewer-img carries the alt`);
     await p.waitForFunction(() => /\.webp$/.test(document.querySelector('.viewer-img.is-front').currentSrc) && !document.querySelector('dialog.viewer').classList.contains('is-loading'));

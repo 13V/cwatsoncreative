@@ -5,6 +5,15 @@
 # Width and height are read from the file when there is one; these are the fallback.
 W = 'images/weddings/'
 PHOTOS = {
+ 'couples-01': ('images/portfolio/couples-01.jpg', 1333, 2000, 'Man on one knee proposing on a picnic blanket on a golden hilltop above Adelaide', 'Proposal on the hilltop picnic, city below.'),
+ 'couples-02': ('images/portfolio/couples-02.jpg', 1333, 2000, 'Newly engaged couple holding each other on a hilltop, the Adelaide plains behind them', 'Engaged couple embracing on the hilltop.'),
+ 'couples-03': ('images/portfolio/couples-03.jpg', 1333, 2000, 'Couple walking hand in hand across golden grass as she looks back smiling', 'Couple walking through the golden grass.'),
+ 'couples-04': ('images/portfolio/couples-04.jpg', 1333, 2000, 'Woman smiling over her fiancé’s shoulder, her engagement ring on her hand', 'Ring and smile over his shoulder.'),
+ 'couples-05': ('images/portfolio/couples-05.jpg', 1333, 2000, 'Man on one knee holding out a ring beside a white rose arch in a rose garden', 'Proposal by the white rose arch.'),
+ 'couples-06': ('images/portfolio/couples-06.jpg', 1333, 2000, 'Couple at a tall arched window in a sandstone building, he holds her from behind', 'Couple at the arched sandstone window.'),
+ 'couples-07': ('images/portfolio/couples-07.jpg', 1333, 2000, 'Couple on a wooden bench against a sandstone wall, smiling at each other', 'Couple on the bench by the sandstone wall.'),
+ 'couples-08': ('images/portfolio/couples-08.jpg', 1333, 2000, 'He twirls her under his arm on a gravel path lined with cypress trees', 'Twirl on the cypress path.'),
+ 'couples-09': ('images/portfolio/couples-09.jpg', 1333, 2000, 'He dips her on a cypress-lined gravel path, both laughing', 'Dip on the cypress path.'),
  'vineyard-sunset': (W + 'vineyard-sunset.jpg', 1333, 2000, 'Bride and groom forehead to forehead on a lawn above the vines under a pink sunset sky', 'Couple on the lawn above the vineyard, pink sunset sky. Home page hero.'),
  'silver-car-bouquet': (W + 'silver-car-bouquet.jpg', 1333, 2000, 'Bride holding her bouquet and touching the groom’s face beside a silver vintage car', 'Bride with bouquet touching the groom’s face, silver vintage car.'),
  'bougainvillea-bride': (W + 'bougainvillea-bride.jpg', 1000, 1500, 'Bride laughing in front of a cottage covered in pink bougainvillea', 'Bride alone in front of the bougainvillea cottage.'),
@@ -38,7 +47,7 @@ assert len(WEDDING_KEYS) == 23
 
 # Extra portfolio galleries. Each one appears once its photos exist.
 EXTRA_GALLERIES = [
- ('couples', 'Couples & engagements', 'images/portfolio/couples-{:02d}.jpg', 6, 'Couples or engagement session'),
+ ('couples', 'Couples', 'images/portfolio/couples-{:02d}.jpg', 12, 'Couples or engagement session'),
  ('family', 'Family', 'images/portfolio/family-{:02d}.jpg', 8, 'Family session'),
  ('maternity', 'Maternity', 'images/portfolio/maternity-{:02d}.jpg', 6, 'Maternity session'),
  ('newborn', 'Newborn', 'images/portfolio/newborn-{:02d}.jpg', 6, 'Newborn session'),
@@ -68,7 +77,7 @@ SESSIONS = [
       body=['I photograph weddings the way they feel: getting ready, the nerves, the vows, the champagne and the dance floor.',
             'I keep things calm and quiet, step in when you need direction and stay out of the way when you don’t. '
             'I’ll also help you plan the timeline, so your portraits land in the best light of the day.']),
- dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='bougainvillea-embrace', price='$350',
+ dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='couples-08', price='$350',
       includes=['About 45 minutes', GALLERY, LOCATION],
       body=['Just engaged, about to ask, or simply in love. We’ll walk, talk and wander somewhere beautiful as the sun goes down.',
             'Planning a proposal? I’ll stay out of sight nearby and catch the moment you ask.']),
@@ -126,7 +135,7 @@ FORM_OPTIONS = ['Wedding', 'Couples, engagement or proposal', 'Family', 'Materni
 HERO = ('vineyard-sunset', 'jaguar-flare')
 HOME_WINDOWS = [('castle-dip', 'castle-window', 'castle-laugh'), ('dam-kiss', 'jaguar-window-kiss')]
 HOME_STATEMENT_PHOTO = 'arch-mirror'
-HOME_TILE_PHOTO = {'weddings': 'field-dusk', 'couples': 'bougainvillea-embrace'}  # couples: until her couple photos arrive  # Investment rows use SESSIONS photos
+HOME_TILE_PHOTO = {'weddings': 'field-dusk', 'couples': 'couples-02'}  # Investment rows use SESSIONS photos
 CONTACT_PHOTO = 'silver-car-bouquet'
 INTRO = ['Selah means to pause. A breath in a busy life to notice who’s beside you, and it’s how I want your session to '
          'feel: no stiff poses and no rushing, just time together while I look for the moments in between.',
@@ -190,6 +199,7 @@ SPEC_LABELS = {'Five packages, from 4 to 12 hours of coverage': 'Coverage', 'Sne
 
 # Where faces sit in each photo (object-position), read from the photos, so cropped slots keep them in view.
 FOCUS = {
+    'couples-01': '50% 45%', 'couples-02': '55% 40%', 'couples-03': '55% 50%', 'couples-04': '60% 35%', 'couples-05': '45% 50%', 'couples-06': '45% 40%', 'couples-07': '45% 45%', 'couples-08': '50% 45%', 'couples-09': '50% 45%',
     'vineyard-sunset': '55% 40%', 'castle-balcony': '50% 42%', 'jaguar-kiss': '50% 40%',
     'jaguar-flare': '52% 36%', 'dam-kiss': '50% 36%', 'jaguar-veil': '62% 34%',
     'castle-dip': '47% 52%', 'jaguar-window-kiss': '42% 44%', 'olive-grove-confetti': '45% 55%',
@@ -267,7 +277,7 @@ assert plain(HERO_TITLE) == 'Stories worth pausing for.'
 assert all(PHOTOS[k][1] < PHOTOS[k][2] for k in INSTAGRAM_STRIP)                        # portraits only
 assert rhythm() == [['pair-l', 'solo-r'], ['solo-r', 'land-pair', 'wide'],
                     ['pair-l', 'pair-r', 'pair-l'], ['pair-r', 'pair-l', 'pair-r']]
-assert set(FOCUS) == set(WEDDING_KEYS)
+assert set(WEDDING_KEYS) <= set(FOCUS)
 for r in KIND_WORDS:
     assert not r['pull'] or r['pull'] in r['words'], 'a pull phrase must be an exact part of the review'
     assert not r['photo'] or r['photo_is_theirs'], 'a photo may only sit beside the review of the people in it'

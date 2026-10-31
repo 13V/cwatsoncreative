@@ -6,7 +6,7 @@
 const { context, scrollThrough, scrollTo, PHONE, DESKTOP } = require('./lib');
 
 // Every session, and the photo its Home tile would show (a session without one is named in the text tile).
-const SESSIONS = [['Weddings', 'images/weddings/bougainvillea-embrace.jpg'], ['Couples', 'images/weddings/field-dusk.jpg'],
+const SESSIONS = [['Weddings', 'images/weddings/field-dusk.jpg'], ['Couples', 'images/portfolio/couples-02.jpg'],
   ['Family', 'images/sessions/family.jpg'], ['Maternity', 'images/sessions/maternity.jpg'], ['Newborn', 'images/sessions/newborn.jpg']];
 const vp = (width, height) => ({ viewport: { width, height }, deviceScaleFactor: width < 861 ? 2 : 1, isMobile: width < 861, hasTouch: width < 861 });
 
@@ -219,7 +219,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       ok(await p.getByRole('link', { name: re }).count() === 1, `a link named "${name}"`);
     }
     ok((await p.getAttribute('a.tile:has(img[src*="field-dusk"])', 'href')) === 'gallery.html' &&
-       (await p.getAttribute('a.tile:has(img[src*="bougainvillea-embrace"])', 'href')) === 'investment.html#couples', 'Weddings opens the gallery, Couples the Investment row');
+       (await p.getAttribute('a.tile:has(img[src*="couples-02"])', 'href')) === 'investment.html#couples', 'Weddings opens the gallery, Couples the Investment row');
     // M10: the tiles wait below the fold, then develop and finish
     const armed = await p.$$eval('.tiles .ph--tray', fs => fs.map(f => f.classList.contains('is-armed')));
     await p.$eval('.tiles', el => window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 200, behavior: 'instant' }));
