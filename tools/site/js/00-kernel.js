@@ -1,4 +1,4 @@
-// Sunday Light. The still page is the CSS default; motion starts only from html.m (motion plan §5).
+// Selah Stories. The still page is the CSS default; motion starts only from html.m (motion plan §5).
 (function () {
   "use strict";
   var root = document.documentElement;

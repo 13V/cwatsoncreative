@@ -1,4 +1,4 @@
-# Builds the Sunday Light pages.
+# Builds the Selah Stories pages.
 #
 #   python3 tools/site/build.py           # writes into the repo root
 #   python3 tools/site/build.py out_dir   # or somewhere else, for a look before replacing the real pages
@@ -299,8 +299,8 @@ def header(active):
             f'<div class="menu-foot"><a class="nav-instagram" href="{ig_url}" rel="me">{icon("instagram")}'
             f'<span><span class="sr-only">Instagram </span>{e(ig_name)}</span>{icon("arrow-ne")}</a>'
             f'<span class="menu-place t-micro">Adelaide, South Australia</span></div></nav>'
-            f'<a class="brand" href="index.html" aria-label="Sunday Light, home">{mark("h", "sm")}'
-            f'<span class="brand-name">Sunday Light</span></a>'
+            f'<a class="brand" href="index.html" aria-label="Selah Stories, home">{mark("h", "sm")}'
+            f'<span class="brand-name">Selah Stories</span></a>'
             f'<a class="btn btn--sm btn--secondary header-cta" href="contact.html"{current("contact.html", active)}>Contact</a>'
             f'<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">'
             f'<span class="nav-toggle-label">Menu</span><span class="bars" aria-hidden="true"></span></button>'
@@ -311,14 +311,14 @@ def footer(active):
     ig_name, ig_url = INSTAGRAM
     nav = ''.join(f'<a href="{h}"{current(h, active)}>{t}{SUN if h == active else ""}</a>' for h, t in NAV)
     dot = '<span class="dot" aria-hidden="true"> · </span>'   # hidden below 861px, where each part gets its own line
-    return (f'<footer class="site-footer"><a class="sundown" href="index.html" aria-label="Sunday Light, home">'
+    return (f'<footer class="site-footer"><a class="sundown" href="index.html" aria-label="Selah Stories, home">'
             f'<span class="sundown-scene">{art.footer_scene("m")}{art.footer_scene("w")}</span>'
-            f'<span class="sundown-word" aria-hidden="true"><span>Sunday Light</span></span></a>'
+            f'<span class="sundown-word" aria-hidden="true"><span>Selah Stories</span></span></a>'
             f'<div class="footer-inner wrap"><nav class="footer-nav" aria-label="Footer">{nav}</nav>'
             f'<a class="footer-instagram" href="{ig_url}" rel="me">{icon("instagram")}'
             f'<span><span class="sr-only">Instagram </span>{e(ig_name)}</span>{icon("arrow-ne")}</a>'
             f'<p class="golden-hour" data-golden>Golden hour: the last hour before sunset, and the best light of the day.</p>'
-            f'<p class="footer-base t-caption"><span class="fb">&copy; <span data-year>2026</span> Sunday Light</span>'
+            f'<p class="footer-base t-caption"><span class="fb">&copy; <span data-year>2026</span> Selah Stories</span>'
             f'<span class="fb">{dot}Adelaide, South Australia</span>'
             f'<span class="fb">{dot}<a href="privacy.html">Privacy</a> · Website by <a href="https://www.lumenadl.com/">Lumen</a></span>'
             f'<span class="fb fb-still" hidden>{dot}<button class="still-toggle" type="button" aria-pressed="false">Hold still</button></span>'
@@ -329,7 +329,7 @@ def footer(active):
 JSONLD = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    "name": "Sunday Light",
+    "name": "Selah Stories",
     "description": "Natural, light-filled wedding, couples, engagement, family, maternity and newborn photography in Adelaide, South Australia.",
     "areaServed": {"@type": "City", "name": "Adelaide"},
     "address": {"@type": "PostalAddress", "addressLocality": "Adelaide", "addressRegion": "SA", "addressCountry": "AU"},
@@ -448,7 +448,7 @@ def index():
 {instagram_sheet()}
 
 {closing("index")}'''
-    return page('home', 'index.html', 'Sunday Light | Adelaide wedding & family photographer',
+    return page('home', 'index.html', 'Selah Stories | Adelaide wedding & family photographer',
                 'Natural, light-filled photography for weddings, couples, families, maternity and newborns across Adelaide. Relaxed sessions on the coast, in the hills and at home.',
                 main, lcp=(HERO[0], 'hero'), jsonld=True)
 
@@ -531,7 +531,7 @@ def gallery():
         listing((['Wedding'] if chapters else []) + [x[1] for x in extras])
     lead = (f'{e(names)} from around Adelaide. ' if names else '') + \
         f'The newest sessions go up on <a href="{INSTAGRAM[1]}">Instagram</a> first.'
-    desc = f'{kinds} photography from around Adelaide by Sunday Light.' if kinds else 'Photography by Sunday Light, Adelaide.'
+    desc = f'{kinds} photography from around Adelaide by Selah Stories.' if kinds else 'Photography by Selah Stories, Adelaide.'
     if extras:   # spec §4.10: galleries once others exist, chapters while only weddings do
         bar = index_bar('Galleries', ([(['weddings'], 'Weddings', sum(len(c[3]) for c in chapters))] if chapters else [])
                         + [([gid], name, len(keys)) for gid, name, _, keys in extras])
@@ -547,7 +547,7 @@ def gallery():
 {f'<div id="weddings">{weddings}</div>' if weddings else ''}
 {''.join(sections[len(chapters):])}
 {closing("gallery")}'''
-    return page('gallery', 'gallery.html', 'Gallery | Sunday Light', desc, main, body_extra=viewer(index))
+    return page('gallery', 'gallery.html', 'Gallery | Selah Stories', desc, main, body_extra=viewer(index))
 
 
 RG_SIZES = {'wide': ['rg-wide'], 'land-pair': ['rg-land', 'rg-land'], 'pair-l': ['rg-pair-wide', 'rg-pair-narrow'],
@@ -613,7 +613,7 @@ def investment():
     if 'weddings' not in [s['id'] for s in pictured]:
         parts.append(wedding_packages())
     parts += [kind_words('investment'), how_it_works(), questions(), closing('investment')]
-    return page('investment', 'investment.html', 'Investment | Sunday Light',
+    return page('investment', 'investment.html', 'Investment | Selah Stories',
                 'Wedding, couples and engagement, family, maternity and newborn photography sessions in Adelaide: prices and what each includes.',
                 '\n\n'.join(p for p in parts if p), lcp=(INVESTMENT_HERO, 'inv-hero'))
 
@@ -722,10 +722,10 @@ def kind_words_page():
     """Kind words: real reviews as stories (spec §5.4), or, until there are some, the honest holding state (§5.5): her
     photo, the page's promise in plain words and the newest sessions on Instagram. Kept out of search meanwhile."""
     ig_name, ig_url = INSTAGRAM
-    title, desc = 'Kind words | Sunday Light', 'What couples and families say about their sessions with Sunday Light, Adelaide photographer.'
+    title, desc = 'Kind words | Selah Stories', 'What couples and families say about their sessions with Selah Stories, Adelaide photographer.'
     h1 = lines('From the people//*in the photos.*')
     if KIND_WORDS_ARE_PLACEHOLDERS or not KIND_WORDS:   # the link preview promises no reviews either
-        desc = 'Where couples and families share how their sessions felt with Sunday Light, Adelaide photographer.'
+        desc = 'Where couples and families share how their sessions felt with Selah Stories, Adelaide photographer.'
         main = f'''<section class="page-head kw-holding sec--compact head--center"><div class="wrap">
 {arch_frame(KIND_WORDS_HOLDING_PHOTO, "kw-holding", "3x4", priority=True)}
 <p class="eyebrow">Kind words</p><h1>{h1}</h1>
@@ -775,7 +775,7 @@ def contact():
 <p class="lead">Tell me a little about what you’re planning. I’ll get back to you with availability and pricing.</p>
 <div class="enquire-slot">
 <form id="enquiry-form" class="form" method="post" action="{FORM_ACTION}" data-endpoint="{ENDPOINT}">
-<input type="hidden" name="_subject" value="New enquiry from the Sunday Light website"><input type="hidden" name="_template" value="table">
+<input type="hidden" name="_subject" value="New enquiry from the Selah Stories website"><input type="hidden" name="_template" value="table">
 <div id="form-summary" class="form-summary" role="group" aria-labelledby="form-summary-title" tabindex="-1" data-n="One thing,Two things,Three things,Four things" hidden><h2 id="form-summary-title" class="t-question">Things to check</h2><ul>{summary}</ul></div>
 <fieldset class="fs"><legend class="t-question">About you</legend>
 {form_field("name", "Your name", 'autocomplete="name" autocapitalize="words" required maxlength="200"', err="Add your name so I know who I’m writing to.")}
@@ -820,7 +820,7 @@ def contact():
 </dl>
 </div>
 </div></section>'''
-    return page('contact', 'contact.html', 'Contact | Sunday Light',   # the details beside the form are body text
+    return page('contact', 'contact.html', 'Contact | Selah Stories',   # the details beside the form are body text
                 'Check dates for wedding, couples, family, maternity and newborn photography in Adelaide.', main,
                 fonts=('proza-libre-400',))
 
@@ -859,7 +859,7 @@ def privacy():
 <h2 class="h2--sm">Photos</h2><p>Some session photos appear on this website and on Instagram. If you’d like a photo of you removed, just ask and I’ll take it down.</p>
 <h2 class="h2--sm">Questions or changes</h2><p>To see, correct or delete the details you’ve sent, message me on Instagram at <a href="{ig_url}">{e(ig_name)}</a>.</p>
 </div></div></section>'''
-    return page('privacy', '', 'Privacy | Sunday Light', 'How Sunday Light handles the details you share.', main,
+    return page('privacy', '', 'Privacy | Selah Stories', 'How Selah Stories handles the details you share.', main,
                 fonts=('proza-libre-400',))   # the first view is body text
 
 
@@ -871,7 +871,7 @@ def not_found():
 <p class="lead">It may have moved, or the link may be old.</p>
 <div class="actions nf-actions">{button("index.html", "Back home", cls="nf-home")}{link_arrow("gallery.html", "See the gallery")}</div>
 </div></section>'''
-    return page('404', '', 'Page not found | Sunday Light', 'This page could not be found.', main)
+    return page('404', '', 'Page not found | Selah Stories', 'This page could not be found.', main)
 
 
 PAGES = {'index.html': index, 'gallery.html': gallery, 'investment.html': investment, 'kind-words.html': kind_words_page,
@@ -1178,8 +1178,8 @@ def verify(pages, out):
 # ------------------------------------------------------------------ build
 def assemble(out):
     """Join the stylesheet and script parts into styles.css and main.js."""
-    for ext, name, note in (('css', 'styles.css', '/* Sunday Light. Built from tools/site/css/ by tools/site/build.py: edit the parts there. */\n'),
-                            ('js', 'main.js', '// Sunday Light. Built from tools/site/js/ by tools/site/build.py: edit the parts there.\n')):
+    for ext, name, note in (('css', 'styles.css', '/* Selah Stories. Built from tools/site/css/ by tools/site/build.py: edit the parts there. */\n'),
+                            ('js', 'main.js', '// Selah Stories. Built from tools/site/js/ by tools/site/build.py: edit the parts there.\n')):
         with open(os.path.join(out, name), 'w', encoding='utf-8') as f:
             joined = ''.join(open(part, encoding='utf-8').read() for part in parts(ext))
             f.write(note + (joined.replace('url(wordmark.svg)', f'url({WORDMARK})') if ext == 'css' else joined))

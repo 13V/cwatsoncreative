@@ -1,5 +1,5 @@
-// Sunday Light. Built from tools/site/js/ by tools/site/build.py: edit the parts there.
-// Sunday Light. The still page is the CSS default; motion starts only from html.m (motion plan §5).
+// Selah Stories. Built from tools/site/js/ by tools/site/build.py: edit the parts there.
+// Selah Stories. The still page is the CSS default; motion starts only from html.m (motion plan §5).
 (function () {
   "use strict";
   var root = document.documentElement;

@@ -1,6 +1,6 @@
-# Sunday Light
+# Selah Stories
 
-Website for Sunday Light, Charne Watson's photography business in Adelaide (previously cwatson.creative).
+Website for Selah Stories (@selahstories.adl), Charne Watson's photography business in Adelaide (previously Sunday Light, and before that cwatson.creative).
 
 Plain HTML, CSS and a little JavaScript. The pages are generated from `tools/site/` (see Editing the
 pages) and the generated HTML is committed, so any static host (Vercel, Netlify, Cloudflare Pages,
@@ -159,7 +159,7 @@ engines only index the site once it's on its real domain.
 - [ ] Activate the enquiry form: send a test enquiry, click Activate in FormSubmit's email, send another.
 - [ ] Once the domain is set, add `<link rel="canonical">`, make `og:image` an absolute URL on every
       page, and add a `sitemap.xml` (and a `Sitemap:` line in `robots.txt`).
-- [ ] Instagram links point to @cwatson.creative. Update them if the handle changes.
+- [x] Instagram links point to @selahstories.adl.
 - [ ] Optional: add an email address to the footer and to the form's error message.
 
 This repository is public, so photos committed here are public too.

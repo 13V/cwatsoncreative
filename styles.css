@@ -1,4 +1,4 @@
-/* Sunday Light. Built from tools/site/css/ by tools/site/build.py: edit the parts there. */
+/* Selah Stories. Built from tools/site/css/ by tools/site/build.py: edit the parts there. */
 /* tokens, fonts, type, layout, focus (spec §2) */
 @font-face{font-family:"Brygada 1918";src:url("fonts/brygada-1918-400-700.woff2");font-weight:400 700;font-display:swap}
 @font-face{font-family:"Brygada 1918";src:url("fonts/brygada-1918-400-700-italic.woff2");font-weight:400 700;font-style:italic;font-display:swap}
@@ -182,7 +182,7 @@ html:not(.js) .site-header{position:relative}   /* no JS: Back to top's #top jum
 .brand .mark{flex:none;width:auto;height:38px}
 /* the name: outlined Marcellus (art.py, wordmark.svg) through a mask; its text is transparent */
 .brand-name,.sundown-word > span{display:block;width:8.448em;height:.73em;overflow:hidden;color:transparent;background:var(--bark);
-  -webkit-mask:url(wordmark-7b72fb0cf3.svg) 0/100%;mask:url(wordmark-7b72fb0cf3.svg) 0/100%}
+  -webkit-mask:url(wordmark-fef379effe.svg) 0/100%;mask:url(wordmark-fef379effe.svg) 0/100%}
 @media (forced-colors:active){.brand-name,.sundown-word > span{forced-color-adjust:none;background:CanvasText}}
 .site-nav{grid-column:1;grid-row:1;justify-self:start;display:flex;align-items:center;gap:clamp(20px,2.6vw,40px)}
 .site-nav a{position:relative;display:block;padding-block:var(--sp-16);color:var(--bark);text-decoration:none;white-space:nowrap}

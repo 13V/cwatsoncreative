@@ -68,7 +68,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(same(s.order, s.order.map((_, i) => i)) && s.order.length === 23, 'viewer order (data-index) equals DOM order, 23 photos');
     ok(s.closing === DATA.closing, `the closing shows the Gallery line ("${s.closing}")`);
     ok(s.old === 0, 'no blockquote, duo, chips, masonry, old lightbox, strip or sheet');
-    ok(s.extras || (s.lead.startsWith('Weddings from around Adelaide.') && s.desc.every(d => d === 'Wedding photography from around Adelaide by Sunday Light.')),
+    ok(s.extras || (s.lead.startsWith('Weddings from around Adelaide.') && s.desc.every(d => d === 'Wedding photography from around Adelaide by Selah Stories.')),
        `the description, like the lead, names only the galleries on the page (${s.desc[0]})`);
     ok(s.lcp && s.lcp.cover && s.lcp.high === 'high' && s.lcp.loading === null && !s.lcp.tray,
        'chapter 01 cover is the LCP photo: eager, fetchpriority high, never a tray print');

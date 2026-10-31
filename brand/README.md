@@ -3,7 +3,7 @@
 Rebrand of **cwatson.creative**, Charne Watson's photography business in Adelaide.
 
 **Logo:** the arch, chosen. A window with a low sun over the hills and water.
-**Name:** Sunday Light, for now. The website at the repo root uses it.
+**Name:** Selah Stories (Instagram @selahstories.adl), chosen October 2026. The website at the repo root uses it; the shortlist below was the earlier round.
 
 Private pages, with her photos:
 

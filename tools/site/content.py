@@ -1,4 +1,4 @@
-# Content for the Sunday Light site: photo slots, copy, and page data.
+# Content for the Selah Stories site: photo slots, copy, and page data.
 
 # Every photo slot. key -> (path, width, height, alt, note for the README)
 # A slot shows its photo once the file exists; until then nothing is shown in its place.
@@ -106,7 +106,7 @@ FAQ = [
   'Yes. Once you’ve booked I’ll send through some ideas, and you’re welcome to send me photos of your options.'),
 ]
 
-INSTAGRAM = ('@cwatson.creative', 'https://www.instagram.com/cwatson.creative/')
+INSTAGRAM = ('@selahstories.adl', 'https://www.instagram.com/selahstories.adl/')
 # Enquiries are emailed to Charne by FormSubmit (formsubmit.co), a free form-to-email relay: the form posts to it and
 # it sends the enquiry on as an email. The very first enquiry instead sends an "Activate Form" email to this address;
 # once that link is clicked, every enquiry arrives. FormSubmit's activation email also offers a random string that can

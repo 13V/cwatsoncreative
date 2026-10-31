@@ -96,7 +96,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(same(d.steps, [['i.', 'Say hello', true, false], ['ii.', 'Plan it together', true, false], ['iii.', 'The session', true, false], ['iv.', 'Your gallery', true, true]]),
        'steps: lower-roman numerals, a sun on each, the last one glowing');
     ok(d.qa.length === 5 && d.qa.every(([named, row]) => !named && row), 'FAQ: five native details, none with a name, each summary a .qa-row with the B5 plus');
-    ok(d.faqHead[0] === 'Questions, answered' && d.faqHead[1] === 'Still wondering? Message me on Instagram.' && /instagram\.com\/cwatson\.creative/.test(d.faqHead[2]), 'FAQ head copy and its Instagram link');
+    ok(d.faqHead[0] === 'Questions, answered' && d.faqHead[1] === 'Still wondering? Message me on Instagram.' && /instagram\.com\/selahstories\.adl/.test(d.faqHead[2]), 'FAQ head copy and its Instagram link');
     ok(d.closing === 'Let’s plan your session.', `the closing shows the Investment line (${d.closing})`);
     ok(!d.retired.length && !d.h2s.includes('Sessions'), 'the window hero, lime cards, "Sessions" heading, old tiers and the strip are gone' + (d.retired.length ? ': ' + d.retired.join(', ') : ''));
     ok(d.lcp && /jaguar-veil/.test(d.lcp.src) && d.lcp.hi === 'high' && !d.lcp.lazy && d.lcp.inHero && d.lcp.look === 'none none 1' && /jaguar-veil/.test(d.preload) && d.preloadFirst,

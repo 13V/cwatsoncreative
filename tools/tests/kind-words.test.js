@@ -47,7 +47,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
         closing: (document.getElementById('closing-title') || {}).textContent };
     });
     ok(r.eyebrow === 'Kind words' && r.h1 === 'From the people in the photos.' && r.lead === LEAD, `kind words ${w}: the holding head's copy is exact`);
-    ok(r.link && r.link[0] === 'See the newest sessions on Instagram' && /instagram\.com\/cwatson\.creative/.test(r.link[1]) && r.link[2] === 'me',
+    ok(r.link && r.link[0] === 'See the newest sessions on Instagram' && /instagram\.com\/selahstories\.adl/.test(r.link[1]) && r.link[2] === 'me',
        `kind words ${w}: the link to the newest sessions on Instagram`);
     ok(r.photo && /^jaguar-kiss(-\d+)?\.webp$/.test(r.photo.src) && r.photo.loading === null && r.photo.prio === 'high' && r.photo.lcp && r.lcps === 1 && r.photo.isLcp,
        `kind words ${w}: her photo is the LCP (eager, high priority; ${r.photo && r.photo.src})`);
