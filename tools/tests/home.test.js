@@ -77,14 +77,15 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
         cue: (a => a && { href: a.getAttribute('href'), label: a.getAttribute('aria-label') })(document.querySelector('.hero-copy a.scroll-cue')),
         link: (a => a && { href: a.getAttribute('href'), text: a.textContent.trim(), light: a.classList.contains('link-arrow--light') })(document.querySelector('.hero-meta .link-arrow')),
         ld: [...document.querySelectorAll('script[type="application/ld+json"]')].map(x => { try { return JSON.parse(x.textContent)['@type']; } catch (e) { return 'bad'; } }),
-        retired: ['.words', 'blockquote', '.duo', '.quote', '.intro-grid', '.tile-photo', '.strip', '.center-title'].filter(q => document.querySelector(q)),
+        retired: ['.words', '.duo', '.quote', '.intro-grid', '.tile-photo', '.strip', '.center-title'].filter(q => document.querySelector(q)),
         closing: (h => h && h.textContent.replace(/\s+/g, ' ').trim())(document.querySelector('#closing-title')),
       };
     });
-    const want = ['window--hero', 'statement', 'window--a', 'sessions', 'window--b', 'sheet', 'closing'];
+    const kw = s.order.includes('interlude') ? 1 : 0;   // the kind words interlude, once there are real reviews
+    const want = ['window--hero', 'statement', 'window--a', 'sessions', 'window--b', ...(kw ? ['interlude'] : []), 'sheet', 'closing'];
     ok(JSON.stringify(s.order) === JSON.stringify(want), `Home sections in order: ${s.order.join(' → ')}`);
     const [P, L] = [s.paper, s.lime];
-    ok(s.bg[1] === P && s.bg[3] === L && s.bg[5] === P && s.bg[6] === P, 'statement Paper, sessions Limestone, sheet and closing Paper');
+    ok(s.bg[1] === P && s.bg[3] === L && s.bg[5 + kw] === P && s.bg[6 + kw] === P, 'statement Paper, sessions Limestone, sheet and closing Paper');
     ok(s.above[2] === P && s.count[2] === '3' && s.above[4] === L && s.count[4] === '2', `window A --above Paper with 3 photos, window B --above Limestone with 2 (${s.above[2]} ${s.count[2]} / ${s.above[4]} ${s.count[4]})`);
     ok(s.panel[1] && s.panel[3] && s.panel[5], 'every section after a window is a .panel');
     const h = s.h1[0] || {};

@@ -57,7 +57,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
         qa: all('.faq > details.qa').map(dt => [dt.hasAttribute('name'), !!dt.querySelector('summary > .qa-row > .t-question + svg .pm-v')]),
         faqHead: [t(document.querySelector('.faq-head h2')), t(document.querySelector('.faq-head p')), (document.querySelector('.faq-head a') || {}).href],
         closing: document.querySelector('#closing-title').innerText.replace(/\s+/g, ' ').trim(),
-        retired: ['.package', '.packages-text', '.window', '.sheet', '.tier-number', '.center-title', 'blockquote'].filter(s => document.querySelector(s)),
+        retired: ['.package', '.packages-text', '.window', '.sheet', '.tier-number', '.center-title', '.words', '.duo'].filter(s => document.querySelector(s)),
         h2s: all('h2').map(t),
         lcp: (() => { const i = document.querySelector('img[data-lcp]'); return i && { src: i.currentSrc, hi: i.getAttribute('fetchpriority'), lazy: i.hasAttribute('loading'),
           inHero: !!i.closest('section.inv-hero.sec--flush'), look: [getComputedStyle(i).transform, getComputedStyle(i).filter, getComputedStyle(i).opacity].join(' ') }; })(),
@@ -90,7 +90,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(new URL(d.cta[0], base + '/').searchParams.get('session') === 'Wedding' && d.cta[1] === 'Check my wedding dates', 'packages CTA: "Check my wedding dates" → the form with Wedding chosen');
     ok(d.index[0] === 'Sessions' && same(d.index[1], ['#weddings weddings wedding-packages Weddings', '#couples couples Couples', '#family family Family', '#maternity maternity Maternity', '#newborn newborn Newborn']),
        'index bar "Sessions": five links, Weddings also spying on the packages');
-    ok(same(d.order, ['inv-hero', 'index-bar', 'weddings', 'wedding-packages', 'couples', ...(carte.length ? ['carte'] : ['family', 'maternity', 'newborn']), 'how', 'questions', 'closing']),
+    ok(same(d.order, ['inv-hero', 'index-bar', 'weddings', 'wedding-packages', 'couples', ...(carte.length ? ['carte'] : ['family', 'maternity', 'newborn']), ...(d.order.includes('interlude') ? ['interlude'] : []), 'how', 'questions', 'closing']),
        'section order: hero, index, Weddings, packages, Couples, carte, How it works, Questions, closing (' + d.order.join(' → ') + ')');
     const L = 'rgb(236, 230, 219)';
     ok(same(d.bgs.map(c => c === L ? 'L' : (c === 'rgba(0, 0, 0, 0)' || c === d.paper) ? 'P' : c), ['P', 'L', 'P', 'P', 'L', 'P', 'P']),

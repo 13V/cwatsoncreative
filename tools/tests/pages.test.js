@@ -5,6 +5,8 @@
 const { PAGES } = require('./lib');
 const KIND = { index: 'home' };
 
+const HOLDING = require('child_process').execFileSync('python3', ['-c', 'import sys; sys.path.insert(0, sys.argv[1]); import content as c; print(int(c.KIND_WORDS_ARE_PLACEHOLDERS or not c.KIND_WORDS))', require('path').join(__dirname, '..', 'site')]).toString().trim() === '1';
+
 module.exports = async ({ browser: b, base, ok, watch }) => {
   const p = await b.newPage(); watch(p);
   for (const name of PAGES) {
@@ -28,7 +30,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(JSON.stringify(s.tabs) === JSON.stringify(['Gallery', 'Investment', 'Kind words', 'Contact']),
        `${name}: tabs are Gallery, Investment, Kind words, Contact (${s.tabs.join(', ')})`);
     ok(!s.links.some(h => /(^|\/)(portfolio|sessions|about|enquire)\.html/.test(h)), `${name}: no links to the retired pages`);
-    ok(/noindex/.test(s.robots) === (name === 'kind-words'), `${name}: ${name === 'kind-words' ? 'kept out of search (holding page)' : 'indexable'}`);
+    ok(/noindex/.test(s.robots) === (name === 'kind-words' && HOLDING), `${name}: ${name === 'kind-words' && HOLDING ? 'kept out of search (holding page)' : 'indexable'}`);
     ok(s.base.length >= 3 && s.base.every(x => x[1] >= 44 && x[2] === 'rgb(195, 150, 79)') && s.pill >= 44,
        `${name}: footer base-line links are 44px targets with the Paddock underline (${s.base.map(x => x[0] + ' ' + x[1]).join(', ')}); the header pill ${s.pill}px`);
   }

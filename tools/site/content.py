@@ -238,8 +238,20 @@ GALLERY_CHAPTERS = [
 #        place=None, season=None, feature=False)
 # `pull` (an italic phrase) must be an exact part of `words`; a `photo` may only sit beside a review when
 # photo_is_theirs is True, meaning the photo is of the people who wrote it.
-KIND_WORDS_ARE_PLACEHOLDERS = True
-KIND_WORDS = []
+KIND_WORDS_ARE_PLACEHOLDERS = False
+KIND_WORDS = [   # her clients' own messages to her on Instagram, emoji removed and sentence starts capitalised
+    dict(names='Chloe, Dan & Maisie', session='Maternity & newborn',
+         words='Working with Charne has been a dream! She is so easy to get along with, and is happy to cater to your '
+               'creative ideas as well as sharing her own expertise, and so timely in returning so many beautiful photos! '
+               'We absolutely adore both our maternity and newborn galleries Charne shared with us! So impressive! We felt '
+               'as though she captured the essence of our little family perfectly! We honestly can’t thank her enough for '
+               'photographing such a beautiful time in our lives!',
+         pull='she captured the essence of our little family perfectly', photo=None, photo_is_theirs=False,
+         place=None, season=None, feature=True),
+    dict(names='Jasreen & Karan', session='Engagement',
+         words='Thank you so much for capturing our fairytale moment. I’m so speechless the photos turned out great.',
+         pull=None, photo='couples-17', photo_is_theirs=True, place=None, season=None, feature=False),
+]
 KIND_WORDS_HOLDING_PHOTO = 'jaguar-kiss'
 
 # Investment page

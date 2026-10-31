@@ -745,7 +745,7 @@ def kw_story(n, r):
     side = (' story--photo' + (' story--flip' if n % 2 == 0 else '')) if photo else ''
     pull = f'<p class="t-quote story-pull" aria-hidden="true"><em>{e(r["pull"])}</em></p>' if r['pull'] else ''
     return (f'<article class="story{side}" id="review-{n}">{photo}<div class="story-text">'
-            f'<p class="eyebrow--num"><span class="t-count">No. {n:02d}</span></p>{pull}<figure><blockquote>'
+            f'{pull}<figure><blockquote>'
             f'<p class="t-quote-body">“{review_words(r)}”</p></blockquote><figcaption class="cite">{review_cite(r)}</figcaption>'
             f'</figure></div></article>')
 

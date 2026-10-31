@@ -33,6 +33,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     for (const name of ['index', 'kind-words']) {
       const p = await ctx.newPage(); watch(p);
       await p.goto(`${base}/${name}.html`, { waitUntil: 'networkidle' });
+      if (!(await p.$('.sheet'))) { await p.close(); continue; }   // Kind words shows the sheet only while it has no reviews
       await p.$eval('.sheet', el => el.scrollIntoView({ block: 'center' }));
       await p.waitForFunction(() => [...document.querySelectorAll('.sheet img')].every(i => i.complete && i.naturalWidth), null, { timeout: 8000 }).catch(() => {});
       const r = await p.$$eval('.sheet img', l => l.map(i => { const b = i.getBoundingClientRect(), a = i.naturalWidth / i.naturalHeight;
