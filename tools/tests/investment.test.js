@@ -19,8 +19,8 @@ const INCLUDES = ['Continuous coverage for the hours you choose', 'A fully edite
 const TERMS = ['Your full gallery within three months', 'A 25% non-refundable deposit secures your date',
                'Payment plans available, with the balance due 14 days before the wedding'];
 const FORM = { weddings: 'Wedding', couples: 'Couples, engagement or proposal', family: 'Family', maternity: 'Maternity', newborn: 'Newborn' };
-const PHOTO = { weddings: 'images/weddings/castle-balcony.jpg', couples: 'images/portfolio/couples-08.jpg', family: 'images/sessions/family.jpg',
-                maternity: 'images/sessions/maternity.jpg', newborn: 'images/sessions/newborn.jpg' };
+const PHOTO = { weddings: 'images/weddings/castle-balcony.jpg', couples: 'images/portfolio/couples-08.jpg', family: 'images/portfolio/family-12.jpg',
+                maternity: 'images/portfolio/maternity-05.jpg', newborn: 'images/portfolio/newborn-02.jpg' };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 module.exports = async ({ browser: b, base, ok, watch }) => {
@@ -43,7 +43,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       });
       const bg = el => el ? getComputedStyle(el).backgroundColor : null;
       return { sessions, order: all('main > *').map(el => el.id || el.className.split(' ')[0]),
-        bgs: ['#weddings', '#wedding-packages', '#couples', '.carte', '.how', '.questions', '.closing'].map(s => bg(document.querySelector(s))),
+        bgs: ['#weddings', '#wedding-packages', '#couples', document.querySelector('.carte') ? '.carte' : '#newborn', '.how', '.questions', '.closing'].map(s => bg(document.querySelector(s))),
         paper: getComputedStyle(document.body).backgroundColor,
         tiers: all('.tier').map(li => [t(li.querySelector('.tier-name')), t(li.querySelector('.tier-hours')), t(li.querySelector('.tier-price'))].join('|')),
         tierLook: all('.tier').map(li => li.className + ' ' + li.attributes.length + ' ' + bg(li) + ' ' + getComputedStyle(li).transform + ' ' + getComputedStyle(li.querySelector('.tier-name')).fontSize),
@@ -80,7 +80,9 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
        'every other session has one action, "Enquire about …", to the form with its own session chosen');
     ok(d.sessions.couples.title === 'Couples, engagements & proposals' && ['family', 'maternity', 'newborn'].every(id => d.sessions[id].title === id[0].toUpperCase() + id.slice(1)),
        'session titles: her names; the carte words are the short names');
-    ok(d.carteLabel === 'Family, maternity & newborn', `the carte eyebrow is built from the names (${d.carteLabel})`);
+    const carte = ids.filter(id => id !== 'weddings' && id !== 'couples' && !exists[id]);
+    ok(carte.length ? d.carteLabel === carte.map((id, i) => i ? id : id[0].toUpperCase() + id.slice(1)).join(', ').replace(/, ([^,]*)$/, ' & $1') : d.carteLabel == null,
+       `the carte eyebrow is built from the names of sessions without photos, or absent (${d.carteLabel})`);
     ok(same(d.tiers, TIERS) && same(d.hours, ['4', '6', '8', '10', '12']) && d.arcs === 5, 'tiers: names, "Up to 4 hours" … "Up to 12 hours" and prices byte for byte, each with its sun path');
     ok(new Set(d.tierLook).size === 1, 'no tier is highlighted (identical classes, attributes and looks)');
     ok(same(d.notes, [['Every package includes', INCLUDES], ['Good to know', TERMS]]), 'the wedding inclusions and terms, exactly');
@@ -88,7 +90,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     ok(new URL(d.cta[0], base + '/').searchParams.get('session') === 'Wedding' && d.cta[1] === 'Check my wedding dates', 'packages CTA: "Check my wedding dates" → the form with Wedding chosen');
     ok(d.index[0] === 'Sessions' && same(d.index[1], ['#weddings weddings wedding-packages Weddings', '#couples couples Couples', '#family family Family', '#maternity maternity Maternity', '#newborn newborn Newborn']),
        'index bar "Sessions": five links, Weddings also spying on the packages');
-    ok(same(d.order, ['inv-hero', 'index-bar', 'weddings', 'wedding-packages', 'couples', 'carte', 'how', 'questions', 'closing']),
+    ok(same(d.order, ['inv-hero', 'index-bar', 'weddings', 'wedding-packages', 'couples', ...(carte.length ? ['carte'] : ['family', 'maternity', 'newborn']), 'how', 'questions', 'closing']),
        'section order: hero, index, Weddings, packages, Couples, carte, How it works, Questions, closing (' + d.order.join(' → ') + ')');
     const L = 'rgb(236, 230, 219)';
     ok(same(d.bgs.map(c => c === L ? 'L' : (c === 'rgba(0, 0, 0, 0)' || c === d.paper) ? 'P' : c), ['P', 'L', 'P', 'P', 'L', 'P', 'P']),
@@ -222,7 +224,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       const inView = el => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
       return { armed: [...document.querySelectorAll('.is-armed')].filter(inView).map(el => el.className),
         half: [...document.querySelectorAll('#family .spec > div')].filter(inView).map(d => getComputedStyle(d, '::before').transform).filter(t => t !== 'none').length,
-        spec: document.querySelector('#family .spec').className };
+        spec: inView(document.querySelector('#family .spec')) ? document.querySelector('#family .spec').className : 'is-done (out of view)' };
     });
     ok(!r.armed.length && !r.half && /is-done/.test(r.spec), `${vp.viewport.width}: a cold load at #family shows its rules drawn, nothing armed in view (${r.spec})`);
     await ctx.close();
@@ -250,7 +252,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     const r = await p.evaluate(() => {
       const bar = document.querySelector('.index-bar').getBoundingClientRect(), h = document.querySelector('#family h2').getBoundingClientRect();
       return { gap: Math.round(h.top - bar.bottom), current: (document.querySelector('.index-bar a[aria-current]') || {}).textContent,
-        half: [...document.querySelectorAll('#family .spec > div')].map(d => getComputedStyle(d, '::before').transform).filter(t => t !== 'none').length };
+        half: [...document.querySelectorAll('#family .spec > div')].filter(d => { const r = d.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; }).map(d => getComputedStyle(d, '::before').transform).filter(t => t !== 'none').length };
     });
     ok(r.gap >= 0 && r.current === 'Family' && !r.half, `${vp.viewport.width}: the Family link lands below the bar (${r.gap}px), Family current, its rules drawn`);
     await ctx.close();

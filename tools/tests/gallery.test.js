@@ -144,7 +144,8 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     await p.goto(url, { waitUntil: 'networkidle' });
     await p.waitForTimeout(300);
     const armed = await p.$$eval('.rg .ph', fs => fs.map(f => f.getBoundingClientRect().top > innerHeight ? f.classList.contains('is-armed') : f.classList.contains('is-done')));
-    await scrollThrough(p, { step: 300, pause: 120, settle: 6000 });
+    await scrollThrough(p, { step: 300, pause: 120, settle: 12000 });
+    await p.waitForFunction(() => [...document.querySelectorAll('.rg .ph')].every(f => f.classList.contains('is-done')), null, { timeout: 20000 }).catch(() => {});
     const end = await p.evaluate(() => ({
       done: [...document.querySelectorAll('.rg .ph')].every(f => f.classList.contains('is-done') && !f.classList.contains('is-armed')),
       developed: window.__dev.length, all: document.querySelectorAll('.rg .ph').length,

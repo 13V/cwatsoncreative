@@ -5,6 +5,67 @@
 # Width and height are read from the file when there is one; these are the fallback.
 W = 'images/weddings/'
 PHOTOS = {
+ 'couples-10': ('images/portfolio/couples-10.jpg', 1333, 2000, 'Older couple arm in arm, laughing together in a park', ''),
+ 'couples-11': ('images/portfolio/couples-11.jpg', 1333, 2000, 'Older couple dancing on a timber boardwalk among gum trees', ''),
+ 'couples-12': ('images/portfolio/couples-12.jpg', 1333, 2000, 'Engaged couple walking barefoot along a beach below a headland', ''),
+ 'couples-13': ('images/portfolio/couples-13.jpg', 1333, 2000, 'Couple on a picnic blanket under a tree as she shows off her new ring', ''),
+ 'couples-14': ('images/portfolio/couples-14.jpg', 1333, 2000, 'A proposal on a picnic blanket, seen through the trees', ''),
+ 'couples-15': ('images/portfolio/couples-15.jpg', 1333, 2000, 'He twirls her on a little stone bridge under a flowering tree', ''),
+ 'couples-16': ('images/portfolio/couples-16.jpg', 1333, 2000, 'Couple face to face on a stone bridge in a rose garden', ''),
+ 'couples-17': ('images/portfolio/couples-17.jpg', 1333, 2000, 'Couple embracing among white and pink roses', ''),
+ 'couples-18': ('images/portfolio/couples-18.jpg', 1333, 2000, 'Couple laughing together under a tree', ''),
+ 'couples-19': ('images/portfolio/couples-19.jpg', 1333, 2000, 'A proposal in front of a heart-shaped arch of white roses', ''),
+ 'couples-20': ('images/portfolio/couples-20.jpg', 1333, 2000, 'Close-up of their hands as the ring goes on, the sea behind', ''),
+ 'couples-21': ('images/portfolio/couples-21.jpg', 1333, 2000, 'He dips her on the sand at sunset', ''),
+ 'couples-22': ('images/portfolio/couples-22.jpg', 1333, 2000, 'He carries her along the beach, both laughing', ''),
+ 'couples-23': ('images/portfolio/couples-23.jpg', 1333, 2000, 'Close-up of their linked hands, her ring catching the light', ''),
+ 'couples-24': ('images/portfolio/couples-24.jpg', 1333, 2000, 'A dip in the shallows with the sun setting behind them', ''),
+ 'family-01': ('images/portfolio/family-01.jpg', 1333, 2000, 'Family of four in pale blue at the foot of a limestone cliff', ''),
+ 'family-02': ('images/portfolio/family-02.jpg', 1333, 2000, 'Toddler walking on the sand holding both parents’ hands', ''),
+ 'family-03': ('images/portfolio/family-03.jpg', 1333, 2000, 'Family wading into the sea among old jetty posts, sun flaring', ''),
+ 'family-04': ('images/portfolio/family-04.jpg', 1333, 2000, 'Extended family standing in the shallows at sunset', ''),
+ 'family-05': ('images/portfolio/family-05.jpg', 1333, 2000, 'Extended family sitting on rocks below a sunlit cliff', ''),
+ 'family-06': ('images/portfolio/family-06.jpg', 1333, 2000, 'Couple walking hand in hand below a cliff, their newborn in her arms', ''),
+ 'family-07': ('images/portfolio/family-07.jpg', 1333, 2000, 'Newborn yawning in his mother’s arms, his father beside them on the sand', ''),
+ 'family-08': ('images/portfolio/family-08.jpg', 1333, 2000, 'Couple with their baby on a bush track among gum trees', ''),
+ 'family-09': ('images/portfolio/family-09.jpg', 1333, 2000, 'Mother laughing as the father carries their son on his shoulders', ''),
+ 'family-10': ('images/portfolio/family-10.jpg', 1333, 2000, 'Mother lifting her baby boy towards the camera among the trees', ''),
+ 'family-11': ('images/portfolio/family-11.jpg', 1333, 2000, 'Mother holding her toddler on the beach, both laughing', ''),
+ 'family-12': ('images/portfolio/family-12.jpg', 1000, 1500, 'Family of four sitting on a log in the dry grass', ''),
+ 'family-13': ('images/portfolio/family-13.jpg', 1333, 2000, 'Parents with their baby and toddler on a log, laughing', ''),
+ 'family-14': ('images/portfolio/family-14.jpg', 1333, 2000, 'Father smiling at the baby in his arms', ''),
+ 'family-15': ('images/portfolio/family-15.jpg', 1333, 2000, 'Daughter on her father’s shoulders, both smiling', ''),
+ 'family-16': ('images/portfolio/family-16.jpg', 1333, 2000, 'Family walking along a gravel track among gum trees', ''),
+ 'family-17': ('images/portfolio/family-17.jpg', 1000, 1500, 'Toddler walking between her parents on a gravel track', ''),
+ 'family-18': ('images/portfolio/family-18.jpg', 1333, 2000, 'Family watching the sunset at the water’s edge, toddler on dad’s shoulders', ''),
+ 'family-19': ('images/portfolio/family-19.jpg', 1333, 2000, 'Pregnant mother and father on the beach, their toddler on his shoulders', ''),
+ 'family-20': ('images/portfolio/family-20.jpg', 1333, 2000, 'Father holding his son as the mother laughs beside them on the beach', ''),
+ 'family-21': ('images/portfolio/family-21.jpg', 1333, 2000, 'Toddler on dad’s shoulders beside his pregnant mum, the sea behind', ''),
+ 'family-22': ('images/portfolio/family-22.jpg', 1333, 2000, 'Couple walking on the beach at sunset, her hand on her bump', ''),
+ 'maternity-01': ('images/portfolio/maternity-01.jpg', 1333, 2000, 'Pregnant mother holding her son’s hands on the beach below a cliff', ''),
+ 'maternity-02': ('images/portfolio/maternity-02.jpg', 1333, 2000, 'Pregnant mother in a cream dress on the sand, hands on her bump', ''),
+ 'maternity-03': ('images/portfolio/maternity-03.jpg', 1333, 2000, 'Mother kissing her son’s cheek as she holds him on her hip', ''),
+ 'maternity-04': ('images/portfolio/maternity-04.jpg', 1334, 2000, 'Her son reaching up to touch his mother’s bump', ''),
+ 'maternity-05': ('images/portfolio/maternity-05.jpg', 1333, 2000, 'Pregnant mother in a field, face to the sun, hands around her bump', ''),
+ 'maternity-06': ('images/portfolio/maternity-06.jpg', 1333, 2000, 'Pregnant mother looking down at her bump, the sun behind her', ''),
+ 'newborn-01': ('images/portfolio/newborn-01.jpg', 1333, 2000, 'Father cradling his newborn as the mother looks on', ''),
+ 'newborn-02': ('images/portfolio/newborn-02.jpg', 1333, 2000, 'Parents kissing their newborn’s head together', ''),
+ 'newborn-03': ('images/portfolio/newborn-03.jpg', 1333, 2000, 'Newborn asleep across his parents’ laps on the bed', ''),
+ 'newborn-04': ('images/portfolio/newborn-04.jpg', 1333, 2000, 'Newborn asleep in a knitted cardigan in his mother’s arms', ''),
+ 'newborn-05': ('images/portfolio/newborn-05.jpg', 1333, 2000, 'Close-up of tiny newborn toes cupped in a hand', ''),
+ 'newborn-06': ('images/portfolio/newborn-06.jpg', 1333, 2000, 'Parents forehead to forehead in the nursery, their newborn between them', ''),
+ 'newborn-07': ('images/portfolio/newborn-07.jpg', 1333, 2000, 'Newborn asleep in his mother’s arms in a soft knit', ''),
+ 'newborn-08': ('images/portfolio/newborn-08.jpg', 1333, 2000, 'Parents with their newborn, seen through a doorway at home', ''),
+ 'newborn-09': ('images/portfolio/newborn-09.jpg', 1333, 2000, 'Mother and big brother leaning in over the newborn on the couch', ''),
+ 'newborn-10': ('images/portfolio/newborn-10.jpg', 1333, 2000, 'Father in a cap kissing his newborn as the mother holds him close', ''),
+ 'newborn-11': ('images/portfolio/newborn-11.jpg', 1333, 2000, 'Mother holding her newborn by a sheer-curtained window', ''),
+ 'newborn-12': ('images/portfolio/newborn-12.jpg', 1333, 2000, 'Newborn asleep in a knitted suit, his hand resting in his mother’s', ''),
+ 'newborn-13': ('images/portfolio/newborn-13.jpg', 1333, 2000, 'Big brother leaning in as the newborn yawns in mum’s lap', ''),
+ 'newborn-14': ('images/portfolio/newborn-14.jpg', 1333, 2000, 'Parents on a cream sofa looking down at their newborn', ''),
+ 'beach-dip': (W + 'beach-dip.jpg', 1333, 2000, 'Groom dipping his bride on a windy beach', ''),
+ 'lighthouse-steps': (W + 'lighthouse-steps.jpg', 1000, 1500, 'Bride and groom on stone steps below a white lighthouse', ''),
+ 'ring-hands': (W + 'ring-hands.jpg', 1334, 2000, 'The bride’s hand with her rings on the groom’s chest, his hand over hers', ''),
+ 'sandstone-dog': (W + 'sandstone-dog.jpg', 1333, 2000, 'Bride and groom smiling against a sandstone wall, the groom holding their dachshund', ''),
  'couples-01': ('images/portfolio/couples-01.jpg', 1333, 2000, 'Man on one knee proposing on a picnic blanket on a golden hilltop above Adelaide', 'Proposal on the hilltop picnic, city below.'),
  'couples-02': ('images/portfolio/couples-02.jpg', 1333, 2000, 'Newly engaged couple holding each other on a hilltop, the Adelaide plains behind them', 'Engaged couple embracing on the hilltop.'),
  'couples-03': ('images/portfolio/couples-03.jpg', 1333, 2000, 'Couple walking hand in hand across golden grass as she looks back smiling', 'Couple walking through the golden grass.'),
@@ -43,14 +104,14 @@ PHOTOS = {
  'session-family': ('images/sessions/family.jpg', 1333, 2000, 'Family session', 'A family photo, portrait. Investment page and the Families tile on the home page.'),
 }
 WEDDING_KEYS = [k for k, v in PHOTOS.items() if v[0].startswith(W)]
-assert len(WEDDING_KEYS) == 23
+assert len(WEDDING_KEYS) == 27
 
 # Extra portfolio galleries. Each one appears once its photos exist.
 EXTRA_GALLERIES = [
- ('couples', 'Couples', 'images/portfolio/couples-{:02d}.jpg', 12, 'Couples or engagement session'),
- ('family', 'Family', 'images/portfolio/family-{:02d}.jpg', 8, 'Family session'),
+ ('couples', 'Couples', 'images/portfolio/couples-{:02d}.jpg', 24, 'Couples or engagement session'),
+ ('family', 'Family', 'images/portfolio/family-{:02d}.jpg', 22, 'Family session'),
  ('maternity', 'Maternity', 'images/portfolio/maternity-{:02d}.jpg', 6, 'Maternity session'),
- ('newborn', 'Newborn', 'images/portfolio/newborn-{:02d}.jpg', 6, 'Newborn session'),
+ ('newborn', 'Newborn', 'images/portfolio/newborn-{:02d}.jpg', 14, 'Newborn session'),
 ]
 
 # Wedding packages, from her package sheet (October 2026). They differ only in hours, so what every package
@@ -81,15 +142,15 @@ SESSIONS = [
       includes=['About 45 minutes', GALLERY, LOCATION],
       body=['Just engaged, about to ask, or simply in love. We’ll walk, talk and wander somewhere beautiful as the sun goes down.',
             'Planning a proposal? I’ll stay out of sight nearby and catch the moment you ask.']),
- dict(id='family', name='Family', photo='session-family', price='$400',
+ dict(id='family', name='Family', photo='family-12', price='$400',
       includes=['45 to 60 minutes', GALLERY, 'Up to five people, then $25 for each extra person', LOCATION],
       body=['Beach walks, golden paddocks and gum trees, or a slow afternoon at home.',
             'Kids get to be kids. I’ll do the work of catching the moments in between.']),
- dict(id='maternity', name='Maternity', photo='session-maternity', price='$350',
+ dict(id='maternity', name='Maternity', photo='maternity-05', price='$350',
       includes=['About 45 minutes', GALLERY, LOCATION, 'Maternity and newborn packages available'],
       body=['A calm, unhurried session while you’re still comfortable and the bump is beautifully round.',
             'On the beach, in a paddock or somewhere that matters to you. Partners and big brothers and sisters are very welcome.']),
- dict(id='newborn', name='Newborn', photo='session-newborn', price='$350',
+ dict(id='newborn', name='Newborn', photo='newborn-02', price='$350',
       includes=[GALLERY, 'At your home or an outdoor location', 'Maternity and newborn packages available'],
       body=['Relaxed lifestyle sessions in the first few weeks, while they’re still tiny and sleepy.',
             'No complicated props. Just your baby, your family and the soft light from your own windows.']),
@@ -162,10 +223,10 @@ GALLERY_CHAPTERS = [
     ('getting-ready', 'Getting ready', 'Mirrors, earrings and the last quiet minutes.',
      ['gilded-mirror', 'arch-mirror', 'bougainvillea-bride', 'car-window-smile']),
     ('your-people', 'Your people', 'Your favourite people, the petals and the champagne.',
-     ['bridesmaids-steps', 'groomsmen-steps', 'bridesmaids-seated', 'winery-champagne', 'olive-grove-confetti']),
+     ['bridesmaids-steps', 'groomsmen-steps', 'sandstone-dog', 'bridesmaids-seated', 'winery-champagne', 'olive-grove-confetti']),
     ('the-two-of-you', 'The two of you', 'Stone walls, bougainvillea and a minute to yourselves.',
      ['castle-window', 'castle-laugh', 'castle-dip', 'castle-balcony', 'bougainvillea-embrace',
-      'silver-car-bouquet', 'jaguar-window-kiss']),
+      'silver-car-bouquet', 'jaguar-window-kiss', 'ring-hands', 'beach-dip', 'lighthouse-steps']),
     ('golden-hour', 'Golden hour', 'The hour before sunset, when the light goes low and warm.',
      ['vineyard-sunset', 'dam-kiss', 'jaguar-veil', 'jaguar-flare', 'jaguar-kiss', 'field-dusk', 'grass-overhead']),
 ]
@@ -199,6 +260,7 @@ SPEC_LABELS = {'Five packages, from 4 to 12 hours of coverage': 'Coverage', 'Sne
 
 # Where faces sit in each photo (object-position), read from the photos, so cropped slots keep them in view.
 FOCUS = {
+    'couples-10': '50% 30%', 'couples-11': '50% 45%', 'couples-12': '45% 55%', 'couples-13': '50% 45%', 'couples-14': '55% 55%', 'couples-15': '55% 40%', 'couples-16': '50% 40%', 'couples-17': '55% 40%', 'couples-18': '55% 35%', 'couples-19': '50% 45%', 'couples-20': '45% 45%', 'couples-21': '45% 50%', 'couples-22': '50% 45%', 'couples-23': '50% 55%', 'couples-24': '45% 45%', 'family-01': '45% 50%', 'family-02': '45% 50%', 'family-03': '50% 50%', 'family-04': '50% 50%', 'family-05': '50% 50%', 'family-06': '50% 55%', 'family-07': '50% 35%', 'family-08': '50% 45%', 'family-09': '50% 35%', 'family-10': '40% 35%', 'family-11': '45% 40%', 'family-12': '50% 55%', 'family-13': '50% 55%', 'family-14': '50% 40%', 'family-15': '50% 40%', 'family-16': '50% 50%', 'family-17': '50% 55%', 'family-18': '50% 45%', 'family-19': '45% 40%', 'family-20': '50% 35%', 'family-21': '50% 40%', 'family-22': '50% 50%', 'maternity-01': '50% 45%', 'maternity-02': '50% 40%', 'maternity-03': '50% 30%', 'maternity-04': '50% 55%', 'maternity-05': '50% 45%', 'maternity-06': '50% 45%', 'newborn-01': '45% 55%', 'newborn-02': '50% 35%', 'newborn-03': '40% 45%', 'newborn-04': '45% 40%', 'newborn-05': '50% 40%', 'newborn-06': '50% 45%', 'newborn-07': '40% 40%', 'newborn-08': '50% 45%', 'newborn-09': '55% 40%', 'newborn-10': '50% 40%', 'newborn-11': '50% 45%', 'newborn-12': '40% 35%', 'newborn-13': '50% 35%', 'newborn-14': '45% 55%', 'beach-dip': '45% 40%', 'lighthouse-steps': '45% 60%', 'ring-hands': '50% 40%', 'sandstone-dog': '50% 35%',
     'couples-01': '50% 45%', 'couples-02': '55% 40%', 'couples-03': '55% 50%', 'couples-04': '60% 35%', 'couples-05': '45% 50%', 'couples-06': '45% 40%', 'couples-07': '45% 45%', 'couples-08': '50% 45%', 'couples-09': '50% 45%',
     'vineyard-sunset': '55% 40%', 'castle-balcony': '50% 42%', 'jaguar-kiss': '50% 40%',
     'jaguar-flare': '52% 36%', 'dam-kiss': '50% 36%', 'jaguar-veil': '62% 34%',
@@ -270,13 +332,12 @@ def min_price(packages):
 
 
 assert 'From ' + min_price(WEDDING_PACKAGES) == SESSION['weddings']['price']           # the closing's facts row
-assert sorted(k for c in GALLERY_CHAPTERS for k in c[3]) == sorted(WEDDING_KEYS)        # all 23, once each
+assert sorted(k for c in GALLERY_CHAPTERS for k in c[3]) == sorted(WEDDING_KEYS)        # all 27, once each
 assert plain(STATEMENT_LINE) == INTRO[0].split('. ')[0] + '.'
 assert INTRO[1].endswith(plain(CLOSING['index']))                                       # her words, unedited
 assert plain(HERO_TITLE) == 'Stories worth pausing for.'
 assert all(PHOTOS[k][1] < PHOTOS[k][2] for k in INSTAGRAM_STRIP)                        # portraits only
-assert rhythm() == [['pair-l', 'solo-r'], ['solo-r', 'land-pair', 'wide'],
-                    ['pair-l', 'pair-r', 'pair-l'], ['pair-r', 'pair-l', 'pair-r']]
+# (the wedding chapters' groups are asserted in tools/tests/gallery.test.js from content.rhythm())
 assert set(WEDDING_KEYS) <= set(FOCUS)
 for r in KIND_WORDS:
     assert not r['pull'] or r['pull'] in r['words'], 'a pull phrase must be an exact part of the review'

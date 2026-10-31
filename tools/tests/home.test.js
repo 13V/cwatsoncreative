@@ -7,7 +7,7 @@ const { context, scrollThrough, scrollTo, PHONE, DESKTOP } = require('./lib');
 
 // Every session, and the photo its Home tile would show (a session without one is named in the text tile).
 const SESSIONS = [['Weddings', 'images/weddings/field-dusk.jpg'], ['Couples', 'images/portfolio/couples-02.jpg'],
-  ['Family', 'images/sessions/family.jpg'], ['Maternity', 'images/sessions/maternity.jpg'], ['Newborn', 'images/sessions/newborn.jpg']];
+  ['Family', 'images/portfolio/family-12.jpg'], ['Maternity', 'images/portfolio/maternity-05.jpg'], ['Newborn', 'images/portfolio/newborn-02.jpg']];
 const vp = (width, height) => ({ viewport: { width, height }, deviceScaleFactor: width < 861 ? 2 : 1, isMobile: width < 861, hasTouch: width < 861 });
 
 // How many rendered lines a block of text takes (distinct line tops of its text).
@@ -214,7 +214,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
        `one text tile naming exactly the sessions without photos (${named.join(', ')}), no doorway, no image`);
     ok(t.tray.length === t.photo.length && t.tray.every(Boolean) && t.list === 'list', '.ph--tray on the tile photos only; ul.tiles[role=list]');
     // names keep their spaces (Chromium may add one before the comma between blocks, which is not voiced)
-    for (const name of ['Weddings, See the gallery', 'Couples, Engagements & proposals too', named.join(' ') + ', Sessions & pricing']) {
+    for (const name of ['Weddings, See the gallery', 'Couples, Engagements & proposals too', ...(named.length ? [named.join(' ') + ', Sessions & pricing'] : [])]) {
       const re = new RegExp('^' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(', ', '\\s*,\\s+').replace(/ /g, '\\s+') + '$');
       ok(await p.getByRole('link', { name: re }).count() === 1, `a link named "${name}"`);
     }
@@ -223,7 +223,9 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     // M10: the tiles wait below the fold, then develop and finish
     const armed = await p.$$eval('.tiles .ph--tray', fs => fs.map(f => f.classList.contains('is-armed')));
     await p.$eval('.tiles', el => window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 200, behavior: 'instant' }));
-    await p.waitForTimeout(3200);
+    await p.waitForTimeout(2500);
+    await p.$eval('.tiles li:last-child', el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await p.waitForTimeout(3000);
     const done = await p.$$eval('.tiles .ph--tray', fs => fs.map(f => f.classList.contains('is-done')));
     ok(armed.length && armed.every(Boolean) && done.every(Boolean), `tile photos wait below the fold and develop on arrival (${armed} → ${done})`);
     await ctx.close();

@@ -528,6 +528,8 @@ def gallery():
         return (', '.join(names[:-1]) + ' and ' + names[-1]) if len(names) > 1 else ''.join(names)
     names, kinds = listing((['Weddings'] if chapters else []) + [x[1] for x in extras]), \
         listing((['Wedding'] if chapters else []) + [x[1] for x in extras])
+    if len(extras) > 1:   # a long list of galleries is the index bar's job; the lead stays short
+        names = 'Stories'
     lead = (f'{e(names)} from around Adelaide. ' if names else '') + \
         f'The newest sessions go up on <a href="{INSTAGRAM[1]}">Instagram</a> first.'
     desc = f'{kinds} photography from around Adelaide by Selah Stories.' if kinds else 'Photography by Selah Stories, Adelaide.'
