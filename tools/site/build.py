@@ -215,8 +215,7 @@ def index_bar(label, items):
     the link goes to the first id, and the scroll-spy marks it current for any of them."""
     links = ''
     for ids, text, count in items:
-        sup = (f'<sup><span class="sr-only">, </span>{count}<span class="sr-only"> photographs</span></sup>'
-               if count is not None else '')
+        sup = ''   # no counts: the owner asked for the numbers to go
         links += (f'<a href="#{ids[0]}" data-spy="{" ".join(ids)}"><span class="ix-label">{e(text)}{art.brush()}</span>'
                   f'{sup}</a>')
     return f'<nav class="index-bar" aria-label="{e(label)}"><div class="index wrap">{links}</div></nav>'
@@ -564,10 +563,8 @@ def gallery_section(c, cid, title, line, keys, groups, index, numbered=True):
     """A chapter (or an extra gallery): the cover-first opener (spec §4.11), then the rest of its photos in the rhythm
     grid, one .rg per group from content.rhythm_groups(). Chapter 01's cover is the page's LCP photo (spec §7.6)."""
     cover = arch_frame(keys[0], 'cover', '2x3', priority=c == 0)
-    count = f'{len(keys)} photograph{"s" if len(keys) > 1 else ""}'
-    num = (f'<span class="t-count">No. {c + 1:02d}</span> ' if numbered else '') + f'<span class="t-caption">{count}</span>'
     head = (f'<div class="chapter-head grid-12">{ph_link(keys[0], index, title, cover, " chapter-cover")}'
-            f'<div class="chapter-text"><p class="eyebrow--num">{num}</p><h2 id="{cid}-title">{e(title)}</h2>'
+            f'<div class="chapter-text"><h2 id="{cid}-title">{e(title)}</h2>'
             + (f'<p class="lead-i">{e(line)}</p>' if line else '') + '</div></div>')
     rows, i = '', index + 1
     for kind, members in groups:
@@ -690,18 +687,10 @@ def wedding_packages():
             f'<div class="tier-notes">{notes}</div><div class="actions">{button("contact.html?session=" + quote_plus(FORM_SESSION["weddings"]), "Check my wedding dates")}</div></div></section>')
 
 
-def roman(n):
-    """Lower-roman numerals for the steps."""
-    out = ''
-    for v, r in ((10, 'x'), (9, 'ix'), (5, 'v'), (4, 'iv'), (1, 'i')):
-        out, n = out + r * (n // v), n % v
-    return out
-
-
 def how_it_works():
     """The steps as a ledger on a thread, each marked by a sun warming from morning to golden hour (§4.16)."""
     steps = ''.join(f'<li class="step" style="--i:{i}"><span class="step-marker">{art.step_sun(i + 1, len(STEPS))}</span>'
-                    f'<span class="t-numeral" aria-hidden="true">{roman(i + 1)}.</span><h3>{e(t)}</h3><p>{e(d)}</p></li>'
+                    f'<h3>{e(t)}</h3><p>{e(d)}</p></li>'
                     for i, (t, d) in enumerate(STEPS))
     return (f'<section class="how sec--standard head--left" aria-labelledby="how-title"><div class="wrap">'
             f'<h2 id="how-title">How it <em>works</em></h2><ol class="steps" role="list" data-rules>{steps}</ol></div></section>')

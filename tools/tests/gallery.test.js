@@ -24,7 +24,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
       const bar = document.querySelector('nav.index-bar');
       return {
         label: bar && bar.getAttribute('aria-label'),
-        index: [...document.querySelectorAll('.index-bar a')].map(a => [a.getAttribute('href'), a.querySelector('sup').textContent.replace(/\D/g, '')]),
+        index: [...document.querySelectorAll('.index-bar a')].map(a => [a.getAttribute('href'), !!a.querySelector('sup')]),
         wrapped: [...document.querySelectorAll('#weddings > section.chapter.sec--standard')].map(c => c.id),
         chapters: [...document.querySelectorAll('section.chapter')].map(c => ({
           id: c.id, title: c.querySelector(`h2#${c.id}-title`)?.textContent, num: c.querySelector('.eyebrow--num')?.textContent,
@@ -42,12 +42,11 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
           high: i.getAttribute('fetchpriority'), loading: i.getAttribute('loading'), tray: !!i.closest('.ph--tray') }; })(),
       };
     });
-    const counts = DATA.chapters.map(c => String(c[2].length));
-    ok(s.label === 'Chapters' && same(s.index, DATA.chapters.map((c, i) => ['#' + c[0], counts[i]])) && same(counts, ['4', '5', '7', '7']),
-       `index bar "Chapters" links every chapter with its count from data (${s.index.map(x => x.join(' ')).join(', ')})`);
+    ok(s.label === 'Chapters' && same(s.index, DATA.chapters.map(c => ['#' + c[0], false])),
+       `index bar "Chapters" links every chapter, with no counts (${s.index.map(x => x.join(' ')).join(', ')})`);
     ok(same(s.wrapped, DATA.chapters.map(c => c[0])), `div#weddings wraps the four chapters in data order (${s.wrapped.join(', ')})`);
-    ok(s.chapters.every((c, i) => c.title === DATA.chapters[i][1] && c.num === `No. 0${i + 1} ${DATA.chapters[i][2].length} photographs`),
-       'each opener: "No. 0n", the count from data and the chapter title');
+    ok(s.chapters.every((c, i) => c.title === DATA.chapters[i][1] && !c.num),
+       'each opener: the chapter title, with no number or photo count');
     ok(s.chapters.every(c => c.first) && s.chapters.every((c, i) => same(c.links, DATA.chapters[i][2])),
        'cover first in every chapter, then its photos in data order');
     ok(same(s.chapters.map(c => c.groups), DATA.rhythm) && s.chapters.every(c => c.grouped),

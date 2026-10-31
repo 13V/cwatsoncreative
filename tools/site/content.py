@@ -68,7 +68,7 @@ SESSIONS = [
       body=['I photograph weddings the way they feel: getting ready, the nerves, the vows, the champagne and the dance floor.',
             'I keep things calm and quiet, step in when you need direction and stay out of the way when you don’t. '
             'I’ll also help you plan the timeline, so your portraits land in the best light of the day.']),
- dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='field-dusk', price='$350',
+ dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='bougainvillea-embrace', price='$350',
       includes=['About 45 minutes', GALLERY, LOCATION],
       body=['Just engaged, about to ask, or simply in love. We’ll walk, talk and wander somewhere beautiful as the sun goes down.',
             'Planning a proposal? I’ll stay out of sight nearby and catch the moment you ask.']),
@@ -126,22 +126,22 @@ FORM_OPTIONS = ['Wedding', 'Couples, engagement or proposal', 'Family', 'Materni
 HERO = ('vineyard-sunset', 'jaguar-flare')
 HOME_WINDOWS = [('castle-dip', 'castle-window', 'castle-laugh'), ('dam-kiss', 'jaguar-window-kiss')]
 HOME_STATEMENT_PHOTO = 'arch-mirror'
-HOME_TILE_PHOTO = {'weddings': 'bougainvillea-embrace', 'couples': 'field-dusk'}  # Investment rows use SESSIONS photos
+HOME_TILE_PHOTO = {'weddings': 'field-dusk', 'couples': 'bougainvillea-embrace'}  # couples: until her couple photos arrive  # Investment rows use SESSIONS photos
 CONTACT_PHOTO = 'silver-car-bouquet'
-INTRO = ['Sunday light is low, warm and in no hurry. It’s the light I chase, and it’s how I want your session to feel: '
-         'no stiff poses and no rushing, just time together while I look for the moments in between.',
-         'I’ll guide you the whole way, from what to wear to where to stand when the sun drops. You bring your people. '
-         'I’ll look after the light.']
+INTRO = ['Selah means to pause. A breath in a busy life to notice who’s beside you, and it’s how I want your session to '
+         'feel: no stiff poses and no rushing, just time together while I look for the moments in between.',
+         'I’ll guide you the whole way, from what to wear to where to stand, so you can forget the camera and simply be '
+         'together. You live the moment. I’ll keep the story.']
 # Six portraits for the Instagram contact sheet (Home and Kind words), none of them used elsewhere on Home.
 INSTAGRAM_STRIP = ['gilded-mirror', 'bougainvillea-bride', 'car-window-smile', 'grass-overhead',
                    'bridesmaids-steps', 'groomsmen-steps']
 
 # Line plans: '|' breaks below 861px only, '/' from 861px only, '//' at every width, '*…*' is the emphasised phrase
 # (set roman, in the heading's own colour). Each line fits its width-fit size in the real face and in the fallback.
-HERO_TITLE = 'Photographs that//feel like a//*Sunday\u00a0afternoon.*'   # no-break space: the last line never splits
-STATEMENT_LINE = 'Sunday light|is low,/warm|and in no hurry.'      # her first sentence (asserted below)
+HERO_TITLE = 'Stories worth//*pausing\u00a0for.*'   # NEW (Selah: to pause); no-break space: the last line never splits
+STATEMENT_LINE = 'Selah means//to pause.'      # the intro's first sentence (asserted below)
 CLOSING = {
-    'index': 'You bring|your people.//*I’ll look after|the light.*',  # the end of INTRO[1] (asserted below)
+    'index': 'You live|the moment.//*I’ll keep|the story.*',  # the end of INTRO[1] (asserted below)
     'gallery': 'Your day,//*in this light.*',                        # NEW, for the owner's sign-off
     'investment': 'Let’s plan//*your session.*',                     # NEW
     'kind-words': 'Let’s plan//*something lovely.*',                 # NEW (spec §6.3's fallback; Contact's h1, but Contact has no closing)
@@ -263,7 +263,7 @@ assert 'From ' + min_price(WEDDING_PACKAGES) == SESSION['weddings']['price']    
 assert sorted(k for c in GALLERY_CHAPTERS for k in c[3]) == sorted(WEDDING_KEYS)        # all 23, once each
 assert plain(STATEMENT_LINE) == INTRO[0].split('. ')[0] + '.'
 assert INTRO[1].endswith(plain(CLOSING['index']))                                       # her words, unedited
-assert plain(HERO_TITLE) == 'Photographs that feel like a Sunday afternoon.'
+assert plain(HERO_TITLE) == 'Stories worth pausing for.'
 assert all(PHOTOS[k][1] < PHOTOS[k][2] for k in INSTAGRAM_STRIP)                        # portraits only
 assert rhythm() == [['pair-l', 'solo-r'], ['solo-r', 'land-pair', 'wide'],
                     ['pair-l', 'pair-r', 'pair-l'], ['pair-r', 'pair-l', 'pair-r']]

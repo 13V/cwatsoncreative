@@ -634,9 +634,8 @@ h2 + .session-body,.session-action,.t-word + .session-text{margin-top:var(--sp-2
 .how .steps{max-width:none}
 .steps{margin-top:var(--head-gap);padding-left:44px}
 .steps::before{content:"";position:absolute;left:11.5px;top:var(--sp-12);bottom:var(--sp-12);border-left:1px solid var(--rule)}
-.step{display:grid;grid-template-columns:3rem minmax(0,1fr);column-gap:var(--col-gap);align-items:baseline;padding:var(--sp-24) 0}
+.step{display:grid;grid-template-columns:minmax(0,1fr);column-gap:var(--col-gap);align-items:baseline;padding:var(--sp-24) 0}
 .step-marker{position:absolute;left:-44px;top:var(--sp-24);display:flex;border-radius:50%;background:var(--limestone)}
-.step > :not(span){grid-column:2}
 .step p{max-width:34em;margin-top:var(--sp-8)}
 .faq-head p{margin-top:var(--sp-24)}
 .faq{margin-top:var(--head-gap)}
@@ -673,9 +672,9 @@ h2 + .session-body,.session-action,.t-word + .session-text{margin-top:var(--sp-2
   .tier-name{margin-top:var(--sp-12)}
   .tier-price{position:relative;align-self:stretch;margin-top:var(--sp-20);padding-top:var(--sp-20)}
   .tier-price::before{content:"";position:absolute;top:0;left:18%;right:18%;border-top:1px solid var(--line)}
-  .step{grid-template-columns:3rem minmax(0,4fr) minmax(0,7fr);padding:var(--sp-32) 0}
+  .step{grid-template-columns:minmax(0,4fr) minmax(0,7fr);padding:var(--sp-32) 0}
   .step-marker{top:var(--sp-40)}
-  .step p{grid-column:3;margin:0}
+  .step p{grid-column:2;margin:0}
   .questions .faq-head{grid-column:1 / 5}
   .questions .faq{grid-column:6 / -1;margin:0}
 }

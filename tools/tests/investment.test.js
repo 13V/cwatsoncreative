@@ -19,7 +19,7 @@ const INCLUDES = ['Continuous coverage for the hours you choose', 'A fully edite
 const TERMS = ['Your full gallery within three months', 'A 25% non-refundable deposit secures your date',
                'Payment plans available, with the balance due 14 days before the wedding'];
 const FORM = { weddings: 'Wedding', couples: 'Couples, engagement or proposal', family: 'Family', maternity: 'Maternity', newborn: 'Newborn' };
-const PHOTO = { weddings: 'images/weddings/castle-balcony.jpg', couples: 'images/weddings/field-dusk.jpg', family: 'images/sessions/family.jpg',
+const PHOTO = { weddings: 'images/weddings/castle-balcony.jpg', couples: 'images/weddings/bougainvillea-embrace.jpg', family: 'images/sessions/family.jpg',
                 maternity: 'images/sessions/maternity.jpg', newborn: 'images/sessions/newborn.jpg' };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -93,8 +93,8 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     const L = 'rgb(236, 230, 219)';
     ok(same(d.bgs.map(c => c === L ? 'L' : (c === 'rgba(0, 0, 0, 0)' || c === d.paper) ? 'P' : c), ['P', 'L', 'P', 'P', 'L', 'P', 'P']),
        'backgrounds: Paper, Limestone band, Paper, Paper, Limestone, Paper, Paper (' + d.bgs.join(', ') + ')');
-    ok(same(d.steps, [['i.', 'Say hello', true, false], ['ii.', 'Plan it together', true, false], ['iii.', 'The session', true, false], ['iv.', 'Your gallery', true, true]]),
-       'steps: lower-roman numerals, a sun on each, the last one glowing');
+    ok(same(d.steps, [[null, 'Say hello', true, false], [null, 'Plan it together', true, false], [null, 'The session', true, false], [null, 'Your gallery', true, true]]),
+       'steps: no numerals, a sun on each, the last one glowing');
     ok(d.qa.length === 5 && d.qa.every(([named, row]) => !named && row), 'FAQ: five native details, none with a name, each summary a .qa-row with the B5 plus');
     ok(d.faqHead[0] === 'Questions, answered' && d.faqHead[1] === 'Still wondering? Message me on Instagram.' && /instagram\.com\/selahstories\.adl/.test(d.faqHead[2]), 'FAQ head copy and its Instagram link');
     ok(d.closing === 'Let’s plan your session.', `the closing shows the Investment line (${d.closing})`);
