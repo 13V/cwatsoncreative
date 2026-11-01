@@ -197,7 +197,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     await p.waitForTimeout(700);
     const count = (await p.textContent('.viewer-count')).replace(/\s+/g, ' ').trim();
     const n = await p.$$eval('[data-viewer]', a => a.length);
-    ok(gone && count === `01 / ${n - 1}`, `a failed photo leaves the grid and the viewer (${count})`);
+    ok(gone && count === `${'1'.padStart(Math.max(2, String(n - 1).length), '0')} / ${n - 1}`, `a failed photo leaves the grid and the viewer (${count})`);
     await p.keyboard.press('Escape');
     await ctx.close();
   }

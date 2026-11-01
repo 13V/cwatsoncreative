@@ -309,7 +309,7 @@
   const $ = s => dlg.querySelector(s), dark = $(".viewer-dark"), stage = $(".viewer-stage"), full = new Map(),
     [front, back] = dlg.querySelectorAll(".viewer-img"), EL = "cubic-bezier(.2,.65,.25,1)", ES = "cubic-bezier(.65,0,.35,1)",
     ARCH = "50% 50% 0 0/33.3% 33.3% 0 0", ph = a => a.querySelector(".ph"), img = a => a.querySelector("img"),
-    two = n => ("0" + n).slice(-2), cover = a => a.matches(".chapter-cover"),
+    two = n => String(n).padStart(dlg.querySelectorAll(".wheel").length, "0"), cover = a => a.matches(".chapter-cover"),
     fx = (el, k, duration, easing, delay, fill) => el.animate(k, { duration, easing, delay, fill }),
     stop = (el, keep) => el.getAnimations().forEach(x => (keep && x.commitStyles(), x.cancel()));
   let list, cur, pos, shut, gen = 0, hid, sx, sy, dy, drag, t0;

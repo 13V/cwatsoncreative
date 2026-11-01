@@ -29,6 +29,8 @@ const swipe = (p, dx, dy, ms = 240) => p.evaluate(async ([dx, dy, ms]) => {
 }, [dx, dy, ms]);
 const settle = p => p.waitForFunction(() => !document.querySelector('dialog.viewer').getAnimations({ subtree: true }).length, null, { timeout: 4000 }).catch(() => {});
 
+const pad = (n, total) => String(n).padStart(Math.max(2, String(total).length), '0');   // the counter has a wheel per digit of the total
+
 module.exports = async ({ browser: b, base, ok, watch }) => {
   for (const vp of [PHONE, DESKTOP]) {
     const w = vp.viewport.width, ctx = await context(b, 'motion', vp);
@@ -45,7 +47,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     await settle(p);
     let s = await state(p);
     const y0 = s.y;   // the page never moves while the viewer is open, or as it closes
-    ok(s.open && s.lock && s.count === `01 / ${total}` && total >= 23, `${w}: opens from a cover with "${s.count}", html.viewer-open locks the page`);
+    ok(s.open && s.lock && s.count === `${pad(1, total)} / ${total}` && total >= 23, `${w}: opens from a cover with "${s.count}", html.viewer-open locks the page`);
     ok(mid.includes(240) && mid.includes(480), `${w}: from a cover the photo flies 480ms while the arch radius settles in 240ms (${mid.join(', ')})`);
     ok(s.alts.length === 1 && !s.hiddenAlt && s.alts[0] === await alt(p, 0), `${w}: exactly one .viewer-img carries the alt`);
     await p.waitForFunction(() => /\.webp$/.test(document.querySelector('.viewer-img.is-front').currentSrc) && !document.querySelector('dialog.viewer').classList.contains('is-loading'));
@@ -54,7 +56,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
 
     await p.keyboard.press('ArrowRight'); await settle(p);
     s = await state(p);
-    ok(s.count === `02 / ${total}` && s.live === `Photo 2 of ${total}: ${await alt(p, 1)}` && s.alts.length === 1 && s.alts[0] === await alt(p, 1),
+    ok(s.count === `${pad(2, total)} / ${total}` && s.live === `Photo 2 of ${total}: ${await alt(p, 1)}` && s.alts.length === 1 && s.alts[0] === await alt(p, 1),
        `${w}: → moves on; the live region says "${s.live}"`);
     const empty = await p.$$eval('.ph-link img', is => is.filter(i => i.style.visibility === 'hidden').map(i => i.closest('a').dataset.index));
     ok(empty.join() === '1', `${w}: only the shown photo's slot is left empty behind the darkroom (${empty.join()})`);
@@ -62,7 +64,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     s = await state(p);
     ok(s.count === `${total} / ${total}`, `${w}: ← wraps from the first photo to the last (${s.count})`);
     await p.click('.viewer-next'); await settle(p);
-    ok((await state(p)).count === `01 / ${total}`, `${w}: Next wraps from the last photo to the first`);
+    ok((await state(p)).count === `${pad(1, total)} / ${total}`, `${w}: Next wraps from the last photo to the first`);
     await p.keyboard.press('Escape'); await settle(p);
     s = await state(p);
     ok(!s.open && !s.lock && s.focus === await p.getAttribute('[data-index="0"]', 'href') && s.y === y0 && !s.thumbs,
@@ -73,7 +75,7 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     await p.click(`[data-index="${grid}"]`); await settle(p);
     const y1 = await p.evaluate(() => Math.round(scrollY));
     s = await state(p);
-    ok(s.open && s.count === `0${grid + 1} / ${total}`, `${w}: opens from a grid photo (${s.count})`);
+    ok(s.open && s.count === `${pad(grid + 1, total)} / ${total}`, `${w}: opens from a grid photo (${s.count})`);
     await p.click('.viewer-close'); await settle(p);
     s = await state(p);
     ok(!s.open && s.focus === await p.getAttribute(`[data-index="${grid}"]`, 'href') && s.y === y1, `${w}: Close closes; focus returns to the photo's link`);
@@ -101,9 +103,9 @@ module.exports = async ({ browser: b, base, ok, watch }) => {
     if (vp === PHONE) {   // swipes
       await p.click(`[data-index="${grid}"]`); await settle(p);
       await swipe(p, -120, 6); await settle(p);
-      ok((await state(p)).count === `0${grid + 2} / ${total}`, '390: a swipe left moves on');
+      ok((await state(p)).count === `${pad(grid + 2, total)} / ${total}`, '390: a swipe left moves on');
       await swipe(p, 120, -4); await settle(p);
-      ok((await state(p)).count === `0${grid + 1} / ${total}`, '390: a swipe right moves back');
+      ok((await state(p)).count === `${pad(grid + 1, total)} / ${total}`, '390: a swipe right moves back');
       const follow = await p.evaluate(async () => {   // the photo follows a downward drag and the darkroom thins
         const d = document.querySelector('dialog.viewer'), x = 195, t = (y) => new Touch({ identifier: 1, target: d, clientX: x, clientY: y });
         const fire = (type, y) => d.dispatchEvent(new TouchEvent(type, { bubbles: true, cancelable: true, touches: type === 'touchend' ? [] : [t(y)], changedTouches: [t(y)] }));

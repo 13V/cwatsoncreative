@@ -591,8 +591,9 @@ def viewer(total):
             f'<button class="viewer-prev btn-bare" type="button" aria-label="Previous photo">{icon("chev-l")}</button>'
             f'<button class="viewer-next btn-bare" type="button" aria-label="Next photo">{icon("chev-r")}</button>'
             '<div class="viewer-foot"><span class="viewer-progress" aria-hidden="true"></span>'
-            '<p class="viewer-count t-count" aria-hidden="true"><span class="wheel"><span>0</span></span>'
-            f'<span class="wheel"><span>1</span></span> / <span class="viewer-total">{total:02d}</span></p></div>'
+            '<p class="viewer-count t-count" aria-hidden="true">'
+            + ''.join(f'<span class="wheel"><span>{d}</span></span>' for d in str(1).zfill(max(2, len(str(total)))))
+            + f' / <span class="viewer-total">{str(total).zfill(2)}</span></p></div>'
             '<p class="sr-only viewer-live" aria-live="polite"></p></dialog>\n')
 
 
