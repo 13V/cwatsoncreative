@@ -5,21 +5,43 @@
 # Width and height are read from the file when there is one; these are the fallback.
 W = 'images/weddings/'
 PHOTOS = {
- 'couples-10': ('images/portfolio/couples-10.jpg', 1333, 2000, 'Older couple arm in arm, laughing together in a park', ''),
- 'couples-11': ('images/portfolio/couples-11.jpg', 1333, 2000, 'Older couple dancing on a timber boardwalk among gum trees', ''),
- 'couples-12': ('images/portfolio/couples-12.jpg', 1333, 2000, 'Engaged couple walking barefoot along a beach below a headland', ''),
- 'couples-13': ('images/portfolio/couples-13.jpg', 1333, 2000, 'Couple on a picnic blanket under a tree as she shows off her new ring', ''),
- 'couples-14': ('images/portfolio/couples-14.jpg', 1333, 2000, 'A proposal on a picnic blanket, seen through the trees', ''),
- 'couples-15': ('images/portfolio/couples-15.jpg', 1333, 2000, 'He twirls her on a little stone bridge under a flowering tree', ''),
- 'couples-16': ('images/portfolio/couples-16.jpg', 1333, 2000, 'Couple face to face on a stone bridge in a rose garden', ''),
- 'couples-17': ('images/portfolio/couples-17.jpg', 1333, 2000, 'Couple embracing among white and pink roses', ''),
- 'couples-18': ('images/portfolio/couples-18.jpg', 1333, 2000, 'Couple laughing together under a tree', ''),
- 'couples-19': ('images/portfolio/couples-19.jpg', 1333, 2000, 'A proposal in front of a heart-shaped arch of white roses', ''),
- 'couples-20': ('images/portfolio/couples-20.jpg', 1333, 2000, 'Close-up of their hands as the ring goes on, the sea behind', ''),
- 'couples-21': ('images/portfolio/couples-21.jpg', 1333, 2000, 'He dips her on the sand at sunset', ''),
- 'couples-22': ('images/portfolio/couples-22.jpg', 1333, 2000, 'He carries her along the beach, both laughing', ''),
- 'couples-23': ('images/portfolio/couples-23.jpg', 1333, 2000, 'Close-up of their linked hands, her ring catching the light', ''),
- 'couples-24': ('images/portfolio/couples-24.jpg', 1333, 2000, 'A dip in the shallows with the sun setting behind them', ''),
+ 'couples-01': ('images/portfolio/couples-01.jpg', 853, 1280, 'Couple walking arm in arm along a wide beach below sandstone cliffs', ''),
+ 'couples-02': ('images/portfolio/couples-02.jpg', 853, 1280, 'Couple reaching up to high-five in the late sun on the beach', ''),
+ 'couples-03': ('images/portfolio/couples-03.jpg', 853, 1280, 'Couple standing close on the sand, smiling at each other', ''),
+ 'couples-04': ('images/portfolio/couples-04.jpg', 853, 1280, 'Couple laughing cheek to cheek with the sea behind them', ''),
+ 'couples-05': ('images/portfolio/couples-05.jpg', 853, 1280, 'He lifts her up on the beach as she smiles down at him', ''),
+ 'couples-06': ('images/portfolio/couples-06.jpg', 853, 1280, 'He lifts her high, her arms around his neck, the sun behind them', ''),
+ 'couples-07': ('images/portfolio/couples-07.jpg', 853, 1280, 'Close-up of him lifting her in the bright afternoon light', ''),
+ 'couples-08': ('images/portfolio/couples-08.jpg', 853, 1280, 'Couple sitting together on the sand below the cliffs', ''),
+ 'couples-09': ('images/portfolio/couples-09.jpg', 853, 1280, 'Couple sitting on the sand, foreheads together, laughing', ''),
+ 'couples-10': ('images/portfolio/couples-10.jpg', 853, 1280, 'Couple about to kiss at the water’s edge', ''),
+ 'couples-11': ('images/portfolio/couples-11.jpg', 853, 1280, 'He carries her across the beach in his arms', ''),
+ 'couples-12': ('images/portfolio/couples-12.jpg', 853, 1280, 'Couple holding hands and swinging round in the shallows', ''),
+ 'couples-13': ('images/portfolio/couples-13.jpg', 853, 1280, 'He lifts her in the shallows for a kiss', ''),
+ 'couples-14': ('images/portfolio/couples-14.jpg', 853, 1280, 'Kiss in the shallows, her legs kicked up behind', ''),
+ 'couples-15': ('images/portfolio/couples-15.jpg', 853, 1280, 'He twirls her in the shallows, waves washing round their feet', ''),
+ 'couples-16': ('images/portfolio/couples-16.jpg', 853, 1280, 'Couple running hand in hand along the wet sand below the cliffs', ''),
+ 'couples-17': ('images/portfolio/couples-17.jpg', 853, 1280, 'Couple running through the shallows, reflected in the wet sand', ''),
+ 'couples-18': ('images/portfolio/couples-18.jpg', 853, 1280, 'Couple walking along the water’s edge, laughing', ''),
+ 'couples-19': ('images/portfolio/couples-19.jpg', 853, 1280, 'Couple embracing in the shallows', ''),
+ 'couples-20': ('images/portfolio/couples-20.jpg', 853, 1280, 'He spins her round in the water, both laughing', ''),
+ 'couples-21': ('images/portfolio/couples-21.jpg', 853, 1280, 'Couple walking towards each other across the sand', ''),
+ 'couples-22': ('images/portfolio/couples-22.jpg', 853, 1280, 'Close-up of their joined hands as they walk on the sand', ''),
+ 'couples-32': ('images/portfolio/couples-32.jpg', 1333, 2000, 'Older couple arm in arm, laughing together in a park', ''),
+ 'couples-33': ('images/portfolio/couples-33.jpg', 1333, 2000, 'Older couple dancing on a timber boardwalk among gum trees', ''),
+ 'couples-34': ('images/portfolio/couples-34.jpg', 1333, 2000, 'Engaged couple walking barefoot along a beach below a headland', ''),
+ 'couples-35': ('images/portfolio/couples-35.jpg', 1333, 2000, 'Couple on a picnic blanket under a tree as she shows off her new ring', ''),
+ 'couples-36': ('images/portfolio/couples-36.jpg', 1333, 2000, 'A proposal on a picnic blanket, seen through the trees', ''),
+ 'couples-37': ('images/portfolio/couples-37.jpg', 1333, 2000, 'He twirls her on a little stone bridge under a flowering tree', ''),
+ 'couples-38': ('images/portfolio/couples-38.jpg', 1333, 2000, 'Couple face to face on a stone bridge in a rose garden', ''),
+ 'couples-39': ('images/portfolio/couples-39.jpg', 1333, 2000, 'Couple embracing among white and pink roses', ''),
+ 'couples-40': ('images/portfolio/couples-40.jpg', 1333, 2000, 'Couple laughing together under a tree', ''),
+ 'couples-41': ('images/portfolio/couples-41.jpg', 1333, 2000, 'A proposal in front of a heart-shaped arch of white roses', ''),
+ 'couples-42': ('images/portfolio/couples-42.jpg', 1333, 2000, 'Close-up of their hands as the ring goes on, the sea behind', ''),
+ 'couples-43': ('images/portfolio/couples-43.jpg', 1333, 2000, 'He dips her on the sand at sunset', ''),
+ 'couples-44': ('images/portfolio/couples-44.jpg', 1333, 2000, 'He carries her along the beach, both laughing', ''),
+ 'couples-45': ('images/portfolio/couples-45.jpg', 1333, 2000, 'Close-up of their linked hands, her ring catching the light', ''),
+ 'couples-46': ('images/portfolio/couples-46.jpg', 1333, 2000, 'A dip in the shallows with the sun setting behind them', ''),
  'family-01': ('images/portfolio/family-01.jpg', 1333, 2000, 'Family of four in pale blue at the foot of a limestone cliff', ''),
  'family-02': ('images/portfolio/family-02.jpg', 1333, 2000, 'Toddler walking on the sand holding both parents’ hands', ''),
  'family-03': ('images/portfolio/family-03.jpg', 1333, 2000, 'Family wading into the sea among old jetty posts, sun flaring', ''),
@@ -66,15 +88,15 @@ PHOTOS = {
  'lighthouse-steps': (W + 'lighthouse-steps.jpg', 1000, 1500, 'Bride and groom on stone steps below a white lighthouse', ''),
  'ring-hands': (W + 'ring-hands.jpg', 1334, 2000, 'The bride’s hand with her rings on the groom’s chest, his hand over hers', ''),
  'sandstone-dog': (W + 'sandstone-dog.jpg', 1333, 2000, 'Bride and groom smiling against a sandstone wall, the groom holding their dachshund', ''),
- 'couples-01': ('images/portfolio/couples-01.jpg', 1333, 2000, 'Man on one knee proposing on a picnic blanket on a golden hilltop above Adelaide', 'Proposal on the hilltop picnic, city below.'),
- 'couples-02': ('images/portfolio/couples-02.jpg', 1333, 2000, 'Newly engaged couple holding each other on a hilltop, the Adelaide plains behind them', 'Engaged couple embracing on the hilltop.'),
- 'couples-03': ('images/portfolio/couples-03.jpg', 1333, 2000, 'Couple walking hand in hand across golden grass as she looks back smiling', 'Couple walking through the golden grass.'),
- 'couples-04': ('images/portfolio/couples-04.jpg', 1333, 2000, 'Woman smiling over her fiancé’s shoulder, her engagement ring on her hand', 'Ring and smile over his shoulder.'),
- 'couples-05': ('images/portfolio/couples-05.jpg', 1333, 2000, 'Man on one knee holding out a ring beside a white rose arch in a rose garden', 'Proposal by the white rose arch.'),
- 'couples-06': ('images/portfolio/couples-06.jpg', 1333, 2000, 'Couple at a tall arched window in a sandstone building, he holds her from behind', 'Couple at the arched sandstone window.'),
- 'couples-07': ('images/portfolio/couples-07.jpg', 1333, 2000, 'Couple on a wooden bench against a sandstone wall, smiling at each other', 'Couple on the bench by the sandstone wall.'),
- 'couples-08': ('images/portfolio/couples-08.jpg', 1333, 2000, 'He twirls her under his arm on a gravel path lined with cypress trees', 'Twirl on the cypress path.'),
- 'couples-09': ('images/portfolio/couples-09.jpg', 1333, 2000, 'He dips her on a cypress-lined gravel path, both laughing', 'Dip on the cypress path.'),
+ 'couples-23': ('images/portfolio/couples-23.jpg', 1333, 2000, 'Man on one knee proposing on a picnic blanket on a golden hilltop above Adelaide', 'Proposal on the hilltop picnic, city below.'),
+ 'couples-24': ('images/portfolio/couples-24.jpg', 1333, 2000, 'Newly engaged couple holding each other on a hilltop, the Adelaide plains behind them', 'Engaged couple embracing on the hilltop.'),
+ 'couples-25': ('images/portfolio/couples-25.jpg', 1333, 2000, 'Couple walking hand in hand across golden grass as she looks back smiling', 'Couple walking through the golden grass.'),
+ 'couples-26': ('images/portfolio/couples-26.jpg', 1333, 2000, 'Woman smiling over her fiancé’s shoulder, her engagement ring on her hand', 'Ring and smile over his shoulder.'),
+ 'couples-27': ('images/portfolio/couples-27.jpg', 1333, 2000, 'Man on one knee holding out a ring beside a white rose arch in a rose garden', 'Proposal by the white rose arch.'),
+ 'couples-28': ('images/portfolio/couples-28.jpg', 1333, 2000, 'Couple at a tall arched window in a sandstone building, he holds her from behind', 'Couple at the arched sandstone window.'),
+ 'couples-29': ('images/portfolio/couples-29.jpg', 1333, 2000, 'Couple on a wooden bench against a sandstone wall, smiling at each other', 'Couple on the bench by the sandstone wall.'),
+ 'couples-30': ('images/portfolio/couples-30.jpg', 1333, 2000, 'He twirls her under his arm on a gravel path lined with cypress trees', 'Twirl on the cypress path.'),
+ 'couples-31': ('images/portfolio/couples-31.jpg', 1333, 2000, 'He dips her on a cypress-lined gravel path, both laughing', 'Dip on the cypress path.'),
  'vineyard-sunset': (W + 'vineyard-sunset.jpg', 1333, 2000, 'Bride and groom forehead to forehead on a lawn above the vines under a pink sunset sky', 'Couple on the lawn above the vineyard, pink sunset sky. Home page hero.'),
  'silver-car-bouquet': (W + 'silver-car-bouquet.jpg', 1333, 2000, 'Bride holding her bouquet and touching the groom’s face beside a silver vintage car', 'Bride with bouquet touching the groom’s face, silver vintage car.'),
  'bougainvillea-bride': (W + 'bougainvillea-bride.jpg', 1000, 1500, 'Bride laughing in front of a cottage covered in pink bougainvillea', 'Bride alone in front of the bougainvillea cottage.'),
@@ -108,7 +130,7 @@ assert len(WEDDING_KEYS) == 27
 
 # Extra portfolio galleries. Each one appears once its photos exist.
 EXTRA_GALLERIES = [
- ('couples', 'Couples', 'images/portfolio/couples-{:02d}.jpg', 24, 'Couples or engagement session'),
+ ('couples', 'Couples', 'images/portfolio/couples-{:02d}.jpg', 46, 'Couples or engagement session'),
  ('family', 'Family', 'images/portfolio/family-{:02d}.jpg', 22, 'Family session'),
  ('maternity', 'Maternity', 'images/portfolio/maternity-{:02d}.jpg', 6, 'Maternity session'),
  ('newborn', 'Newborn', 'images/portfolio/newborn-{:02d}.jpg', 14, 'Newborn session'),
@@ -138,7 +160,7 @@ SESSIONS = [
       body=['I photograph weddings the way they feel: getting ready, the nerves, the vows, the champagne and the dance floor.',
             'I keep things calm and quiet, step in when you need direction and stay out of the way when you don’t. '
             'I’ll also help you plan the timeline, so your portraits land in the best light of the day.']),
- dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='couples-08', price='$350',
+ dict(id='couples', name='Couples, engagements & proposals', short='Couples', photo='couples-30', price='$350',
       includes=['About 45 minutes', GALLERY, LOCATION],
       body=['Just engaged, about to ask, or simply in love. We’ll walk, talk and wander somewhere beautiful as the sun goes down.',
             'Planning a proposal? I’ll stay out of sight nearby and catch the moment you ask.']),
@@ -196,7 +218,7 @@ FORM_OPTIONS = ['Wedding', 'Couples, engagement or proposal', 'Family', 'Materni
 HERO = ('vineyard-sunset', 'jaguar-flare')
 HOME_WINDOWS = [('castle-dip', 'castle-window', 'castle-laugh'), ('dam-kiss', 'jaguar-window-kiss')]
 HOME_STATEMENT_PHOTO = 'arch-mirror'
-HOME_TILE_PHOTO = {'weddings': 'field-dusk', 'couples': 'couples-02'}  # Investment rows use SESSIONS photos
+HOME_TILE_PHOTO = {'weddings': 'field-dusk', 'couples': 'couples-24'}  # Investment rows use SESSIONS photos
 CONTACT_PHOTO = 'silver-car-bouquet'
 INTRO = ['Selah means to pause. A breath in a busy life to notice who’s beside you, and it’s how I want your session to '
          'feel: no stiff poses and no rushing, just time together while I look for the moments in between.',
@@ -250,7 +272,7 @@ KIND_WORDS = [   # her clients' own messages to her on Instagram, emoji removed 
          place=None, season=None, feature=True),
     dict(names='Jasreen & Karan', session='Engagement',
          words='Thank you so much for capturing our fairytale moment. I’m so speechless the photos turned out great.',
-         pull=None, photo='couples-17', photo_is_theirs=True, place=None, season=None, feature=False),
+         pull=None, photo='couples-39', photo_is_theirs=True, place=None, season=None, feature=False),
 ]
 KIND_WORDS_HOLDING_PHOTO = 'jaguar-kiss'
 
@@ -272,8 +294,9 @@ SPEC_LABELS = {'Five packages, from 4 to 12 hours of coverage': 'Coverage', 'Sne
 
 # Where faces sit in each photo (object-position), read from the photos, so cropped slots keep them in view.
 FOCUS = {
-    'couples-10': '50% 30%', 'couples-11': '50% 45%', 'couples-12': '45% 55%', 'couples-13': '50% 45%', 'couples-14': '55% 55%', 'couples-15': '55% 40%', 'couples-16': '50% 40%', 'couples-17': '55% 40%', 'couples-18': '55% 35%', 'couples-19': '50% 45%', 'couples-20': '45% 45%', 'couples-21': '45% 50%', 'couples-22': '50% 45%', 'couples-23': '50% 55%', 'couples-24': '45% 45%', 'family-01': '45% 50%', 'family-02': '45% 50%', 'family-03': '50% 50%', 'family-04': '50% 50%', 'family-05': '50% 50%', 'family-06': '50% 55%', 'family-07': '50% 35%', 'family-08': '50% 45%', 'family-09': '50% 35%', 'family-10': '40% 35%', 'family-11': '45% 40%', 'family-12': '50% 55%', 'family-13': '50% 55%', 'family-14': '50% 40%', 'family-15': '50% 40%', 'family-16': '50% 50%', 'family-17': '50% 55%', 'family-18': '50% 45%', 'family-19': '45% 40%', 'family-20': '50% 35%', 'family-21': '50% 40%', 'family-22': '50% 50%', 'maternity-01': '50% 45%', 'maternity-02': '50% 40%', 'maternity-03': '50% 30%', 'maternity-04': '50% 55%', 'maternity-05': '50% 45%', 'maternity-06': '50% 45%', 'newborn-01': '45% 55%', 'newborn-02': '50% 35%', 'newborn-03': '40% 45%', 'newborn-04': '45% 40%', 'newborn-05': '50% 40%', 'newborn-06': '50% 45%', 'newborn-07': '40% 40%', 'newborn-08': '50% 45%', 'newborn-09': '55% 40%', 'newborn-10': '50% 40%', 'newborn-11': '50% 45%', 'newborn-12': '40% 35%', 'newborn-13': '50% 35%', 'newborn-14': '45% 55%', 'beach-dip': '45% 40%', 'lighthouse-steps': '45% 60%', 'ring-hands': '50% 40%', 'sandstone-dog': '50% 35%',
-    'couples-01': '50% 45%', 'couples-02': '55% 40%', 'couples-03': '55% 50%', 'couples-04': '60% 35%', 'couples-05': '45% 50%', 'couples-06': '45% 40%', 'couples-07': '45% 45%', 'couples-08': '50% 45%', 'couples-09': '50% 45%',
+    'couples-01': '50% 60%', 'couples-02': '50% 40%', 'couples-03': '50% 35%', 'couples-04': '45% 35%', 'couples-05': '55% 35%', 'couples-06': '50% 35%', 'couples-07': '45% 40%', 'couples-08': '50% 60%', 'couples-09': '50% 55%', 'couples-10': '50% 45%', 'couples-11': '50% 50%', 'couples-12': '50% 50%', 'couples-13': '50% 40%', 'couples-14': '50% 40%', 'couples-15': '50% 45%', 'couples-16': '50% 50%', 'couples-17': '50% 40%', 'couples-18': '50% 45%', 'couples-19': '50% 45%', 'couples-20': '50% 45%', 'couples-21': '50% 50%', 'couples-22': '50% 50%',
+    'couples-32': '50% 30%', 'couples-33': '50% 45%', 'couples-34': '45% 55%', 'couples-35': '50% 45%', 'couples-36': '55% 55%', 'couples-37': '55% 40%', 'couples-38': '50% 40%', 'couples-39': '55% 40%', 'couples-40': '55% 35%', 'couples-41': '50% 45%', 'couples-42': '45% 45%', 'couples-43': '45% 50%', 'couples-44': '50% 45%', 'couples-45': '50% 55%', 'couples-46': '45% 45%', 'family-01': '45% 50%', 'family-02': '45% 50%', 'family-03': '50% 50%', 'family-04': '50% 50%', 'family-05': '50% 50%', 'family-06': '50% 55%', 'family-07': '50% 35%', 'family-08': '50% 45%', 'family-09': '50% 35%', 'family-10': '40% 35%', 'family-11': '45% 40%', 'family-12': '50% 55%', 'family-13': '50% 55%', 'family-14': '50% 40%', 'family-15': '50% 40%', 'family-16': '50% 50%', 'family-17': '50% 55%', 'family-18': '50% 45%', 'family-19': '45% 40%', 'family-20': '50% 35%', 'family-21': '50% 40%', 'family-22': '50% 50%', 'maternity-01': '50% 45%', 'maternity-02': '50% 40%', 'maternity-03': '50% 30%', 'maternity-04': '50% 55%', 'maternity-05': '50% 45%', 'maternity-06': '50% 45%', 'newborn-01': '45% 55%', 'newborn-02': '50% 35%', 'newborn-03': '40% 45%', 'newborn-04': '45% 40%', 'newborn-05': '50% 40%', 'newborn-06': '50% 45%', 'newborn-07': '40% 40%', 'newborn-08': '50% 45%', 'newborn-09': '55% 40%', 'newborn-10': '50% 40%', 'newborn-11': '50% 45%', 'newborn-12': '40% 35%', 'newborn-13': '50% 35%', 'newborn-14': '45% 55%', 'beach-dip': '45% 40%', 'lighthouse-steps': '45% 60%', 'ring-hands': '50% 40%', 'sandstone-dog': '50% 35%',
+    'couples-23': '50% 45%', 'couples-24': '55% 40%', 'couples-25': '55% 50%', 'couples-26': '60% 35%', 'couples-27': '45% 50%', 'couples-28': '45% 40%', 'couples-29': '45% 45%', 'couples-30': '50% 45%', 'couples-31': '50% 45%',
     'vineyard-sunset': '55% 40%', 'castle-balcony': '50% 42%', 'jaguar-kiss': '50% 40%',
     'jaguar-flare': '52% 36%', 'dam-kiss': '50% 36%', 'jaguar-veil': '62% 34%',
     'castle-dip': '47% 52%', 'jaguar-window-kiss': '42% 44%', 'olive-grove-confetti': '45% 55%',

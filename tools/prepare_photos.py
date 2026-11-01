@@ -79,7 +79,8 @@ def webp_copies(path, force=False):
         photo = original.convert("RGB")
     jpeg_bytes = path.stat().st_size
     made, full = [], None
-    for width in [w for w in WIDTHS if w <= photo.width] + [None]:
+    # a copy within 10% of the photo's own width saves next to nothing over the full file, so skip it
+    for width in [w for w in WIDTHS if w == photo.width or w <= .9 * photo.width] + [None]:
         out = path.with_name(f"{path.stem}-{width}.webp" if width else f"{path.stem}.webp")
         if not force and out.exists() and out.stat().st_mtime >= path.stat().st_mtime:
             continue  # already made from this version of the photo

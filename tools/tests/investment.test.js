@@ -19,7 +19,7 @@ const INCLUDES = ['Continuous coverage for the hours you choose', 'A fully edite
 const TERMS = ['Your full gallery within three months', 'A 25% non-refundable deposit secures your date',
                'Payment plans available, with the balance due 14 days before the wedding'];
 const FORM = { weddings: 'Wedding', couples: 'Couples, engagement or proposal', family: 'Family', maternity: 'Maternity', newborn: 'Newborn' };
-const PHOTO = { weddings: 'images/weddings/castle-balcony.jpg', couples: 'images/portfolio/couples-08.jpg', family: 'images/portfolio/family-12.jpg',
+const PHOTO = { weddings: 'images/weddings/castle-balcony.jpg', couples: 'images/portfolio/couples-30.jpg', family: 'images/portfolio/family-12.jpg',
                 maternity: 'images/portfolio/maternity-05.jpg', newborn: 'images/portfolio/newborn-02.jpg' };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
